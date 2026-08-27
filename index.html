@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Vương Quốc Cam-pu-chia | Lịch Sử 7</title>
+    
+    <!-- External Dependencies: Tailwind CSS and Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        angkor: {
+                            50: '#fbf8ef',
+                            100: '#f5edd4',
+                            200: '#ebd7a7',
+                            300: '#dfbc73',
+                            400: '#d49f45',
+                            500: '#c5812a',
+                            600: '#aa6421',
+                            700: '#894a1e',
+                            800: '#713c1f',
+                            900: '#5e321d',
+                            950: '#35190d',
+                        },
+                        temple: {
+                            gold: '#FFD700',
+                            emerald: '#10B981',
+                            ruby: '#EF4444',
+                            amber: '#F59E0B',
+                            stone: '#374151'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-gentle': 'bounceGentle 2s infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'wiggle': 'wiggle 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        bounceGentle: {
+                            '0%, 100%': { transform: 'translateY(-3%)' },
+                            '50%': { transform: 'translateY(3%)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(212, 159, 69, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(212, 159, 69, 0.8)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(20, 25, 35, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 159, 69, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .glass-modal {
+            background: rgba(15, 20, 30, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 20, 30, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(212, 159, 69, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 159, 69, 0.8);
+        }
+
+        /* Gradient Text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFE600 0%, #F59E0B 50%, #D49F45 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .emerald-gradient-text {
+            background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Parallax Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Map Milestone Pulse */
+        .milestone-active {
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        /* Chibi Expressions Animations */
+        .chibi-happy-bounce {
+            animation: chibiJump 0.6s ease infinite alternate;
+        }
+
+        .chibi-sad-shake {
+            animation: chibiShake 0.4s ease-in-out infinite;
+        }
+
+        @keyframes chibiJump {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-18px) scale(1.05); }
+        }
+
+        @keyframes chibiShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+    </style>
+</head>
+
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col font-sans overflow-x-hidden selection:bg-angkor-500 selection:text-white">
+    
+    <!-- Background Parallax Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="sticky top-0 z-40 w-full glass-card border-b border-angkor-500/30 px-4 py-2 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showScreen('welcome')">
+            <div class="p-2 bg-gradient-to-tr from-angkor-600 to-angkor-400 rounded-xl shadow-lg shadow-angkor-600/30">
+                <i data-lucide="compass" class="w-6 h-6 text-amber-100 animate-spin-slow"></i>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold gold-gradient-text tracking-wide uppercase">Vương Quốc Cam-pu-chia</h1>
+                <p class="text-xs text-slate-400 font-medium">Hành Trình Khám Phá Lịch Sử 7</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Audio Toggle Button -->
+            <button id="btn-sound" onclick="app.toggleSound()" class="p-2.5 rounded-xl glass-card hover:bg-slate-800/80 transition-all text-amber-400 border border-amber-500/30 flex items-center gap-1.5 text-xs font-semibold" title="Bật/Tắt Âm thanh">
+                <i data-lucide="volume-2" id="icon-sound" class="w-4 h-4"></i>
+                <span class="hidden sm:inline" id="label-sound">Bật Âm</span>
+            </button>
+
+            <!-- Leaderboard Button -->
+            <button onclick="app.openLeaderboard()" class="p-2.5 rounded-xl glass-card hover:bg-slate-800/80 transition-all text-amber-300 border border-amber-500/30 flex items-center gap-1.5 text-xs font-semibold">
+                <i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i>
+                <span class="hidden sm:inline">Xếp Hạng</span>
+            </button>
+
+            <!-- Teacher Dashboard Button -->
+            <button onclick="app.openTeacherDashboard()" class="p-2.5 rounded-xl glass-card hover:bg-slate-800/80 transition-all text-blue-400 border border-blue-500/30 flex items-center gap-1.5 text-xs font-semibold">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Giáo Viên</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main id="app-viewport" class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 flex flex-col justify-center">
+        
+        <section id="screen-welcome" class="space-y-8 py-4">
+            <!-- Hero Banner -->
+            <div class="glass-card rounded-3xl p-6 sm:p-10 text-center relative overflow-hidden border border-angkor-400/40">
+                <div class="absolute -top-24 -right-24 w-60 h-60 bg-angkor-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-60 h-60 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-angkor-500/20 border border-angkor-400/30 text-angkor-300 text-xs font-semibold mb-4">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Trò Chơi Lịch Sử Đột Phá Lớp 7
+                </div>
+
+                <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
+                    TRUY TÌM KHO BÁU <br class="hidden sm:block">
+                    <span class="gold-gradient-text">ĂNG-CO HUYỀN BÍ</span>
+                </h2>
+
+                <p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed mb-8">
+                    Vượt qua 10 thử thách lịch sử về sự hình thành, thời kỳ phát triển Ăng-co rực rỡ, thành tựu văn hóa, kiến trúc Ăng-co Vát và kinh tế Biển Hồ!
+                </p>
+
+                <!-- Game Mode Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                    <!-- Mode 1: Single Player -->
+                    <div onclick="app.startMode('single')" class="group glass-card p-6 rounded-2xl border border-amber-500/30 hover:border-amber-400 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between text-left relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="map" class="w-20 h-20 text-amber-400"></i>
+                        </div>
+                        <div>
+                            <div class="p-3 w-fit rounded-xl bg-amber-500/20 text-amber-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="compass" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Thám Hiểm Đơn</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">Chinh phục bản đồ Ăng-co 10 chặng dừng, tích lũy điểm thưởng và nâng cao combo!</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-xs font-bold text-amber-400 gap-1 group-hover:translate-x-1 transition-transform">
+                            Bắt đầu ngay <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+
+                    <!-- Mode 2: 1v1 Battle -->
+                    <div onclick="app.startMode('versus')" class="group glass-card p-6 rounded-2xl border border-purple-500/30 hover:border-purple-400 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between text-left relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="swords" class="w-20 h-20 text-purple-400"></i>
+                        </div>
+                        <div>
+                            <div class="p-3 w-fit rounded-xl bg-purple-500/20 text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="swords" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Đấu Đối Kháng 1v1</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">Hai người chơi so tài trực tiếp trên cùng một màn hình thiết bị với Chibi kép linh hoạt!</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-xs font-bold text-purple-400 gap-1 group-hover:translate-x-1 transition-transform">
+                            Thách đấu ngay <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+
+                    <!-- Mode 3: Quick Flashcard Review -->
+                    <div onclick="app.startMode('review')" class="group glass-card p-6 rounded-2xl border border-emerald-500/30 hover:border-emerald-400 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col justify-between text-left relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="book-open" class="w-20 h-20 text-emerald-400"></i>
+                        </div>
+                        <div>
+                            <div class="p-3 w-fit rounded-xl bg-emerald-500/20 text-emerald-400 mb-4 group-hover:scale-110 transition-transform">
+                                <i data-lucide="book-open" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Ôn Tập Nhanh</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">Xem lại 7 kiến thức cốt lõi bằng thẻ ghi nhớ thông minh trước khi thử sức đua top!</p>
+                        </div>
+                        <div class="mt-6 flex items-center text-xs font-bold text-emerald-400 gap-1 group-hover:translate-x-1 transition-transform">
+                            Xem thẻ ôn tập <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Core Knowledge Highlight Carousel/Grid -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800">
+                <h3 class="text-base font-bold text-amber-300 mb-4 flex items-center gap-2">
+                    <i data-lucide="bookmark" class="w-5 h-5 text-amber-400"></i>
+                    7 Nội Dung Trọng Tâm Bài "Vương Quốc Cam-pu-chia"
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs" id="knowledge-highlights-grid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-game" class="hidden space-y-1.5 sm:space-y-2.5">
+            <!-- Top Dashboard Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+                <!-- Score Box -->
+                <div class="glass-card py-1.5 px-2 rounded-xl border border-amber-500/30 flex items-center gap-1.5 sm:gap-2">
+                    <div class="p-1 rounded-md bg-amber-500/20 text-amber-400">
+                        <i data-lucide="award" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-bold block leading-none mb-0.5">Điểm Số</span>
+                        <span id="stat-score" class="text-sm sm:text-base font-black text-amber-300 leading-none">0</span>
+                    </div>
+                </div>
+
+                <!-- Combo Box -->
+                <div class="glass-card py-1.5 px-2 rounded-xl border border-red-500/30 flex items-center gap-1.5 sm:gap-2">
+                    <div class="p-1 rounded-md bg-red-500/20 text-red-400">
+                        <i data-lucide="flame" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-bold block leading-none mb-0.5">Combo</span>
+                        <span id="stat-combo" class="text-sm sm:text-base font-black text-red-400 leading-none">x0</span>
+                    </div>
+                </div>
+
+                <!-- Progress Box -->
+                <div class="glass-card py-1.5 px-2 rounded-xl border border-emerald-500/30 flex items-center gap-1.5 sm:gap-2">
+                    <div class="p-1 rounded-md bg-emerald-500/20 text-emerald-400">
+                        <i data-lucide="target" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-bold block leading-none mb-0.5">Tiến Trình</span>
+                        <span id="stat-progress" class="text-sm sm:text-base font-black text-emerald-300 leading-none">1 / 10</span>
+                    </div>
+                </div>
+
+                <!-- Accuracy Box -->
+                <div class="glass-card py-1.5 px-2 rounded-xl border border-blue-500/30 flex items-center gap-1.5 sm:gap-2">
+                    <div class="p-1 rounded-md bg-blue-500/20 text-blue-400">
+                        <i data-lucide="check-circle-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-[8px] sm:text-[9px] text-slate-400 uppercase tracking-wider font-bold block leading-none mb-0.5">Chính Xác</span>
+                        <span id="stat-accuracy" class="text-sm sm:text-base font-black text-blue-300 leading-none">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-900/80 rounded-full h-1.5 border border-slate-800 p-0.5 relative overflow-hidden">
+                <div id="game-progress-bar" class="bg-gradient-to-r from-amber-500 via-angkor-400 to-emerald-400 h-full rounded-full transition-all duration-500 w-0"></div>
+            </div>
+
+            <!-- Game Map SVG & Expedition Area -->
+            <div class="glass-card rounded-xl p-2 sm:p-3 border border-angkor-500/30 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="text-[10px] sm:text-xs font-bold text-amber-300 flex items-center gap-1 sm:gap-1.5">
+                        <i data-lucide="map-pin" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400"></i>
+                        Bản Đồ Hành Trình Ăng-co
+                    </h3>
+                    <span id="map-location-name" class="text-[9px] sm:text-[10px] bg-angkor-500/20 text-angkor-300 border border-angkor-400/30 px-2 py-0.5 rounded-full font-semibold">
+                        Trạm 1: Vương quốc Chân Lạp
+                    </span>
+                </div>
+
+                <!-- Interactive SVG Map Canvas -->
+                <div class="relative w-full h-16 sm:h-24 bg-slate-900/90 rounded-lg border border-slate-800 p-0.5 overflow-hidden">
+                    <svg id="game-map-svg" viewBox="0 0 1000 200" class="w-full h-full preserve-3d">
+                        <!-- Path line -->
+                        <path id="map-path" d="M 50 100 Q 250 30, 450 110 T 850 90 L 950 100" fill="none" stroke="#713c1f" stroke-width="8" stroke-dasharray="10 6" stroke-linecap="round"/>
+                        <path id="map-path-active" d="M 50 100 Q 250 30, 450 110 T 850 90 L 950 100" fill="none" stroke="#D49F45" stroke-width="8" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" class="transition-all duration-700"/>
+
+                        <!-- Milestones will be rendered dynamically -->
+                        <g id="map-milestones-group"></g>
+
+                        <!-- Chibi Marker SVG Element moving along path -->
+                        <g id="map-chibi-token" class="transition-all duration-700 ease-out" transform="translate(50, 100)">
+                            <!-- SVG Mini Explorer Pin -->
+                            <circle r="18" fill="#F59E0B" opacity="0.3" class="animate-ping"/>
+                            <circle r="14" fill="#C5812A" stroke="#FFD700" stroke-width="2"/>
+                            <text x="0" y="5" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="bold">🤠</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-3">
+                <!-- Chibi Avatar Box (1 col) -->
+                <div class="glass-card rounded-xl p-2 sm:p-3 border border-angkor-500/30 flex flex-col items-center justify-center relative min-h-[120px] overflow-hidden">
+                    <div class="text-[9px] font-semibold text-slate-400 mb-0.5 uppercase tracking-wider text-center" id="chibi-avatar-label">Nhà Cổ Nhân Chibi</div>
+                    
+                    <!-- SVG Chibi Explorer Drawing Container -->
+                    <div id="chibi-avatar-container" class="w-20 h-20 sm:w-24 sm:h-24 relative flex items-center justify-center transition-all duration-300">
+                        <!-- Generated SVG Chibi -->
+                    </div>
+
+                    <!-- Feedback speech bubble from Avatar -->
+                    <div id="chibi-speech-bubble" class="mt-1 text-[10px] sm:text-[11px] bg-amber-500/20 text-amber-200 border border-amber-400/30 px-2 py-1 rounded-lg font-medium text-center animate-fade-in max-w-full">
+                        "Sẵn sàng lên đường khám phá chưa?"
+                    </div>
+                </div>
+
+                <!-- Active Question Box (2 cols) -->
+                <div class="lg:col-span-2 glass-card rounded-xl p-3 sm:p-4 border border-angkor-500/30 flex flex-col justify-between space-y-2 sm:space-y-3">
+                    <div>
+                        <!-- Question Category & Difficulty Badge -->
+                        <div class="flex items-center justify-between mb-2">
+                            <span id="question-category" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[9px] sm:text-[10px] font-bold">
+                                Chủ đề: Lịch Sử
+                            </span>
+                            <span id="question-score-val" class="text-[9px] sm:text-[10px] font-bold text-amber-400 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-700">
+                                +100 Điểm
+                            </span>
+                        </div>
+
+                        <!-- Question Text -->
+                        <h3 id="question-text" class="text-base sm:text-lg lg:text-xl font-bold text-white leading-snug mb-3 sm:mb-4">
+                            Đang tải câu hỏi thử thách...
+                        </h3>
+
+                        <!-- Answer Options Container -->
+                        <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Instant Explanation / Feedback Box -->
+                    <div id="feedback-card" class="hidden p-2 sm:p-2.5 rounded-xl border transition-all duration-300 animate-fade-in">
+                        <div class="flex items-start gap-2">
+                            <div id="feedback-icon-bg" class="p-1 rounded-md shrink-0 mt-0.5">
+                                <i id="feedback-icon" data-lucide="info" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="space-y-0.5">
+                                <h4 id="feedback-title" class="text-[11px] sm:text-xs font-bold"></h4>
+                                <p id="feedback-body" class="text-[10px] sm:text-[11px] text-slate-300 leading-relaxed"></p>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex justify-end">
+                            <button id="btn-next-question" onclick="app.nextQuestion()" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-gradient-to-r from-amber-500 to-angkor-500 text-white font-bold text-[11px] sm:text-xs shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5">
+                                Tiếp Theo <i data-lucide="arrow-right" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-versus" class="hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-purple-500/30 text-center">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-semibold mb-2">
+                    <i data-lucide="swords" class="w-3.5 h-3.5"></i> Chế Đồ Đấu Đối Kháng 1v1
+                </div>
+                <h2 class="text-2xl font-black text-white">XEM AI THÔNG THÁI HƠN?</h2>
+            </div>
+
+            <!-- Versus Dual Score Board -->
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Player 1 Score -->
+                <div id="p1-card" class="glass-card p-4 rounded-2xl border-2 border-red-500/50 flex flex-col items-center text-center">
+                    <span class="text-xs font-bold text-red-400 uppercase tracking-wide">Người Chơi 1 (Đỏ)</span>
+                    <div id="p1-avatar-container" class="w-24 h-24 my-2"></div>
+                    <div class="text-2xl font-black text-red-300" id="p1-score">0 Điểm</div>
+                </div>
+
+                <!-- Player 2 Score -->
+                <div id="p2-card" class="glass-card p-4 rounded-2xl border-2 border-blue-500/50 flex flex-col items-center text-center">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wide">Người Chơi 2 (Xanh)</span>
+                    <div id="p2-avatar-container" class="w-24 h-24 my-2"></div>
+                    <div class="text-2xl font-black text-blue-300" id="p2-score">0 Điểm</div>
+                </div>
+            </div>
+
+            <!-- Versus Question & Turn Container -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-700">
+                <div class="text-center mb-4">
+                    <span id="versus-turn-badge" class="px-4 py-1.5 rounded-full bg-red-500/20 text-red-300 font-bold text-xs border border-red-500/30">
+                        Lượt của: NGƯỜI CHƠI 1
+                    </span>
+                </div>
+                <h3 id="versus-question-text" class="text-base sm:text-lg font-bold text-white text-center mb-6"></h3>
+                <div id="versus-options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+        </section>
+
+        <section id="screen-review" class="hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-emerald-500/30 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-black gold-gradient-text">ÔN TẬP BÀI HỌC VƯƠNG QUỐC CAM-PU-CHIA</h2>
+                    <p class="text-xs text-slate-300 mt-1">Lật thẻ để xem kiến thức cốt lõi môn Lịch sử 7</p>
+                </div>
+                <button onclick="app.showScreen('welcome')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold hover:bg-slate-700 transition-all border border-slate-700">
+                    Trở Về
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="flashcards-grid">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    
+    <!-- Modal 1: Leaderboard Modal with Podium -->
+    <div id="modal-leaderboard" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-modal max-w-lg w-full rounded-3xl p-6 sm:p-8 space-y-6 border border-amber-500/30 shadow-2xl relative">
+            <button onclick="app.closeModal('modal-leaderboard')" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-800">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="inline-flex p-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 mb-1">
+                    <i data-lucide="trophy" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-2xl font-black gold-gradient-text">BẢNG XẾP HẠNG TOP 5</h3>
+                <p class="text-xs text-slate-300">Những nhà thám hiểm xuất sắc nhất Lịch sử 7</p>
+            </div>
+
+            <!-- Top 3 SVG Podium -->
+            <div id="podium-container" class="flex items-end justify-center gap-2 pt-6 pb-2 min-h-[160px]">
+                <!-- Dynamic Podium Bars -->
+            </div>
+
+            <!-- Ranks List (4 & 5) -->
+            <div id="leaderboard-list" class="space-y-2">
+                <!-- Dynamic Rank List -->
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="app.closeModal('modal-leaderboard')" class="w-full py-3 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-all border border-slate-700">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Name Input Modal (For Top 5 Highscore) -->
+    <div id="modal-highscore" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-modal max-w-md w-full rounded-3xl p-6 sm:p-8 space-y-6 border border-amber-400/40 text-center animate-bounce-gentle">
+            <div class="w-16 h-16 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-400/40">
+                <i data-lucide="crown" class="w-8 h-8"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black gold-gradient-text">CHÚC MỪNG BẠN!</h3>
+                <p class="text-xs text-slate-300 mt-2">Bạn đã lọt vào <strong class="text-amber-300">TOP 5 BẢNG XẾP HẠNG</strong> với số điểm kỷ lục!</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-amber-500/20">
+                <div class="text-xs text-slate-400">Điểm Số Của Bạn</div>
+                <div id="highscore-value" class="text-3xl font-black text-amber-400 mt-1">0</div>
+            </div>
+
+            <div class="space-y-3 text-left">
+                <label class="text-xs font-semibold text-slate-300">Nhập Tên Học Sinh / Lớp:</label>
+                <input type="text" id="input-player-name" placeholder="Ví dụ: Nguyễn Văn A - Lớp 7A1" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-amber-500/30 text-white text-sm focus:outline-none focus:border-amber-400 transition-all"/>
+            </div>
+
+            <button onclick="app.submitHighScore()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-angkor-500 text-white font-bold text-sm shadow-xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all">
+                Lưu Thành Tích
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 3: Game Victory / Completion Screen -->
+    <div id="modal-victory" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-modal max-w-lg w-full rounded-3xl p-6 sm:p-8 space-y-6 border border-emerald-500/40 text-center">
+            <div class="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-400/40 animate-pulse">
+                <i data-lucide="sparkles" class="w-10 h-10"></i>
+            </div>
+            
+            <div>
+                <h3 class="text-2xl sm:text-3xl font-black emerald-gradient-text">HOÀN THÀNH HÀNH TRÌNH!</h3>
+                <p class="text-xs text-slate-300 mt-2">Bạn đã hoàn thành xuất sắc chuyến thám hiểm Vương Quốc Cam-pu-chia!</p>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Điểm Tổng</span>
+                    <span id="victory-score" class="text-lg font-black text-amber-400">0</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Chính Xác</span>
+                    <span id="victory-accuracy" class="text-lg font-black text-emerald-400">0%</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block">Combo Tối Đa</span>
+                    <span id="victory-maxcombo" class="text-lg font-black text-red-400">x0</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="app.showScreen('welcome')" class="flex-1 py-3 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-all border border-slate-700">
+                    Trang Chủ
+                </button>
+                <button onclick="app.startMode('single')" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-angkor-500 text-white text-xs font-bold hover:scale-105 transition-all shadow-lg shadow-amber-500/20">
+                    Chơi Lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Teacher Dashboard & Custom Questions -->
+    <div id="modal-teacher" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-modal max-w-3xl w-full rounded-3xl p-6 sm:p-8 space-y-6 border border-blue-500/40 max-h-[90vh] flex flex-col justify-between">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400">
+                        <i data-lucide="settings" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Giao Diện Giảng Dạy & Quản Lý Data</h3>
+                        <p class="text-xs text-slate-400">Tùy chỉnh ngân hàng câu hỏi Lịch sử 7 & Xuất/Nhập dữ liệu</p>
+                    </div>
+                </div>
+                <button onclick="app.closeModal('modal-teacher')" class="p-2 text-slate-400 hover:text-white rounded-full">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Question Bank List -->
+            <div class="flex-1 overflow-y-auto space-y-3 pr-2" id="teacher-questions-list">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Action Controls & Export/Import -->
+            <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button onclick="app.addNewQuestionPrompt()" class="px-3.5 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-1.5 transition-all">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Thêm Câu Hỏi
+                    </button>
+                    <button onclick="app.exportQuestionsJSON()" class="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-blue-300 font-bold text-xs flex items-center gap-1.5 transition-all">
+                        <i data-lucide="download" class="w-4 h-4"></i> Xuất JSON
+                    </button>
+                    <label class="px-3.5 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Nhập JSON
+                        <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="app.importQuestionsJSON(event)"/>
+                    </label>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="app.resetLeaderboardConfirm()" class="px-3.5 py-2 rounded-xl bg-red-600/20 hover:bg-red-600/40 border border-red-500/40 text-red-300 font-bold text-xs transition-all">
+                        Reset BXH
+                    </button>
+                    <button onclick="app.closeModal('modal-teacher')" class="px-5 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-all">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Anti-crash In-Memory Storage Fallback for restricted iframe sandboxes
+        const safeStore = {
+            memory: {},
+            getItem(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch (e) {
+                    return this.memory[key] || null;
+                }
+            },
+            setItem(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (e) {
+                    this.memory[key] = String(value);
+                }
+            },
+            removeItem(key) {
+                try {
+                    localStorage.removeItem(key);
+                } catch (e) {
+                    delete this.memory[key];
+                }
+            }
+        };
+
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playCorrect() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc1 = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc1.type = 'triangle';
+                osc2.type = 'sine';
+
+                // Musical triad chord (C5 - E5 - G5)
+                osc1.frequency.setValueAtTime(523.25, now);
+                osc1.frequency.setValueAtTime(659.25, now + 0.1);
+                osc1.frequency.setValueAtTime(783.99, now + 0.2);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc1.start(now);
+                osc1.stop(now + 0.5);
+            }
+
+            playWrong() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.3);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+
+            playVictory() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    const now = this.ctx.currentTime + i * 0.12;
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                });
+            }
+
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        const sound = new SoundSystem();
+
+        const DEFAULT_QUESTIONS = [
+            {
+                id: 1,
+                question: "Người Khơ-me thành lập vương quốc vào thời gian nào và tiền thân là quốc gia nào?",
+                options: [
+                    "Thế kỷ VI, tiền thân là nước Chân Lạp",
+                    "Thế kỷ VIII, tiền thân là nước Phù Nam",
+                    "Thế kỷ X, tiền thân là nước Ăng-co",
+                    "Thế kỷ XII, tiền thân là nước Vạn Xuân"
+                ],
+                correct: 0,
+                explanation: "Người Khơ-me thành lập vương quốc vào thế kỷ VI. Tiền thân của vương quốc Cam-pu-chia chính là nước Chân Lạp."
+            },
+            {
+                id: 2,
+                question: "Thời kỳ phát triển rực rỡ và hoàng kim nhất của Vương quốc Cam-pu-chia là giai đoạn nào?",
+                options: [
+                    "Thời kỳ Chân Lạp (Thế kỷ VI - VIII)",
+                    "Thời kỳ Ăng-co (802 – 1432)",
+                    "Thời kỳ Hậu Ăng-co (1432 – 1863)",
+                    "Thời kỳ Hiện đại (Từ thế kỷ XX)"
+                ],
+                correct: 1,
+                explanation: "Thời kỳ Ăng-co (802 – 1432) là giai đoạn phát triển rực rỡ, thịnh vượng và hoàng kim nhất của lịch sử Cam-pu-chia."
+            },
+            {
+                id: 3,
+                question: "Ngành kinh tế chủ đạo của cư dân Vương quốc Cam-pu-chia thời xưa là gì?",
+                options: [
+                    "Thương mại hàng hải phát triển cực thịnh",
+                    "Nông nghiệp là ngành chủ đạo kết hợp đánh bắt cá ở Biển Hồ",
+                    "Chăn nuôi gia súc quy mô công nghiệp",
+                    "Khai thác khoáng sản và kim loại hiếm"
+                ],
+                correct: 1,
+                explanation: "Nông nghiệp là ngành kinh tế chủ đạo, kết hợp với nguồn lợi thủy sản dồi dào nhờ đánh bắt cá ở khu vực Biển Hồ."
+            },
+            {
+                id: 4,
+                question: "Biển Hồ đóng vai trò đặc biệt quan trọng như thế nào đối với đời sống kinh tế Cam-pu-chia?",
+                options: [
+                    "Cung cấp muối biển chính cho toàn khu vực",
+                    "Cung cấp nguồn cá dồi dào và nước tưới tiêu cho nông nghiệp",
+                    "Là cảng biển sầm uất nhất Đông Nam Á",
+                    "Là nơi diễn ra các cuộc săn bắn hoàng gia"
+                ],
+                correct: 1,
+                explanation: "Biển Hồ mang lại nguồn cá khổng lồ và nguồn nước ngọt dồi dào phục vụ tưới tiêu nông nghiệp cho vùng đồng bằng xung quanh."
+            },
+            {
+                id: 5,
+                question: "Về mặt chính trị, các vị vua thời kỳ Ăng-co đã thực hiện chính sách gì?",
+                options: [
+                    "Đóng cửa bế quan tỏa cảng",
+                    "Mở rộng lãnh thổ bằng quân sự, trở thành cường quốc mạnh nhất Đông Nam Á",
+                    "Lệ thuộc vào các đế quốc phương Tây",
+                    "Chia nhỏ đất nước cho các phong kiến địa phương"
+                ],
+                correct: 1,
+                explanation: "Các vua Ăng-co tích cực mở rộng lãnh thổ qua các cuộc chinh phạt quân sự, biến Cam-pu-chia thành cường quốc mạnh nhất Đông Nam Á lúc bấy giờ."
+            },
+            {
+                id: 6,
+                question: "Tôn giáo của Cam-pu-chia thời kỳ Ăng-co đã có sự chuyển dịch trọng tâm như thế nào?",
+                options: [
+                    "Từ Ki-tô giáo sang Hồi giáo",
+                    "Từ Ấn Độ giáo (thờ thần) sang Phật giáo Đại thừa và Tiểu thừa",
+                    "Từ Nho giáo sang Ấn Độ giáo",
+                    "Từ Đạo giáo sang Ki-tô giáo"
+                ],
+                correct: 1,
+                explanation: "Ban đầu Ấn Độ giáo giữ vai trò chủ đạo, về sau trọng tâm tôn giáo dần dịch chuyển sang Phật giáo Đại thừa và Phật giáo Tiểu thừa."
+            },
+            {
+                id: 7,
+                question: "Quần thể đền tháp đồ sộ nổi tiếng thế giới, là biểu tượng kiến trúc Cam-pu-chia gồm có:",
+                options: [
+                    "Tháp Luổng Lăng và chùa Vàng",
+                    "Ăng-co Vát và Ăng-co Thom",
+                    "Tháp Bà Ponagar và Thánh địa Mỹ Sơn",
+                    "Đền Borobudur và Chùa Phật Ngọc"
+                ],
+                correct: 1,
+                explanation: "Ăng-co Vát (Angkor Wat) và Ăng-co Thom (Angkor Thom) là quần thể đền tháp bằng đá vô cùng đồ sộ, kỳ vĩ nổi tiếng thế giới."
+            },
+            {
+                id: 8,
+                question: "Người Khơ-me đã sáng tạo ra chữ viết riêng (chữ Khơ-me) dựa trên hệ thống chữ nào?",
+                options: [
+                    "Chữ Hán của Trung Quốc",
+                    "Chữ Phạn (Sanskrit) của Ấn Độ",
+                    "Chữ La-tinh của phương Tây",
+                    "Chữ A-rập"
+                ],
+                correct: 1,
+                explanation: "Người Khơ-me đã tiếp thu và sáng tạo ra chữ viết riêng của mình trên cơ sở hệ thống chữ Phạn (Sanskrit) nhập khẩu từ Ấn Độ."
+            },
+            {
+                id: 9,
+                question: "Điểm đặc trưng nổi bật nhất của nghệ thuật kiến trúc Ăng-co Vát là gì?",
+                options: [
+                    "Xây dựng hoàn toàn bằng gỗ tơ-mu",
+                    "Đền tháp bằng đá đồ sộ với các phù điêu điêu khắc tinh xảo",
+                    "Sử dụng đất nung không qua chạm khắc",
+                    "Kiến trúc dạng lều du mục"
+                ],
+                correct: 1,
+                explanation: "Ăng-co Vát được xây dựng bằng những gối đá khổng lồ, nổi tiếng với các tháp vút cao và các bức phù điêu chạm khắc cực kỳ tỉ mỉ."
+            },
+            {
+                id: 10,
+                question: "Năm 802 đánh dấu sự kiện lịch sử quan trọng nào của Vương quốc Cam-pu-chia?",
+                options: [
+                    "Sự sụp đổ của đế quốc Chân Lạp",
+                    "Vua Giay-a-vac-man II lên ngôi, mở đầu thời kỳ Ăng-co huy hoàng",
+                    "Xây dựng xong quần thể Ăng-co Vát",
+                    "Sự xâm lược của thực dân phương Tây"
+                ],
+                correct: 1,
+                explanation: "Năm 802, vua Giay-a-vac-man II thống nhất đất nước, xưng vương và mở ra kỷ nguyên Ăng-co phát triển rực rỡ."
+            }
+        ];
+
+        const CORE_KNOWLEDGE = [
+            { title: "1. Sự Hình Thành", desc: "Người Khơ-me thành lập vương quốc vào thế kỷ VI, tiền thân là nước Chân Lạp.", icon: "history" },
+            { title: "2. Thời Kỳ Ăng-Co", desc: "Giai đoạn (802 – 1432) phát triển rực rỡ, thịnh vượng và hoàng kim nhất.", icon: "crown" },
+            { title: "3. Kinh Tế Biển Hồ", desc: "Nông nghiệp là chủ đạo kết hợp nguồn cá dồi dào đánh bắt từ Biển Hồ.", icon: "fish" },
+            { title: "4. Chính Trị Cường Quốc", desc: "Mở rộng lãnh thổ bằng quân sự, thành cường quốc mạnh nhất Đông Nam Á.", icon: "swords" },
+            { title: "5. Tôn Giáo Chuyển Biến", desc: "Dịch chuyển từ Ấn Độ giáo (thờ thần) sang Phật giáo Đại thừa & Tiểu thừa.", icon: "sun" },
+            { title: "6. Kiến Trúc Kỳ Vĩ", desc: "Quần thể đền tháp bằng đá đồ sộ nổi tiếng: Ăng-co Vát & Ăng-co Thom.", icon: "landmark" },
+            { title: "7. Văn Hóa & Chữ Viết", desc: "Sáng tạo ra chữ Khơ-me riêng dựa trên hệ thống chữ Phạn của Ấn Độ.", icon: "feather" }
+        ];
+
+        class GameApp {
+            constructor() {
+                this.questions = this.loadQuestions();
+                this.currentMode = 'single'; // 'single', 'versus', 'review'
+                this.currentIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.correctCount = 0;
+                this.avatarState = 'IDLE'; // IDLE, HAPPY, SAD, WIN
+
+                // Versus mode state
+                this.versusTurn = 1; // 1 or 2
+                this.p1Score = 0;
+                this.p2Score = 0;
+
+                this.init();
+            }
+
+            init() {
+                this.renderBackgroundCanvas();
+                this.renderKnowledgeHighlights();
+                this.renderChibiAvatar('chibi-avatar-container', 'single', 'IDLE');
+                this.renderChibiAvatar('p1-avatar-container', 'p1', 'IDLE');
+                this.renderChibiAvatar('p2-avatar-container', 'p2', 'IDLE');
+                this.updateLeaderboardUI();
+
+                // Initialize Lucide icons
+                setTimeout(() => {
+                    if (window.lucide) lucide.createIcons();
+                }, 100);
+            }
+
+            loadQuestions() {
+                const stored = safeStore.getItem('cambodia_history_q');
+                if (stored) {
+                    try { return JSON.parse(stored); } catch (e) {}
+                }
+                return [...DEFAULT_QUESTIONS];
+            }
+
+            saveQuestions() {
+                safeStore.setItem('cambodia_history_q', JSON.stringify(this.questions));
+            }
+
+            // Screen Switcher
+            showScreen(screenId) {
+                ['welcome', 'game', 'versus', 'review'].forEach(id => {
+                    const el = document.getElementById(`screen-${id}`);
+                    if (el) el.classList.add('hidden');
+                });
+                const target = document.getElementById(`screen-${screenId}`);
+                if (target) target.classList.remove('hidden');
+
+                if (screenId === 'review') {
+                    this.renderFlashcards();
+                }
+            }
+
+            startMode(mode) {
+                sound.playClick();
+                this.currentMode = mode;
+                this.currentIndex = 0;
+                this.score = 0;
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.correctCount = 0;
+
+                if (mode === 'single') {
+                    this.showScreen('game');
+                    this.loadCurrentQuestion();
+                } else if (mode === 'versus') {
+                    this.p1Score = 0;
+                    this.p2Score = 0;
+                    this.versusTurn = 1;
+                    this.showScreen('versus');
+                    this.loadVersusQuestion();
+                } else if (mode === 'review') {
+                    this.showScreen('review');
+                }
+            }
+
+            loadCurrentQuestion() {
+                if (this.currentIndex >= this.questions.length) {
+                    this.finishGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentIndex];
+                
+                // Reset UI Elements
+                document.getElementById('question-text').innerText = `${this.currentIndex + 1}. ${q.question}`;
+                document.getElementById('stat-progress').innerText = `${this.currentIndex + 1} / ${this.questions.length}`;
+                
+                const progressPct = Math.round(((this.currentIndex) / this.questions.length) * 100);
+                document.getElementById('game-progress-bar').style.width = `${progressPct}%`;
+
+                document.getElementById('feedback-card').classList.add('hidden');
+
+                // Render Answer Buttons
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `py-2 px-3 rounded-xl glass-card hover:bg-amber-500/20 border border-amber-500/20 hover:border-amber-400 text-left transition-all duration-200 text-sm sm:text-base font-semibold flex items-center justify-between group cursor-pointer`;
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 font-bold shrink-0 text-[10px] sm:text-xs group-hover:scale-110 transition-transform">
+                                ${String.fromCharCode(65 + idx)}
+                            </span>
+                            <span class="text-slate-100">${opt}</span>
+                        </div>
+                    `;
+                    btn.onclick = () => this.handleAnswer(idx, btn);
+                    container.appendChild(btn);
+                });
+
+                // Update Map SVG milestone focus
+                this.updateMapPosition();
+                this.setChibiState('IDLE', "Hãy suy nghĩ kỹ trước khi chọn nhé!");
+            }
+
+            handleAnswer(selectedIndex, btnEl) {
+                const q = this.questions[this.currentIndex];
+                const isCorrect = selectedIndex === q.correct;
+
+                // Disable all option buttons
+                const buttons = document.querySelectorAll('#options-container button');
+                buttons.forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === q.correct) {
+                        b.className = `py-2 px-3 rounded-xl bg-emerald-600/30 border border-emerald-400 text-left text-sm sm:text-base font-semibold flex items-center justify-between text-emerald-200`;
+                    } else if (i === selectedIndex && !isCorrect) {
+                        b.className = `py-2 px-3 rounded-xl bg-red-600/30 border border-red-400 text-left text-sm sm:text-base font-semibold flex items-center justify-between text-red-200`;
+                    }
+                });
+
+                if (isCorrect) {
+                    sound.playCorrect();
+                    this.combo += 1;
+                    if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+                    this.correctCount += 1;
+
+                    const comboBonus = (this.combo > 1) ? this.combo * 20 : 0;
+                    const pointsGained = 100 + comboBonus;
+                    this.score += pointsGained;
+
+                    this.setChibiState('HAPPY', `Chính xác rồi! +${pointsGained} điểm 🎉`);
+                    this.showFeedback(true, "XUẤT SẮC!", q.explanation);
+                } else {
+                    sound.playWrong();
+                    this.combo = 0;
+                    this.setChibiState('SAD', "Chưa chính xác rồi, cố gắng ở câu sau nhé! 😢");
+                    this.showFeedback(false, "CẦN LƯU Ý KHI HỌC", q.explanation);
+                }
+
+                this.updateStatsUI();
+            }
+
+            showFeedback(isCorrect, title, body) {
+                const card = document.getElementById('feedback-card');
+                const titleEl = document.getElementById('feedback-title');
+                const bodyEl = document.getElementById('feedback-body');
+                const iconBg = document.getElementById('feedback-icon-bg');
+
+                card.classList.remove('hidden');
+                titleEl.innerText = title;
+                bodyEl.innerText = body;
+
+                if (isCorrect) {
+                    card.className = "p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 animate-fade-in";
+                    iconBg.className = "p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0";
+                } else {
+                    card.className = "p-3 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 animate-fade-in";
+                    iconBg.className = "p-1.5 rounded-lg bg-red-500/20 text-red-400 shrink-0";
+                }
+
+                if (window.lucide) lucide.createIcons();
+            }
+
+            nextQuestion() {
+                sound.playClick();
+                this.currentIndex += 1;
+                this.loadCurrentQuestion();
+            }
+
+            updateStatsUI() {
+                document.getElementById('stat-score').innerText = this.score;
+                document.getElementById('stat-combo').innerText = `x${this.combo}`;
+                const totalAnswered = this.currentIndex + 1;
+                const accPct = Math.round((this.correctCount / totalAnswered) * 100);
+                document.getElementById('stat-accuracy').innerText = `${accPct}%`;
+            }
+
+            loadVersusQuestion() {
+                if (this.currentIndex >= this.questions.length) {
+                    this.finishVersusGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentIndex];
+                const badge = document.getElementById('versus-turn-badge');
+                
+                if (this.versusTurn === 1) {
+                    badge.innerText = "Lượt của: NGƯỜI CHƠI 1 (ĐỎ)";
+                    badge.className = "px-4 py-1.5 rounded-full bg-red-500/20 text-red-300 font-bold text-xs border border-red-500/30";
+                } else {
+                    badge.innerText = "Lượt của: NGƯỜI CHƠI 2 (XANH)";
+                    badge.className = "px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-300 font-bold text-xs border border-blue-500/30";
+                }
+
+                document.getElementById('versus-question-text').innerText = `${this.currentIndex + 1}. ${q.question}`;
+                const container = document.getElementById('versus-options-container');
+                container.innerHTML = '';
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `p-4 rounded-2xl glass-card hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400 text-left transition-all text-xs sm:text-sm font-semibold flex items-center gap-3`;
+                    btn.innerHTML = `
+                        <span class="w-6 h-6 rounded-lg bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 font-bold shrink-0 text-xs">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span>${opt}</span>
+                    `;
+                    btn.onclick = () => this.handleVersusAnswer(idx);
+                    container.appendChild(btn);
+                });
+            }
+
+            handleVersusAnswer(selectedIndex) {
+                const q = this.questions[this.currentIndex];
+                const isCorrect = selectedIndex === q.correct;
+
+                if (isCorrect) {
+                    sound.playCorrect();
+                    if (this.versusTurn === 1) {
+                        this.p1Score += 100;
+                        document.getElementById('p1-score').innerText = `${this.p1Score} Điểm`;
+                        this.renderChibiAvatar('p1-avatar-container', 'p1', 'HAPPY');
+                    } else {
+                        this.p2Score += 100;
+                        document.getElementById('p2-score').innerText = `${this.p2Score} Điểm`;
+                        this.renderChibiAvatar('p2-avatar-container', 'p2', 'HAPPY');
+                    }
+                } else {
+                    sound.playWrong();
+                    if (this.versusTurn === 1) {
+                        this.renderChibiAvatar('p1-avatar-container', 'p1', 'SAD');
+                    } else {
+                        this.renderChibiAvatar('p2-avatar-container', 'p2', 'SAD');
+                    }
+                }
+
+                // Switch turn and move to next question
+                this.versusTurn = (this.versusTurn === 1) ? 2 : 1;
+                this.currentIndex += 1;
+                setTimeout(() => this.loadVersusQuestion(), 1200);
+            }
+
+            finishVersusGame() {
+                let winnerText = "HÒA NHAU!";
+                if (this.p1Score > this.p2Score) winnerText = "NGƯỜI CHƠI 1 THẮNG CỤC!";
+                else if (this.p2Score > this.p1Score) winnerText = "NGƯỜI CHƠI 2 THẮNG CỤC!";
+
+                alert(`KẾT QUẢ ĐẤU ĐỐI KHÁNG:\n${winnerText}\nPlayer 1: ${this.p1Score} - Player 2: ${this.p2Score}`);
+                this.showScreen('welcome');
+            }
+
+            finishGame() {
+                sound.playVictory();
+                this.setChibiState('WIN', "Chúc mừng bạn đã hoàn thành xuất sắc chuyến thám hiểm!");
+
+                const totalAnswered = this.questions.length;
+                const accPct = Math.round((this.correctCount / totalAnswered) * 100);
+
+                document.getElementById('victory-score').innerText = this.score;
+                document.getElementById('victory-accuracy').innerText = `${accPct}%`;
+                document.getElementById('victory-maxcombo').innerText = `x${this.maxCombo}`;
+
+                // Check if score qualifies for Top 5 Leaderboard
+                const leaderboard = this.getLeaderboard();
+                const isTop5 = leaderboard.length < 5 || this.score > (leaderboard[leaderboard.length - 1]?.score || 0);
+
+                if (isTop5 && this.score > 0) {
+                    document.getElementById('highscore-value').innerText = this.score;
+                    this.openModal('modal-highscore');
+                } else {
+                    this.openModal('modal-victory');
+                }
+            }
+
+            getLeaderboard() {
+                const stored = safeStore.getItem('cambodia_history_lb');
+                if (stored) {
+                    try { return JSON.parse(stored); } catch (e) {}
+                }
+                return [
+                    { name: "Lê Văn Tùng - 7A1", score: 1200, date: "2026-03-10" },
+                    { name: "Nguyễn Mai Anh - 7A2", score: 1050, date: "2026-03-11" },
+                    { name: "Trần Minh Đức - 7A1", score: 900, date: "2026-03-12" }
+                ];
+            }
+
+            submitHighScore() {
+                const nameInput = document.getElementById('input-player-name');
+                const playerName = nameInput.value.trim() || "Thám Hiểm Viên";
+
+                let lb = this.getLeaderboard();
+                lb.push({
+                    name: playerName,
+                    score: this.score,
+                    date: new Date().toISOString().split('T')[0]
+                });
+
+                lb.sort((a, b) => b.score - a.score);
+                lb = lb.slice(0, 5); // Keep Top 5
+
+                safeStore.setItem('cambodia_history_lb', JSON.stringify(lb));
+                
+                this.closeModal('modal-highscore');
+                this.openLeaderboard();
+            }
+
+            updateLeaderboardUI() {
+                const lb = this.getLeaderboard();
+                const podiumContainer = document.getElementById('podium-container');
+                const listContainer = document.getElementById('leaderboard-list');
+
+                podiumContainer.innerHTML = '';
+                listContainer.innerHTML = '';
+
+                // Top 3 Podium Rendering
+                const ranks = [
+                    { pos: 2, data: lb[1], color: "from-slate-400 to-slate-600", height: "h-24", medal: "🥈" },
+                    { pos: 1, data: lb[0], color: "from-amber-400 to-angkor-600", height: "h-32", medal: "🥇" },
+                    { pos: 3, data: lb[2], color: "from-amber-700 to-amber-900", height: "h-20", medal: "🥉" }
+                ];
+
+                ranks.forEach(r => {
+                    const item = document.createElement('div');
+                    item.className = `flex flex-col items-center justify-end w-24`;
+                    if (r.data) {
+                        item.innerHTML = `
+                            <span class="text-xs font-bold text-amber-300 truncate max-w-full mb-1">${r.data.name.split(' ')[0]}</span>
+                            <span class="text-[10px] text-slate-400 mb-1">${r.data.score}đ</span>
+                            <div class="w-full ${r.height} rounded-t-2xl bg-gradient-to-t ${r.color} p-2 flex flex-col items-center justify-between border-t border-white/20 shadow-lg">
+                                <span class="text-lg">${r.medal}</span>
+                                <span class="text-xs font-black text-white">#${r.pos}</span>
+                            </div>
+                        `;
+                    } else {
+                        item.innerHTML = `
+                            <div class="w-full ${r.height} rounded-t-2xl bg-slate-800/50 p-2 flex items-center justify-center border-t border-slate-700">
+                                <span class="text-xs text-slate-500">Trống</span>
+                            </div>
+                        `;
+                    }
+                    podiumContainer.appendChild(item);
+                });
+
+                // Ranks 4 & 5 List
+                for (let i = 3; i < 5; i++) {
+                    const row = document.createElement('div');
+                    if (lb[i]) {
+                        row.className = "p-3 rounded-xl glass-card flex items-center justify-between border border-slate-800 text-xs";
+                        row.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <span class="font-bold text-slate-400 w-4">#${i + 1}</span>
+                                <span class="font-semibold text-slate-200">${lb[i].name}</span>
+                            </div>
+                            <span class="font-bold text-amber-400">${lb[i].score} điểm</span>
+                        `;
+                    }
+                    listContainer.appendChild(row);
+                }
+            }
+
+            openLeaderboard() {
+                sound.playClick();
+                this.updateLeaderboardUI();
+                this.openModal('modal-leaderboard');
+            }
+
+            openTeacherDashboard() {
+                sound.playClick();
+                this.renderTeacherQuestionsList();
+                this.openModal('modal-teacher');
+            }
+
+            renderTeacherQuestionsList() {
+                const list = document.getElementById('teacher-questions-list');
+                list.innerHTML = '';
+
+                this.questions.forEach((q, idx) => {
+                    const card = document.createElement('div');
+                    card.className = "p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs";
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="font-bold text-amber-400">Câu ${idx + 1}: ${q.question}</span>
+                            <button onclick="app.deleteQuestion(${idx})" class="text-red-400 hover:text-red-300 shrink-0">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-slate-400">
+                            ${q.options.map((opt, i) => `
+                                <div class="${i === q.correct ? 'text-emerald-400 font-bold' : ''}">
+                                    ${String.fromCharCode(65 + i)}. ${opt}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+
+                if (window.lucide) lucide.createIcons();
+            }
+
+            addNewQuestionPrompt() {
+                const qText = prompt("Nhập nội dung câu hỏi lịch sử mới:");
+                if (!qText) return;
+
+                const optA = prompt("Nhập đáp án A:");
+                const optB = prompt("Nhập đáp án B:");
+                const optC = prompt("Nhập đáp án C:");
+                const optD = prompt("Nhập đáp án D:");
+                const correctIdx = parseInt(prompt("Đáp án đúng (0 cho A, 1 cho B, 2 cho C, 3 cho D):") || "0", 10);
+                const expl = prompt("Nhập lời giải thích kiến thức (Feedback):") || "Kiến thức trọng tâm bài học.";
+
+                if (qText && optA && optB) {
+                    this.questions.push({
+                        id: Date.now(),
+                        question: qText,
+                        options: [optA, optB, optC || "", optD || ""],
+                        correct: correctIdx,
+                        explanation: expl
+                    });
+                    this.saveQuestions();
+                    this.renderTeacherQuestionsList();
+                }
+            }
+
+            deleteQuestion(index) {
+                if (this.questions.length <= 5) {
+                    alert("Cần giữ ít nhất 5 câu hỏi trong ngân hàng!");
+                    return;
+                }
+                this.questions.splice(index, 1);
+                this.saveQuestions();
+                this.renderTeacherQuestionsList();
+            }
+
+            exportQuestionsJSON() {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.questions, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "cambodia_history_questions.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+            }
+
+            importQuestionsJSON(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            this.questions = parsed;
+                            this.saveQuestions();
+                            this.renderTeacherQuestionsList();
+                            alert("Đã nhập ngân hàng câu hỏi thành công!");
+                        }
+                    } catch (err) {
+                        alert("File JSON không hợp lệ!");
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            resetLeaderboardConfirm() {
+                safeStore.removeItem('cambodia_history_lb');
+                this.updateLeaderboardUI();
+                alert("Đã reset Bảng xếp hạng thành công!");
+            }
+
+            updateMapPosition() {
+                const svg = document.getElementById('game-map-svg');
+                const milestonesGroup = document.getElementById('map-milestones-group');
+                milestonesGroup.innerHTML = '';
+
+                // Define 10 fixed milestone coordinates along the map path
+                const points = [
+                    { x: 50, y: 100, name: "Thế kỷ VI: Nước Chân Lạp" },
+                    { x: 140, y: 65, name: "Năm 802: Vua Giay-a-vac-man II" },
+                    { x: 230, y: 40, name: "Thời kỳ Ăng-co hoàng kim" },
+                    { x: 330, y: 60, name: "Nông nghiệp & Lúa nước" },
+                    { x: 430, y: 105, name: "Đánh bắt cá ở Biển Hồ" },
+                    { x: 530, y: 125, name: "Thị uy Quân sự Đông Nam Á" },
+                    { x: 630, y: 105, name: "Ấn Độ giáo & Phật giáo" },
+                    { x: 730, y: 80, name: "Quần thể Đền Ăng-co Vát" },
+                    { x: 830, y: 90, name: "Đền Ăng-co Thom đồ sộ" },
+                    { x: 930, y: 100, name: "Sáng tạo chữ viết Khơ-me" }
+                ];
+
+                points.forEach((pt, i) => {
+                    const isActive = i === this.currentIndex;
+                    const isPassed = i < this.currentIndex;
+
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', pt.x);
+                    circle.setAttribute('cy', pt.y);
+                    circle.setAttribute('r', isActive ? '12' : '8');
+                    circle.setAttribute('fill', isActive ? '#FFD700' : (isPassed ? '#10B981' : '#374151'));
+                    circle.setAttribute('stroke', '#FFFFFF');
+                    circle.setAttribute('stroke-width', '2');
+                    if (isActive) circle.setAttribute('class', 'milestone-active');
+
+                    milestonesGroup.appendChild(circle);
+                });
+
+                // Move token
+                const targetPt = points[this.currentIndex] || points[0];
+                const token = document.getElementById('map-chibi-token');
+                token.setAttribute('transform', `translate(${targetPt.x}, ${targetPt.y - 12})`);
+
+                document.getElementById('map-location-name').innerText = `Trạm ${this.currentIndex + 1}: ${targetPt.name}`;
+            }
+
+            renderChibiAvatar(containerId, characterType, state) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                let outfitColor = "#C5812A"; // Explorer Brown
+                let hatColor = "#D49F45";
+                if (characterType === 'p1') { outfitColor = "#EF4444"; hatColor = "#991B1B"; }
+                if (characterType === 'p2') { outfitColor = "#3B82F6"; hatColor = "#1E40AF"; }
+
+                let animClass = "";
+                if (state === 'HAPPY') animClass = "chibi-happy-bounce";
+                if (state === 'SAD') animClass = "chibi-sad-shake";
+
+                // Dynamic Eyes and Mouth SVG paths based on state
+                let eyesSVG = `<circle cx="35" cy="45" r="4" fill="#1E293B"/><circle cx="65" cy="45" r="4" fill="#1E293B"/>`;
+                let mouthSVG = `<path d="M 42 58 Q 50 66, 58 58" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>`;
+
+                if (state === 'HAPPY') {
+                    eyesSVG = `<path d="M 30 46 Q 35 38, 40 46" fill="none" stroke="#1E293B" stroke-width="3"/><path d="M 60 46 Q 65 38, 70 46" fill="none" stroke="#1E293B" stroke-width="3"/>`;
+                    mouthSVG = `<path d="M 40 55 Q 50 68, 60 55 Z" fill="#EF4444"/>`;
+                } else if (state === 'SAD') {
+                    eyesSVG = `<path d="M 30 42 L 40 48" stroke="#1E293B" stroke-width="3"/><path d="M 70 42 L 60 48" stroke="#1E293B" stroke-width="3"/>`;
+                    mouthSVG = `<path d="M 42 62 Q 50 55, 58 62" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>`;
+                }
+
+                container.innerHTML = `
+                    <svg viewBox="0 0 100 120" class="w-full h-full ${animClass}">
+                        <!-- Body Outfit -->
+                        <path d="M 30 70 L 70 70 L 75 105 L 25 105 Z" fill="${outfitColor}" rx="5"/>
+                        <!-- Belt -->
+                        <rect x="25" y="85" width="50" height="6" fill="#35190D"/>
+                        <rect x="45" y="83" width="10" height="10" fill="#FFD700"/>
+
+                        <!-- Cute Chibi Head -->
+                        <circle cx="50" cy="50" r="30" fill="#FDE047" opacity="0.1"/>
+                        <circle cx="50" cy="48" r="26" fill="#FCE7F3"/>
+
+                        <!-- Cheeks Blush -->
+                        <circle cx="30" cy="52" r="4" fill="#F43F5E" opacity="0.4"/>
+                        <circle cx="70" cy="52" r="4" fill="#F43F5E" opacity="0.4"/>
+
+                        <!-- Facial Expression -->
+                        ${eyesSVG}
+                        ${mouthSVG}
+
+                        <!-- Explorer Safari Hat -->
+                        <path d="M 15 35 Q 50 20, 85 35 L 75 25 Q 50 10, 25 25 Z" fill="${hatColor}"/>
+                        <rect x="23" y="27" width="54" height="6" fill="#35190D"/>
+                    </svg>
+                `;
+            }
+
+            setChibiState(state, speechText) {
+                this.avatarState = state;
+                this.renderChibiAvatar('chibi-avatar-container', 'single', state);
+                const bubble = document.getElementById('chibi-speech-bubble');
+                if (bubble && speechText) {
+                    bubble.innerText = speechText;
+                }
+            }
+
+            renderKnowledgeHighlights() {
+                const grid = document.getElementById('knowledge-highlights-grid');
+                grid.innerHTML = '';
+
+                CORE_KNOWLEDGE.forEach(k => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1";
+                    card.innerHTML = `
+                        <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                            <i data-lucide="${k.icon}" class="w-4 h-4 text-amber-400"></i>
+                            <span>${k.title}</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px] leading-relaxed">${k.desc}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            renderFlashcards() {
+                const grid = document.getElementById('flashcards-grid');
+                grid.innerHTML = '';
+
+                CORE_KNOWLEDGE.forEach((k, idx) => {
+                    const card = document.createElement('div');
+                    card.className = "glass-card p-6 rounded-2xl border border-amber-500/30 hover:border-amber-400 transition-all cursor-pointer space-y-3 group";
+                    card.onclick = () => sound.playClick();
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                                <i data-lucide="${k.icon}" class="w-5 h-5"></i>
+                            </span>
+                            <span class="text-xs font-bold text-slate-500">Thẻ 0${idx + 1}</span>
+                        </div>
+                        <h4 class="text-base font-bold text-white group-hover:text-amber-300 transition-colors">${k.title}</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">${k.desc}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                if (window.lucide) lucide.createIcons();
+            }
+
+            toggleSound() {
+                sound.enabled = !sound.enabled;
+                const label = document.getElementById('label-sound');
+                const icon = document.getElementById('icon-sound');
+
+                if (sound.enabled) {
+                    label.innerText = "Bật Âm";
+                    icon.setAttribute('data-lucide', 'volume-2');
+                } else {
+                    label.innerText = "Tắt Âm";
+                    icon.setAttribute('data-lucide', 'volume-x');
+                }
+                if (window.lucide) lucide.createIcons();
+            }
+
+            openModal(modalId) {
+                const el = document.getElementById(modalId);
+                if (el) el.classList.remove('hidden');
+            }
+
+            closeModal(modalId) {
+                const el = document.getElementById(modalId);
+                if (el) el.classList.add('hidden');
+            }
+
+            renderBackgroundCanvas() {
+                const canvas = document.getElementById('bg-canvas');
+                const ctx = canvas.getContext('2d');
+
+                let width = canvas.width = window.innerWidth;
+                let height = canvas.height = window.innerHeight;
+
+                window.addEventListener('resize', () => {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                });
+
+                const particles = Array.from({ length: 45 }, () => ({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 2 + 1,
+                    dx: (Math.random() - 0.5) * 0.5,
+                    dy: (Math.random() - 0.5) * 0.5,
+                    alpha: Math.random() * 0.5 + 0.2
+                }));
+
+                function animate() {
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    particles.forEach(p => {
+                        p.x += p.dx;
+                        p.y += p.dy;
+
+                        if (p.x < 0) p.x = width;
+                        if (p.x > width) p.x = 0;
+                        if (p.y < 0) p.y = height;
+                        if (p.y > height) p.y = 0;
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(212, 159, 69, ${p.alpha})`;
+                        ctx.fill();
+                    });
+
+                    requestAnimationFrame(animate);
+                }
+
+                animate();
+            }
+        }
+
+        // Global App Initialization
+        let app;
+        window.onload = () => {
+            app = new GameApp();
+        };
+    </script>
+</body>
+</html>
