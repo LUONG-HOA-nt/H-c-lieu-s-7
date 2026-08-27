@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám phá Con đường tơ lụa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fdfbf7;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23dcb37b" fill-opacity="0.1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-active {
+            background-color: #c2410c; /* text-orange-700 */
+            color: white;
+            border-bottom: 4px solid #9a3412;
+        }
+        
+        .tab-inactive {
+            background-color: #ffedd5; /* orange-100 */
+            color: #9a3412;
+            border-bottom: 4px solid #fdba74;
+        }
+        .tab-inactive:hover { background-color: #fed7aa; }
+
+        /* Concept map cards */
+        .concept-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(194, 65, 12, 0.3);
+            border-color: #c2410c;
+        }
+
+        /* Modal */
+        .modal-bg {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Tùy chỉnh thanh cuộn (Custom Scrollbar) */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffedd5; /* orange-100 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ea580c; /* orange-600 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c2410c; /* orange-700 */
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <header class="bg-orange-700 text-white shadow-md p-4 text-center sticky top-0 z-10">
+        <h1 class="text-2xl md:text-3xl font-bold uppercase tracking-wider">
+            <i class="fa-solid fa-camel mr-2 text-yellow-300"></i>
+            Khám phá Con đường tơ lụa
+        </h1>
+        <p class="text-orange-200 mt-1 text-sm md:text-base">Bài học Lịch sử và Địa lí 7 - Trung Quốc dưới thời Đường</p>
+    </header>
+
+    <main class="flex-grow w-full max-w-5xl mx-auto p-4 md:p-6">
+        
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+            <button onclick="switchTab('zone1')" id="btn-zone1" class="tab-active px-4 py-2 md:px-6 md:py-3 rounded-t-xl font-bold text-sm md:text-base transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot"></i> 1. KHÁM PHÁ
+            </button>
+            <button onclick="switchTab('zone2')" id="btn-zone2" class="tab-inactive px-4 py-2 md:px-6 md:py-3 rounded-t-xl font-bold text-sm md:text-base transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square"></i> 2. EM TỰ KHÁM PHÁ
+            </button>
+            <button onclick="switchTab('zone3')" id="btn-zone3" class="tab-inactive px-4 py-2 md:px-6 md:py-3 rounded-t-xl font-bold text-sm md:text-base transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-link"></i> 3. THỬ THÁCH
+            </button>
+        </div>
+
+        <!-- KHU VỰC 1: KHÁM PHÁ -->
+        <section id="zone1" class="fade-in">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-orange-100">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-orange-800 mb-2">Sơ đồ khái niệm</h2>
+                    <p class="text-gray-600">Nhấn vào từng thẻ để khám phá các thông tin về nhà Đường và Con đường tơ lụa.</p>
+                </div>
+
+                <!-- Central Hub -->
+                <div class="flex justify-center mb-8 relative">
+                    <div class="bg-orange-600 text-white px-8 py-4 rounded-full font-bold text-xl shadow-md border-4 border-orange-200 z-10 text-center">
+                        Nhà Đường & Con đường tơ lụa
+                    </div>
+                    <!-- Decorative connection line -->
+                    <div class="absolute top-1/2 left-0 w-full h-1 bg-orange-200 -z-0 hidden md:block"></div>
+                    <div class="absolute top-0 left-1/2 w-1 h-full bg-orange-200 -z-0 md:hidden"></div>
+                </div>
+
+                <!-- Interactive Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Card 1 -->
+                    <div class="concept-card bg-orange-50 border-2 border-orange-200 rounded-xl p-5 text-center flex flex-col items-center justify-center h-40" onclick="showModal('taizong')">
+                        <div class="bg-yellow-100 text-yellow-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mb-3 shadow-sm">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800">Đường Thái Tông</h3>
+                        <p class="text-sm text-gray-500 mt-1">Giai đoạn trị vì nổi bật</p>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="concept-card bg-orange-50 border-2 border-orange-200 rounded-xl p-5 text-center flex flex-col items-center justify-center h-40" onclick="showModal('politics')">
+                        <div class="bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mb-3 shadow-sm">
+                            <i class="fa-solid fa-landmark"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800">Chính trị</h3>
+                        <p class="text-sm text-gray-500 mt-1">Bộ máy & Lãnh thổ</p>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="concept-card bg-orange-50 border-2 border-orange-200 rounded-xl p-5 text-center flex flex-col items-center justify-center h-40" onclick="showModal('economy')">
+                        <div class="bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mb-3 shadow-sm">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800">Kinh tế</h3>
+                        <p class="text-sm text-gray-500 mt-1">Nông nghiệp, thủ công, thương nghiệp</p>
+                    </div>
+
+                    <!-- Card 4 (Spans wider on large screens) -->
+                    <div class="concept-card bg-orange-50 border-2 border-orange-200 rounded-xl p-5 text-center flex flex-col items-center justify-center h-40 md:col-span-2 lg:col-span-1" onclick="showModal('silkroad')">
+                        <div class="bg-purple-100 text-purple-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mb-3 shadow-sm">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800">Con đường tơ lụa</h3>
+                        <p class="text-sm text-gray-500 mt-1">Nguồn gốc & Vai trò</p>
+                    </div>
+
+                    <!-- Card 5 (Spans wider on large screens) -->
+                    <div class="concept-card bg-orange-50 border-2 border-orange-200 rounded-xl p-5 text-center flex flex-col items-center justify-center h-40 md:col-span-2 lg:col-span-2" onclick="showModal('society')">
+                        <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mb-3 shadow-sm">
+                            <i class="fa-solid fa-people-group"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-800">Đời sống xã hội & Tư tưởng</h3>
+                        <p class="text-sm text-gray-500 mt-1">Sự phồn vinh thời Đường Thái Tông</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- KHU VỰC 2: EM TỰ KHÁM PHÁ -->
+        <section id="zone2" class="fade-in hidden">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border-2 border-orange-100">
+                <h2 class="text-2xl font-bold text-orange-800 mb-6 border-b-2 border-orange-100 pb-3">Trả lời các câu hỏi sau:</h2>
+                
+                <div class="space-y-6">
+                    <!-- Q1 -->
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block font-bold text-gray-800 mb-2 text-lg">
+                            <span class="bg-orange-500 text-white w-8 h-8 inline-flex items-center justify-center rounded-full mr-2">1</span>
+                            "Con đường tơ lụa" trở nên nổi tiếng trong lịch sử vào thời kì nào?
+                        </label>
+                        <input type="text" id="q1-input" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Nhập câu trả lời của em...">
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block font-bold text-gray-800 mb-2 text-lg">
+                            <span class="bg-orange-500 text-white w-8 h-8 inline-flex items-center justify-center rounded-full mr-2">2</span>
+                            Ban đầu, mặt hàng buôn bán chủ yếu trên Con đường tơ lụa là gì?
+                        </label>
+                        <input type="text" id="q2-input" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Nhập câu trả lời của em...">
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <label class="block font-bold text-gray-800 mb-2 text-lg">
+                            <span class="bg-orange-500 text-white w-8 h-8 inline-flex items-center justify-center rounded-full mr-2">3</span>
+                            Ngoài giao thương, Con đường tơ lụa còn có vai trò gì?
+                        </label>
+                        <textarea id="q3-input" rows="2" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500 transition-colors" placeholder="Nhập câu trả lời của em..."></textarea>
+                    </div>
+
+                    <button onclick="checkZone2()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-colors text-lg flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-circle"></i> Hoàn thành & Xem phản hồi
+                    </button>
+
+                    <!-- Feedback Area Z2 -->
+                    <div id="feedback-zone2" class="hidden mt-4 p-5 bg-green-50 border-2 border-green-200 rounded-xl">
+                        <h3 class="text-green-800 font-bold text-lg mb-2"><i class="fa-solid fa-star text-yellow-500"></i> Tuyệt vời! Hãy đối chiếu câu trả lời của em với dữ liệu từ bài học nhé:</h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li><strong>Câu 1:</strong> Thời Đường.</li>
+                            <li><strong>Câu 2:</strong> Tơ lụa Trung Quốc.</li>
+                            <li><strong>Câu 3:</strong> Là hành trình văn hoá, tôn giáo, kết nối Á - Âu, để lại nhiều di sản quý.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KHU VỰC 3: THỬ THÁCH KẾT NỐI -->
+        <section id="zone3" class="fade-in hidden">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border-2 border-orange-100">
+                <div class="flex items-center gap-4 mb-6 border-b-2 border-orange-100 pb-4">
+                    <div class="bg-orange-100 p-3 rounded-full text-orange-600 text-2xl">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-orange-800">Thử thách kết nối</h2>
+                        <p class="text-gray-600">Hãy kết nối thông tin về Nhà Đường với Con đường tơ lụa.</p>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 p-5 rounded-xl border border-orange-200 mb-6">
+                    <label class="block font-bold text-gray-800 mb-3 text-lg">
+                        Theo em, Con đường tơ lụa có liên quan như thế nào đến sự phát triển của Trung Quốc dưới thời Đường?
+                    </label>
+                    <textarea id="challenge-input" rows="5" class="w-full p-4 border-2 border-orange-300 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-700" placeholder="Viết suy nghĩ của em dựa trên thông tin đã đọc ở Khu vực 1..."></textarea>
+                </div>
+
+                <button onclick="checkZone3()" class="w-full md:w-auto md:px-10 bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl shadow-md transition-colors text-lg flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi câu trả lời
+                </button>
+
+                <!-- Feedback Area Z3 -->
+                <div id="feedback-zone3" class="hidden mt-6 p-5 bg-blue-50 border-2 border-blue-200 rounded-xl text-center fade-in">
+                    <div class="text-blue-500 text-4xl mb-3"><i class="fa-solid fa-thumbs-up"></i></div>
+                    <h3 class="text-blue-800 font-bold text-xl mb-2">Đã ghi nhận câu trả lời!</h3>
+                    <p class="text-gray-700">Dựa vào dữ liệu, nhà Đường có quan hệ buôn bán với hầu hết các nước châu Á và Con đường tơ lụa đóng vai trò là tuyến đường giao thương kết nối quan trọng, góp phần làm cho kinh tế thời Đường phồn thịnh (như các thành thị Trường An, Lạc Dương).</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL HIỂN THỊ THÔNG TIN (Dành cho Khu vực 1) -->
+    <div id="info-modal" class="fixed inset-0 modal-bg hidden items-center justify-center z-50 p-4 fade-in">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative">
+            <div id="modal-header" class="bg-orange-600 text-white p-4 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-xl flex items-center gap-2"></h3>
+                <button onclick="closeModal()" class="text-white hover:text-orange-200 text-2xl leading-none">&times;</button>
+            </div>
+            <!-- Đã thêm max-h-[60vh] và overflow-y-auto vào modal-content -->
+            <div id="modal-content" class="p-6 text-gray-700 text-lg leading-relaxed space-y-4 max-h-[60vh] overflow-y-auto">
+                <!-- Content injected by JS -->
+            </div>
+            <div class="bg-gray-50 p-4 text-right border-t border-gray-200">
+                <button onclick="closeModal()" class="bg-orange-100 text-orange-800 px-6 py-2 rounded-lg font-bold hover:bg-orange-200 transition-colors">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center p-4 text-gray-500 text-sm mt-auto">
+        <p>Học liệu số tương tác - Lịch sử và Địa lí 7</p>
+    </footer>
+
+    <script>
+        // --- DATA DICTIONARY (Strictly from Source Text) ---
+        const data = {
+            taizong: {
+                title: '<i class="fa-solid fa-crown"></i> Đường Thái Tông',
+                color: 'bg-yellow-600',
+                content: `
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Giai đoạn trị vì của Đường Thái Tông, bộ máy nhà nước được hoàn chỉnh.</li>
+                        <li>Đường Thái Tông là vị vua có tư tưởng tiến bộ.</li>
+                        <li>Tư liệu: <i>"Thuyền ví như vua, nước ví như dân, nước có thể chở thuyền, cũng có thể lật thuyền"</i>.</li>
+                    </ul>
+                `
+            },
+            politics: {
+                title: '<i class="fa-solid fa-landmark"></i> Chính trị thời Đường',
+                color: 'bg-red-600',
+                content: `
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Bộ máy nhà nước được hoàn chỉnh.</li>
+                        <li>Các hoàng đế cử người thân tín cai quản địa phương, tổ chức nhiều khoa thi tuyển chọn người đỗ đạt ra làm quan.</li>
+                        <li>Thực hiện chính sách xâm lược, mở rộng lãnh thổ: lấn chiếm Nội Mông, chinh phục Tây Vực, xâm lược Triều Tiên, củng cố cai trị ở An Nam đô hộ phủ (có một phần thuộc lãnh thổ Việt Nam hiện nay).</li>
+                    </ul>
+                `
+            },
+            economy: {
+                title: '<i class="fa-solid fa-seedling"></i> Kinh tế thời Đường',
+                color: 'bg-green-600',
+                content: `
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Nông nghiệp:</strong> Giảm thuế, lấy ruộng công và ruộng bỏ hoang chia cho nông dân (chế độ quân điền). Áp dụng kĩ thuật canh tác mới (chọn giống, xác định thời vụ) $\rightarrow$ Nông nghiệp có bước phát triển.</li>
+                        <li><strong>Thủ công nghiệp:</strong> Nhiều xưởng thủ công luyện sắt, đóng thuyền,... với hàng chục người làm việc.</li>
+                        <li><strong>Thương nghiệp:</strong> Nhiều thành thị phồn thịnh (Trường An, Lạc Dương). Quan hệ buôn bán với hầu hết các nước châu Á.</li>
+                    </ul>
+                `
+            },
+            society: {
+                title: '<i class="fa-solid fa-people-group"></i> Đời sống xã hội',
+                color: 'bg-blue-600',
+                content: `
+                    <p class="italic bg-blue-50 p-4 border-l-4 border-blue-400 rounded-r-lg">
+                        "Dưới thời Đường Thái Tông, cổng ngoài mấy tháng không đóng, ngựa bò đầy đồng, khách đi đường mấy nghìn dặm không cần mang theo lương thực."
+                    </p>
+                    <p class="mt-4">Điều này chứng tỏ một xã hội ổn định, an toàn và đời sống kinh tế phồn thịnh.</p>
+                `
+            },
+            silkroad: {
+                title: '<i class="fa-solid fa-route"></i> Con đường tơ lụa',
+                color: 'bg-purple-600',
+                content: `
+                    <ul class="list-disc list-inside space-y-3">
+                        <li>Hình thành từ các tuyến đường truyền thống của các thế kỉ trước. Đến thời Đường trở thành <strong>"con đường tơ lụa" nổi tiếng</strong>.</li>
+                        <li><strong>Giao thương:</strong> Kết nối phương Đông và phương Tây. Ban đầu, <em>tơ lụa Trung Quốc</em> là mặt hàng buôn bán chủ yếu.</li>
+                        <li><strong>Vai trò khác:</strong> Là hành trình văn hoá, tôn giáo, kết nối Á - Âu, để lại nhiều di sản quý cho đến ngày nay.</li>
+                    </ul>
+                `
+            }
+        };
+
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(zoneId) {
+            // Hide all zones
+            document.getElementById('zone1').classList.add('hidden');
+            document.getElementById('zone2').classList.add('hidden');
+            document.getElementById('zone3').classList.add('hidden');
+
+            // Reset all buttons styling
+            const buttons = ['btn-zone1', 'btn-zone2', 'btn-zone3'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
+
+            // Show selected zone & update button
+            document.getElementById(zoneId).classList.remove('hidden');
+            
+            const activeBtn = document.getElementById('btn-' + zoneId);
+            activeBtn.classList.remove('tab-inactive');
+            activeBtn.classList.add('tab-active');
+        }
+
+        // --- MODAL LOGIC (ZONE 1) ---
+        const modal = document.getElementById('info-modal');
+        const modalHeader = document.getElementById('modal-header');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+
+        function showModal(key) {
+            const info = data[key];
+            if(!info) return;
+
+            modalTitle.innerHTML = info.title;
+            modalContent.innerHTML = info.content;
+            
+            // Reset header color and apply new one
+            modalHeader.className = 'text-white p-4 flex justify-between items-center ' + info.color;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal when clicking outside the box
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // --- FORM SUBMISSION LOGIC (ZONE 2 & 3) ---
+        function checkZone2() {
+            const q1 = document.getElementById('q1-input').value.trim();
+            const q2 = document.getElementById('q2-input').value.trim();
+            const q3 = document.getElementById('q3-input').value.trim();
+
+            if(q1 === '' || q2 === '' || q3 === '') {
+                // Simple custom message instead of alert
+                showTempMessage("Em hãy điền đầy đủ câu trả lời vào 3 ô nhé!", document.getElementById('zone2'));
+                return;
+            }
+
+            const feedback = document.getElementById('feedback-zone2');
+            feedback.classList.remove('hidden');
+            feedback.classList.add('fade-in');
+        }
+
+        function checkZone3() {
+            const answer = document.getElementById('challenge-input').value.trim();
+            
+            if(answer === '') {
+                showTempMessage("Em hãy viết vài dòng suy nghĩ trước khi gửi nhé!", document.getElementById('zone3'));
+                return;
+            }
+
+            const feedback = document.getElementById('feedback-zone3');
+            feedback.classList.remove('hidden');
+            feedback.classList.add('fade-in');
+        }
+
+        // Helper function to show non-intrusive messages (replacing alert())
+        function showTempMessage(msg, parentElement) {
+            const div = document.createElement('div');
+            div.className = 'bg-red-100 text-red-700 border border-red-300 p-3 rounded-lg font-bold mb-4 fade-in text-center shadow-sm';
+            div.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-2"></i> ${msg}`;
+            
+            const firstChild = parentElement.querySelector('div');
+            firstChild.insertBefore(div, firstChild.firstChild);
+
+            setTimeout(() => {
+                div.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
