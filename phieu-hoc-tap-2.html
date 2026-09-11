@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiếu Học Tập Lịch Sử - Hệ Quả Của Các Cuộc Phát Kiến Địa Lí</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #0b1329;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Họa tiết lưới bản đồ hải hành tinh tế */
+    .map-grid-bg {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(#94a3b8 0.75px, transparent 0.75px), 
+        radial-gradient(#94a3b8 0.75px, #f8fafc 0.75px);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+    }
+
+    /* Thẻ phương án lựa chọn */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .option-card:hover {
+      transform: translateY(-1.5px);
+    }
+
+    .option-card.is-selected {
+      border-color: #2563eb !important;
+      background-color: #eff6ff !important;
+      box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.2) !important;
+    }
+
+    .option-card.is-checked-correct {
+      border-color: #059669 !important;
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+      box-shadow: 0 6px 16px -2px rgba(5, 150, 105, 0.25) !important;
+    }
+
+    .option-card.is-checked-wrong {
+      border-color: #e11d48 !important;
+      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
+      box-shadow: 0 6px 16px -2px rgba(225, 29, 72, 0.25) !important;
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    .animate-pulse-soft {
+      animation: pulseSoft 1.8s infinite ease-in-out;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 6mm 8mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .print-screen {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 6px 12px !important;
+        box-shadow: none !important;
+        border: 2px solid #334155 !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+      }
+
+      .print-border-clean {
+        border-color: #64748b !important;
+      }
+
+      .option-card {
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        padding: 6px 10px !important;
+      }
+
+      .print-show {
+        display: flex !important;
+      }
+    }
+  </style>
+</head>
+<body class="py-2.5 px-2 sm:px-4 min-h-screen flex flex-col items-center justify-center">
+
+  <header class="no-print max-w-5xl w-full mx-auto mb-2 bg-slate-900/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-slate-700/80 flex flex-wrap items-center justify-between gap-2.5 text-white">
+    <div class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-base shadow-inner">🧭</span>
+      <div>
+        <h1 class="text-xs sm:text-sm font-black tracking-wide text-blue-200">
+          PHIẾU HỌC TẬP: HỆ QUẢ CÁC CUỘC PHÁT KIẾN ĐỊA LÍ
+        </h1>
+        <p class="text-[11px] text-slate-400">Tương tác trực tiếp hoặc xuất in A4 chuẩn bị cho tiết dạy</p>
+      </div>
+    </div>
+
+    <!-- Cụm nút thao tác in ấn & xuất PDF -->
+    <div class="flex items-center flex-wrap gap-2 text-xs font-bold">
+      <!-- Nút đổi chế độ in phiếu trắng / in có đáp án -->
+      <button onclick="togglePrintBlankMode()" id="btn-print-mode" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition active:scale-95" title="Xóa các đáp án để in phiếu trắng phát cho học sinh làm bài">
+        <span id="mode-icon">📄</span>
+        <span id="mode-label">In Phiếu Trắng</span>
+      </button>
+
+      <!-- Nút In / Xuất PDF -->
+      <button onclick="exportWorksheet()" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md hover:shadow-lg transition active:scale-95">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span>XUẤT / IN PHIẾU A4</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="worksheet-container" class="print-screen max-w-5xl w-full bg-white map-grid-bg border-4 border-blue-900/30 rounded-3xl shadow-2xl p-3 sm:p-5 flex flex-col justify-between gap-2.5 relative">
+
+    <!-- KHUNG ĐẦU PHIẾU: TIÊU ĐỀ & THÔNG TIN HỌC SINH -->
+    <header class="border-b-2 border-dashed border-blue-200 pb-2">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-blue-100 border border-blue-300 rounded-full text-blue-900 text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-1">
+            <span>⚔️</span> LỊCH SỬ THCS • LỚP 7
+          </div>
+          <h2 class="text-base sm:text-xl font-black text-blue-950 uppercase tracking-tight">
+            HỆ QUẢ CỦA CÁC CUỘC PHÁT KIẾN ĐỊA LÍ
+          </h2>
+        </div>
+
+        <!-- Khung điền thông tin cá nhân (hiển thị gõ và in) -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-700 bg-white/95 px-3 py-1 rounded-xl border border-slate-300 shadow-sm w-full md:w-auto">
+          <div class="flex items-center gap-1 min-w-[150px]">
+            <span class="font-bold text-slate-800">Họ và tên:</span>
+            <input type="text" id="student-name" placeholder="..........................................." class="bg-transparent border-b border-dotted border-slate-400 focus:border-blue-600 focus:outline-none px-1 text-blue-950 font-semibold w-full">
+          </div>
+          <div class="flex items-center gap-1 w-24">
+            <span class="font-bold text-slate-800">Lớp:</span>
+            <input type="text" id="student-class" placeholder="7..." class="bg-transparent border-b border-dotted border-slate-400 focus:border-blue-600 focus:outline-none px-1 text-blue-950 font-semibold w-full">
+          </div>
+          <div class="hidden print-show items-center gap-1 w-28 text-slate-800">
+            <span class="font-bold">Điểm:</span>
+            <span class="border-b border-dotted border-slate-400 w-16 inline-block">&nbsp;</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="text-center bg-blue-50/90 py-1.5 px-4 rounded-xl border border-blue-200">
+      <div class="inline-flex items-center justify-center gap-2 text-blue-950 font-black text-sm sm:text-base md:text-lg">
+        <span class="text-amber-500 text-lg">❓</span>
+        <span>Em hãy nêu hệ quả của các cuộc phát kiến địa lí.</span>
+      </div>
+      <p class="text-[11px] sm:text-xs text-slate-600 font-semibold italic mt-0.5">
+        (Hướng dẫn: Tích chọn vào ô trống [✓] trước các ý đúng về hệ quả của các cuộc phát kiến địa lí)
+      </p>
+    </section>
+
+    <div class="flex flex-col gap-2 relative z-10 my-0.5">
+      
+      <!-- PHƯƠNG ÁN 1 (ĐÚNG) -->
+      <div id="card-option-1" onclick="toggleOption(1)" class="option-card group relative p-2.5 sm:p-3 rounded-xl border-2 border-slate-300 bg-white shadow-sm flex items-center gap-3 cursor-pointer select-none">
+        <div id="checkbox-1" class="w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all"></div>
+        <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug flex-1">
+          Mở rộng giao thương và kết nối, thúc đẩy hàng hải quốc tế phát triển.
+        </p>
+      </div>
+
+      <!-- PHƯƠNG ÁN 2 (NHIỄU) -->
+      <div id="card-option-2" onclick="toggleOption(2)" class="option-card group relative p-2.5 sm:p-3 rounded-xl border-2 border-slate-300 bg-white shadow-sm flex items-center gap-3 cursor-pointer select-none">
+        <div id="checkbox-2" class="w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all"></div>
+        <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug flex-1">
+          Tạo ra sự thống nhất hoàn toàn về văn hóa và tôn giáo trên toàn cầu.
+        </p>
+      </div>
+
+      <!-- PHƯƠNG ÁN 3 (ĐÚNG) -->
+      <div id="card-option-3" onclick="toggleOption(3)" class="option-card group relative p-2.5 sm:p-3 rounded-xl border-2 border-slate-300 bg-white shadow-sm flex items-center gap-3 cursor-pointer select-none">
+        <div id="checkbox-3" class="w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all"></div>
+        <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug flex-1">
+          Thúc đẩy nền sản xuất và thương nghiệp Tây Âu phát triển.
+        </p>
+      </div>
+
+      <!-- PHƯƠNG ÁN 4 (NHIỄU) -->
+      <div id="card-option-4" onclick="toggleOption(4)" class="option-card group relative p-2.5 sm:p-3 rounded-xl border-2 border-slate-300 bg-white shadow-sm flex items-center gap-3 cursor-pointer select-none">
+        <div id="checkbox-4" class="w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all"></div>
+        <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug flex-1">
+          Chứng minh rằng Trái Đất là một mặt phẳng rộng lớn.
+        </p>
+      </div>
+
+      <!-- PHƯƠNG ÁN 5 (ĐÚNG) -->
+      <div id="card-option-5" onclick="toggleOption(5)" class="option-card group relative p-2.5 sm:p-3 rounded-xl border-2 border-slate-300 bg-white shadow-sm flex items-center gap-3 cursor-pointer select-none">
+        <div id="checkbox-5" class="w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all"></div>
+        <p class="text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug flex-1">
+          Làm nảy sinh nạn buôn bán nô lệ da đen và khởi đầu quá trình xâm chiếm, cướp bóc thuộc địa.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="no-print flex items-center justify-center gap-3 pt-0.5">
+      <button id="btn-check" onclick="checkAnswers()" class="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 active:scale-95 text-white text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all">
+        <span>✓</span>
+        <span>KIỂM TRA ĐÁP ÁN</span>
+      </button>
+
+      <button onclick="resetActivity()" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 text-xs sm:text-sm font-bold border border-slate-300 shadow-sm transition-all">
+        <span>🔄</span>
+        <span>LÀM LẠI</span>
+      </button>
+
+      <button onclick="exportWorksheet()" class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-black shadow-md transition-all">
+        <span>🖨️</span>
+        <span>XUẤT PHIẾU / IN</span>
+      </button>
+    </div>
+
+    <section id="feedback-panel" class="min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-300 transition-all duration-300">
+      <div id="feedback-content" class="flex items-center justify-center gap-2 text-xs font-bold text-slate-700">
+        <span class="text-base">🧭</span>
+        <span>Tích chọn vào các ô em cho là đúng, sau đó bấm <b>"KIỂM TRA ĐÁP ÁN"</b> hoặc <b>"XUẤT PHIẾU / IN"</b>.</span>
+      </div>
+    </section>
+
+    <section class="w-full bg-gradient-to-r from-amber-50/95 via-white/95 to-amber-50/95 rounded-2xl border-2 border-amber-300 p-2 sm:p-2.5 shadow-sm">
+      <div class="flex items-center justify-center gap-2 mb-1">
+        <span class="text-sm">📌</span>
+        <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950">
+          HỆ QUẢ CẦN NHỚ
+        </h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <!-- Tác động tích cực -->
+        <div class="p-2 bg-emerald-50/90 border-l-4 border-emerald-500 rounded-xl flex items-start gap-2 shadow-xs">
+          <div class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">
+            +
+          </div>
+          <div>
+            <span class="text-[11px] font-black text-emerald-900 uppercase tracking-wide block">
+              TÁC ĐỘNG TÍCH CỰC
+            </span>
+            <ul class="text-[11px] sm:text-xs text-slate-800 font-semibold leading-snug mt-0.5 list-disc list-inside space-y-0.5">
+              <li>Mở rộng giao thương và kết nối, thúc đẩy hàng hải quốc tế phát triển.</li>
+              <li>Thúc đẩy nền sản xuất và thương nghiệp Tây Âu phát triển.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tác động tiêu cực -->
+        <div class="p-2 bg-rose-50/90 border-l-4 border-rose-500 rounded-xl flex items-start gap-2 shadow-xs">
+          <div class="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center font-black text-[10px] flex-shrink-0 mt-0.5">
+            −
+          </div>
+          <div>
+            <span class="text-[11px] font-black text-rose-900 uppercase tracking-wide block">
+              TÁC ĐỘNG TIÊU CỰC
+            </span>
+            <p class="text-[11px] sm:text-xs text-slate-800 font-semibold leading-snug mt-0.5">
+              Làm nảy sinh nạn buôn bán nô lệ da đen và khởi đầu quá trình xâm chiếm, cướp bóc thuộc địa…
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Quản lý trạng thái 5 phương án
+    const state = {
+      selected: [false, false, false, false, false], // 1..3 là đúng, 4..5 là nhiễu
+      isChecked: false,
+      isBlankPrint: false
+    };
+
+    // Tạo âm thanh phản hồi Web Audio API
+    let audioCtx = null;
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'select') {
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(587.33, now + 0.08);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'success') {
+          [523.25, 659.25, 783.99].forEach((freq, i) => {
+            const chordOsc = audioCtx.createOscillator();
+            const chordGain = audioCtx.createGain();
+            chordOsc.connect(chordGain);
+            chordGain.connect(audioCtx.destination);
+            chordOsc.frequency.setValueAtTime(freq, now + i * 0.06);
+            chordGain.gain.setValueAtTime(0.1, now + i * 0.06);
+            chordGain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.2);
+            chordOsc.start(now + i * 0.06);
+            chordOsc.stop(now + i * 0.06 + 0.2);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // Xử lý nhấp chọn phương án
+    function toggleOption(num) {
+      playSound('select');
+      const idx = num - 1;
+      state.selected[idx] = !state.selected[idx];
+
+      if (state.isChecked) {
+        state.isChecked = false;
+        resetFeedbackPanel();
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      for (let i = 1; i <= 5; i++) {
+        const isSel = state.selected[i - 1];
+        const card = document.getElementById(`card-option-${i}`);
+        const checkbox = document.getElementById(`checkbox-${i}`);
+
+        if (isSel) {
+          card.classList.add('is-selected');
+          card.classList.remove('is-checked-correct', 'is-checked-wrong');
+          checkbox.className = "w-8 h-8 rounded-lg border-2 border-blue-600 bg-blue-600 flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all";
+          checkbox.innerHTML = '✓';
+        } else {
+          card.classList.remove('is-selected', 'is-checked-correct', 'is-checked-wrong');
+          checkbox.className = "w-8 h-8 rounded-lg border-2 border-slate-400 bg-white flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all";
+          checkbox.innerHTML = '';
+        }
+      }
+    }
+
+    // Kiểm tra kết quả
+    function checkAnswers() {
+      state.isChecked = true;
+      const feedbackPanel = document.getElementById('feedback-panel');
+      const feedbackContent = document.getElementById('feedback-content');
+      const [s1, s2, s3, s4, s5] = state.selected;
+      const anySelected = s1 || s2 || s3 || s4 || s5;
+
+      if (!anySelected) {
+        feedbackPanel.className = "min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-amber-100 border-2 border-amber-400 text-amber-900 transition-all";
+        feedbackContent.innerHTML = `
+          <span class="text-base">⚠️</span>
+          <span class="font-bold text-xs sm:text-sm">Em chưa chọn đáp án nào. Hãy đọc kỹ 5 phương án và tích chọn những ý đúng nhé!</span>
+        `;
+        return;
+      }
+
+      // Danh sách các phương án đúng theo vị trí mới: 1, 3, 5
+      const correctIndices = [1, 3, 5];
+
+      for (let i = 1; i <= 5; i++) {
+        const card = document.getElementById(`card-option-${i}`);
+        const checkbox = document.getElementById(`checkbox-${i}`);
+        const isCorrectOption = correctIndices.includes(i);
+        const isSel = state.selected[i - 1];
+
+        if (isSel) {
+          if (isCorrectOption) {
+            card.classList.add('is-checked-correct');
+            checkbox.className = "w-8 h-8 rounded-lg border-2 border-emerald-600 bg-emerald-600 flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all";
+            checkbox.innerHTML = '✓';
+          } else {
+            card.classList.add('is-checked-wrong');
+            checkbox.className = "w-8 h-8 rounded-lg border-2 border-rose-600 bg-rose-600 flex items-center justify-center flex-shrink-0 text-white font-black text-base shadow-inner transition-all";
+            checkbox.innerHTML = '✕';
+          }
+        }
+      }
+
+      // Kiểm tra phương án nhiễu (2 và 4) và đếm số phương án đúng (1, 3, 5)
+      const hasWrong = s2 || s4;
+      const correctCount = (s1 ? 1 : 0) + (s3 ? 1 : 0) + (s5 ? 1 : 0);
+
+      if (correctCount === 3 && !hasWrong) {
+        playSound('success');
+        feedbackPanel.className = "min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-emerald-100 border-2 border-emerald-500 text-emerald-900 transition-all animate-pulse-soft";
+        feedbackContent.innerHTML = `
+          <span class="text-base">🎉</span>
+          <span class="font-black text-xs sm:text-sm">Xuất sắc! Em đã chọn chính xác cả 3 hệ quả lớn (cả tác động tích cực lẫn tiêu cực) của các cuộc phát kiến địa lí.</span>
+        `;
+      } else if (hasWrong) {
+        feedbackPanel.className = "min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-rose-100 border-2 border-rose-500 text-rose-950 transition-all";
+        feedbackContent.innerHTML = `
+          <span class="text-base">❌</span>
+          <span class="font-bold text-xs sm:text-sm">Chưa chính xác! Có phương án em chọn không phải là hệ quả thực tế (chú ý Trái Đất hình cầu và không có sự đồng nhất hoàn toàn về văn hóa).</span>
+        `;
+      } else {
+        feedbackPanel.className = "min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-blue-100 border-2 border-blue-500 text-blue-950 transition-all";
+        feedbackContent.innerHTML = `
+          <span class="text-base">✓</span>
+          <span class="font-bold text-xs sm:text-sm">Rất tốt! Em đã tìm được <b>${correctCount}/3</b> ý đúng. Hãy tiếp tục chọn thêm các hệ quả còn lại nhé!</span>
+        `;
+      }
+    }
+
+    function resetFeedbackPanel() {
+      const feedbackPanel = document.getElementById('feedback-panel');
+      feedbackPanel.className = "min-h-[42px] w-full flex items-center justify-center text-center px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-300 transition-all";
+      document.getElementById('feedback-content').innerHTML = `
+        <span class="text-base">🧭</span>
+        <span>Tích chọn vào các ô em cho là đúng, sau đó bấm <b>"KIỂM TRA ĐÁP ÁN"</b> hoặc <b>"XUẤT PHIẾU / IN"</b>.</span>
+      `;
+    }
+
+    function resetActivity() {
+      state.selected = [false, false, false, false, false];
+      state.isChecked = false;
+      updateUI();
+      resetFeedbackPanel();
+    }
+
+    // Chuyển đổi giữa chế độ in phiếu trắng và chế độ tương tác
+    function togglePrintBlankMode() {
+      state.isBlankPrint = !state.isBlankPrint;
+      const btnLabel = document.getElementById('mode-label');
+      const btnIcon = document.getElementById('mode-icon');
+
+      if (state.isBlankPrint) {
+        resetActivity();
+        btnLabel.innerText = "Chế Độ Đã Làm";
+        btnIcon.innerText = "✏️";
+      } else {
+        btnLabel.innerText = "In Phiếu Trắng";
+        btnIcon.innerText = "📄";
+      }
+    }
+
+    // Xuất phiếu ra bản in hoặc lưu file PDF trực tiếp
+    function exportWorksheet() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
