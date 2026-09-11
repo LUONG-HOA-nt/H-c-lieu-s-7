@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiếu Học Tập Lịch Sử - Các Cuộc Phát Kiến Địa Lí</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Kalam:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #0f172a;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Kích thước khung chuẩn tỉ lệ ngang 16:9 tối ưu cho máy chiếu, TV và in ngang */
+    .screen-16-9 {
+      width: 100%;
+      max-width: 1120px;
+      aspect-ratio: 16 / 9;
+      margin: 15px auto;
+      background: #ffffff;
+      box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35);
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      body {
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .screen-16-9 {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        aspect-ratio: auto;
+        box-shadow: none;
+        border: none;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+      }
+      .print-border-none {
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+
+    /* Họa tiết nền bản đồ tọa độ hàng hải cổ điển tinh tế */
+    .vintage-map-bg {
+      background-color: #fffdfa;
+      background-image: 
+        radial-gradient(#cbd5e1 0.75px, transparent 0.75px), 
+        radial-gradient(#cbd5e1 0.75px, #fffdfa 0.75px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+    }
+
+    /* Khu vực dòng kẻ ngang chuẩn nét để học sinh gõ chữ thẳng hàng */
+    .lined-textarea {
+      line-height: 38px;
+      background-attachment: local;
+      background-image: linear-gradient(to bottom, transparent 36px, #94a3b8 36.5px, transparent 38px);
+      background-size: 100% 38px;
+      resize: none;
+      outline: none;
+    }
+
+    /* Font chữ viết tay mô phỏng nét bút của học sinh */
+    .handwriting-font {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      font-weight: 500;
+      color: #1e3a8a;
+    }
+
+    /* Dòng kẻ trống dùng khi in giấy trắng */
+    .blank-dashed-line {
+      border-bottom: 1.6px dashed #94a3b8;
+      height: 38px;
+    }
+  </style>
+</head>
+<body class="py-2 px-2 sm:px-3">
+
+  <header class="no-print max-w-[1120px] mx-auto mb-2 bg-white p-2.5 rounded-2xl shadow-md border border-slate-200">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-2.5">
+      <div class="flex items-center space-x-3 w-full md:w-auto">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700 to-indigo-900 text-white flex items-center justify-center text-lg shadow">
+          🧭
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-slate-800 tracking-tight flex items-center gap-2">
+            <span>Phiếu Học Tập Lịch Sử – Khổ Ngang 16:9</span>
+            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Trình chiếu & In ấn</span>
+          </h2>
+          <p class="text-[11px] text-slate-500">Kích thước 16:9 tối ưu cho TV, màn chiếu lớp học hoặc in ngang A4</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+        <!-- Nút đổi chế độ: Làm bài trực tiếp / In giấy trắng -->
+        <button id="toggle-mode-btn" onclick="toggleWorksheetMode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition">
+          <span id="mode-icon">📄</span>
+          <span id="mode-text">Chuyển Phiếu Trắng In Tay</span>
+        </button>
+
+        <!-- Nút gợi ý mở đầu câu trả lời -->
+        <button onclick="insertSampleText()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold rounded-xl border border-amber-300 transition" title="Chèn câu mở đầu mẫu chuẩn sư phạm">
+          💡 Gợi ý mở đầu
+        </button>
+
+        <!-- Nút xóa làm lại -->
+        <button onclick="clearWorksheetInputs()" class="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200 transition">
+          🗑️ Làm lại
+        </button>
+
+        <!-- Nút In / Trình chiếu -->
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          In Ngang A4 / PDF
+        </button>
+
+        <!-- Nút Nộp Bài -->
+        <button id="header-submit-btn" onclick="submitWorksheet()" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow transition active:scale-95">
+          <span>🚀</span>
+          <span>Nộp bài</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="worksheet" class="screen-16-9 p-4 sm:p-5 md:p-6 vintage-map-bg border-[5px] border-[#1e3a8a]/20 rounded-2xl print-border-none relative flex flex-col justify-between gap-2.5">
+
+    <!-- CÂU HỎI TRỌNG TÂM & THÔNG TIN HỌC SINH -->
+    <section class="pb-2 border-b-2 border-dashed border-blue-200">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+        <div class="text-left">
+          <div class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-100 border border-amber-300 rounded-full text-amber-900 text-[11px] font-black tracking-widest uppercase mb-1">
+            <span>⭐</span> CÂU HỎI TRỌNG TÂM
+          </div>
+          <h1 class="text-base sm:text-lg md:text-[21px] font-black tracking-tight text-[#1e3a8a] uppercase drop-shadow-sm leading-snug">
+            Theo em, cuộc phát kiến địa lí nào là <span class="text-amber-600 underline underline-offset-2 decoration-amber-400">quan trọng nhất</span>? <span class="text-amber-600 underline underline-offset-2 decoration-amber-400">Vì sao?</span>
+          </h1>
+        </div>
+
+        <!-- Khung điền thông tin học sinh -->
+        <div class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 bg-white/95 px-3.5 py-1.5 rounded-xl border border-slate-300 shadow-sm flex-shrink-0">
+          <div class="flex items-center gap-1.5 min-w-[150px]">
+            <span class="font-bold text-slate-800">Họ tên:</span>
+            <input type="text" id="input-name" placeholder="Nhập họ tên..." class="w-full bg-transparent border-b border-dotted border-slate-400 focus:border-blue-600 focus:outline-none px-1 text-blue-900 font-semibold text-xs sm:text-sm">
+          </div>
+          <div class="flex items-center gap-1 w-24">
+            <span class="font-bold text-slate-800">Lớp:</span>
+            <input type="text" id="input-class" placeholder="Lớp..." class="w-full bg-transparent border-b border-dotted border-slate-400 focus:border-blue-600 focus:outline-none px-1 text-blue-900 font-semibold text-xs sm:text-sm">
+          </div>
+          <div class="flex items-center gap-1 w-32">
+            <span class="font-bold text-slate-800">Ngày:</span>
+            <input type="text" id="input-date" placeholder="Ngày..." class="w-full bg-transparent border-b border-dotted border-slate-400 focus:border-blue-600 focus:outline-none px-1 text-blue-900 font-semibold text-xs sm:text-sm">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KHU VỰC LỰA CHỌN: 4 Ô BÀN ĐỒ HÀNG HẢI TRẢI NGANG - CHỮ TO RÕ, NẰM VỪA VẶN -->
+    <section class="py-1">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="flex h-3 w-3 rounded-full bg-blue-700 ring-2 ring-blue-200"></span>
+          <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-blue-950">
+            EM LỰA CHỌN: <span class="font-semibold text-slate-600 normal-case">(Nhấp chọn 1 phương án em cho là quan trọng nhất)</span>
+          </h3>
+        </div>
+        <span id="selected-badge" class="text-xs font-bold text-blue-800 bg-blue-100/80 px-2.5 py-1 rounded-md border border-blue-300">
+          Chưa chọn
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="choice-group">
+        <!-- Ô 1: B. Đi-a-xơ -->
+        <label class="choice-card flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm cursor-pointer hover:border-blue-500 hover:shadow transition select-none" onclick="selectExpedition('dias')">
+          <input type="radio" name="expedition" value="B. Đi-a-xơ" id="radio-dias" class="w-5 h-5 text-blue-700 border-slate-400 focus:ring-blue-600 cursor-pointer flex-shrink-0">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center flex-shrink-0 border border-blue-200 shadow-inner">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 19c4 0 6-2 10-2s6 2 10 2"/>
+              <path d="M4 17l1.5 3h13l1.5-3z"/>
+              <path d="M12 4v13M12 5l7 5h-7M12 7L7 11h5"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-sm sm:text-base md:text-lg font-black text-slate-900 block truncate leading-tight">B. Đi-a-xơ</span>
+            <span class="text-xs sm:text-[13px] font-semibold text-slate-600 block truncate mt-0.5">1487 • Cực Nam châu Phi</span>
+          </div>
+        </label>
+
+        <!-- Ô 2: Cô-lôm-bô -->
+        <label class="choice-card flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm cursor-pointer hover:border-blue-500 hover:shadow transition select-none" onclick="selectExpedition('colombo')">
+          <input type="radio" name="expedition" value="Cô-lôm-bô" id="radio-colombo" class="w-5 h-5 text-blue-700 border-slate-400 focus:ring-blue-600 cursor-pointer flex-shrink-0">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0 border border-amber-200 shadow-inner">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <polygon points="12 7 14 12 12 17 10 12" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-sm sm:text-base md:text-lg font-black text-slate-900 block truncate leading-tight">Cô-lôm-bô</span>
+            <span class="text-xs sm:text-[13px] font-semibold text-slate-600 block truncate mt-0.5">1492 • Tìm ra châu Mĩ</span>
+          </div>
+        </label>
+
+        <!-- Ô 3: Va-xcô đơ Ga-ma -->
+        <label class="choice-card flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm cursor-pointer hover:border-blue-500 hover:shadow transition select-none" onclick="selectExpedition('gama')">
+          <input type="radio" name="expedition" value="Va-xcô đơ Ga-ma" id="radio-gama" class="w-5 h-5 text-blue-700 border-slate-400 focus:ring-blue-600 cursor-pointer flex-shrink-0">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0 border border-emerald-200 shadow-inner">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="5" r="2"/>
+              <path d="M12 7v13M5 12h14M6 17a6 6 0 0012 0"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-sm sm:text-base md:text-lg font-black text-slate-900 block truncate leading-tight">Va-xcô đơ Ga-ma</span>
+            <span class="text-xs sm:text-[13px] font-semibold text-slate-600 block truncate mt-0.5">1497-98 • Tây Nam Ấn Độ</span>
+          </div>
+        </label>
+
+        <!-- Ô 4: Ma-gien-lăng -->
+        <label class="choice-card flex items-center gap-3 p-3 sm:p-3.5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm cursor-pointer hover:border-blue-500 hover:shadow transition select-none" onclick="selectExpedition('magellan')">
+          <input type="radio" name="expedition" value="Ma-gien-lăng" id="radio-magellan" class="w-5 h-5 text-blue-700 border-slate-400 focus:ring-blue-600 cursor-pointer flex-shrink-0">
+          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center flex-shrink-0 border border-indigo-200 shadow-inner">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3.6 9h16.8M3.6 15h16.8M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-sm sm:text-base md:text-lg font-black text-slate-900 block truncate leading-tight">Ma-gien-lăng</span>
+            <span class="text-xs sm:text-[13px] font-semibold text-slate-600 block truncate mt-0.5">1519-22 • Vòng quanh T.Đất</span>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <!-- KHU VỰC LẬP LUẬN (ĐƯỢC NÂNG CẤP VỪA KHÍT TẬN DỤNG KHÔNG GIAN 16:9) -->
+    <section class="bg-white/95 rounded-2xl border-2 border-slate-300 p-3 sm:p-3.5 shadow-sm relative flex-1 flex flex-col justify-between">
+      <div class="flex items-center justify-between pb-1.5 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="text-base sm:text-lg">✍️</span>
+          <h3 class="text-xs sm:text-sm font-black tracking-wide text-blue-950 uppercase">
+            LÍ DO EM LỰA CHỌN:
+          </h3>
+          <span class="text-xs italic text-slate-500 ml-1">
+            (Trình bày ngắn gọn trong 3 - 4 dòng)
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="char-counter" class="text-xs font-semibold text-slate-500 no-print bg-slate-100 px-2 py-0.5 rounded">
+            0 chữ
+          </span>
+        </div>
+      </div>
+
+      <!-- Vùng gõ trực tiếp (chữ to rõ, dòng kẻ 38px) -->
+      <div id="typing-container" class="relative my-1 flex-1">
+        <textarea 
+          id="reason-input" 
+          rows="4" 
+          spellcheck="false"
+          oninput="handleReasonTyping(this)"
+          placeholder="Học sinh nhấp vào đây để gõ lý do (3-4 dòng): Em lựa chọn cuộc phát kiến này vì..." 
+          class="lined-textarea handwriting-font w-full text-sm sm:text-base leading-[38px] p-0 border-none focus:ring-0 text-slate-900 font-medium placeholder:font-normal placeholder:text-slate-400 placeholder:italic"></textarea>
+      </div>
+
+      <!-- Vùng dòng kẻ trống cho chế độ in giấy -->
+      <div id="blank-lines-container" class="hidden my-1 space-y-0 relative flex-1">
+        <div class="blank-dashed-line"></div>
+        <div class="blank-dashed-line"></div>
+        <div class="blank-dashed-line"></div>
+        <div class="blank-dashed-line"></div>
+      </div>
+
+      <!-- Chân khung lý do: Định hướng sư phạm & nút nộp bài nhanh -->
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
+        <p class="text-xs sm:text-[13px] font-semibold text-slate-700 italic bg-amber-50 px-3 py-1 rounded-lg border border-amber-200 flex items-center gap-1.5">
+          <span>💡</span> Em hãy sử dụng kiến thức lịch sử để giải thích lựa chọn của mình.
+        </p>
+
+        <button type="button" onclick="submitWorksheet()" class="no-print inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-4 py-1.5 rounded-xl shadow transition active:scale-95">
+          <span>✨</span> Hoàn thành & Nộp bài
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL THÔNG BÁO NỘP BÀI THÀNH CÔNG -->
+  <div id="submit-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-5 text-white text-center relative">
+        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mx-auto text-3xl mb-2 shadow-inner">
+          🎉
+        </div>
+        <h3 class="text-xl font-black tracking-tight">Nộp Bài Thành Công!</h3>
+        <p class="text-xs text-emerald-100 mt-1 font-medium">Hệ thống đã ghi nhận phiếu học tập Lịch sử của em</p>
+      </div>
+
+      <div class="p-5 space-y-3.5 text-xs text-slate-700">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Học sinh:</span>
+            <span id="modal-summary-name" class="font-bold text-slate-900 text-sm">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Lớp:</span>
+            <span id="modal-summary-class" class="font-semibold text-slate-800">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Lựa chọn phát kiến:</span>
+            <span id="modal-summary-choice" class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Độ dài bài luận:</span>
+            <span id="modal-summary-words" class="font-semibold text-slate-800">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-500">Thời gian nộp:</span>
+            <span id="modal-summary-time" class="font-medium text-slate-600">--</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
+          <span class="text-base">📜</span>
+          <span>Thầy/Cô có thể kiểm tra trực tiếp trên màn hình hoặc nhấn <b>"In Phiếu Đã Làm"</b> để lưu bản cứng.</span>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+        <button onclick="closeSubmitModal()" class="px-4 py-2 text-slate-600 hover:bg-slate-200 text-xs font-bold rounded-xl transition">
+          Đóng / Tiếp tục chỉnh sửa
+        </button>
+        <button onclick="window.print()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          In Phiếu Đã Làm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CẢNH BÁO TÙY BIẾN KHI CHƯA HOÀN THÀNH -->
+  <div id="toast-message" class="fixed bottom-6 right-6 z-50 bg-rose-600 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs font-bold hidden transition-all duration-300 transform translate-y-4">
+    <span class="text-lg">⚠️</span>
+    <span id="toast-text">Vui lòng điền đủ thông tin!</span>
+  </div>
+
+  <script>
+    let isBlankPrintMode = false;
+    const STORAGE_KEY = 'LSH_WORKSHEET_DATA_V1';
+    let toastTimeout = null;
+
+    // Khởi tạo và khôi phục dữ liệu đã lưu
+    window.addEventListener('DOMContentLoaded', () => {
+      // Tự động gán ngày hiện tại nếu chưa có
+      const today = new Date();
+      const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+      
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          if (data.name) document.getElementById('input-name').value = data.name;
+          if (data.class) document.getElementById('input-class').value = data.class;
+          if (data.date) document.getElementById('input-date').value = data.date;
+          if (data.reason) {
+            const textarea = document.getElementById('reason-input');
+            textarea.value = data.reason;
+            handleReasonTyping(textarea);
+          }
+          if (data.choice) {
+            selectExpedition(data.choice);
+          }
+        } catch (e) {
+          console.error("Không thể khôi phục dữ liệu đã lưu", e);
+        }
+      } else {
+        document.getElementById('input-date').value = formattedDate;
+      }
+
+      // Tự động lưu khi gõ họ tên, lớp, ngày
+      ['input-name', 'input-class', 'input-date'].forEach(id => {
+        document.getElementById(id).addEventListener('input', saveDataToStorage);
+      });
+    });
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-message');
+      const text = document.getElementById('toast-text');
+      text.innerText = message;
+      toast.classList.remove('hidden', 'translate-y-4');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3500);
+    }
+
+    function submitWorksheet() {
+      const name = document.getElementById('input-name').value.trim();
+      const studentClass = document.getElementById('input-class').value.trim();
+      const selected = document.querySelector('input[name="expedition"]:checked');
+      const reason = document.getElementById('reason-input').value.trim();
+
+      // Kiểm tra các trường bắt buộc
+      if (!name) {
+        showToast("Em vui lòng điền Họ và tên trước khi nộp bài!");
+        document.getElementById('input-name').focus();
+        return;
+      }
+
+      if (!selected) {
+        showToast("Em hãy chọn 1 cuộc phát kiến địa lí mà em cho là quan trọng nhất!");
+        return;
+      }
+
+      if (!reason) {
+        showToast("Em hãy viết lí do lựa chọn của mình vào khung bài làm!");
+        document.getElementById('reason-input').focus();
+        return;
+      }
+
+      // Lưu trữ trạng thái nộp bài
+      const now = new Date();
+      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} - ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
+      
+      const words = reason.split(/\s+/).filter(w => w.length > 0).length;
+
+      // Cập nhật thông tin vào modal
+      document.getElementById('modal-summary-name').innerText = name;
+      document.getElementById('modal-summary-class').innerText = studentClass || "Chưa ghi lớp";
+      document.getElementById('modal-summary-choice').innerText = selected.value;
+      document.getElementById('modal-summary-words').innerText = `${words} từ`;
+      document.getElementById('modal-summary-time').innerText = timeStr;
+
+      // Hiển thị modal chúc mừng nộp bài
+      const modal = document.getElementById('submit-modal');
+      modal.classList.remove('hidden');
+
+      saveDataToStorage();
+    }
+
+    function closeSubmitModal() {
+      document.getElementById('submit-modal').classList.add('hidden');
+    }
+
+    function selectExpedition(choiceId) {
+      const radio = document.getElementById(`radio-${choiceId}`);
+      if (radio) radio.checked = true;
+
+      const cards = document.querySelectorAll('.choice-card');
+      cards.forEach(card => {
+        card.classList.remove('border-blue-600', 'bg-blue-50/70', 'ring-2', 'ring-blue-400');
+        card.classList.add('border-slate-200', 'bg-white');
+      });
+
+      const activeCard = radio.closest('.choice-card');
+      if (activeCard) {
+        activeCard.classList.remove('border-slate-200', 'bg-white');
+        activeCard.classList.add('border-blue-600', 'bg-blue-50/70', 'ring-2', 'ring-blue-400');
+      }
+
+      // Cập nhật nhãn trạng thái đã chọn
+      const names = {
+        'dias': 'Đã chọn: B. Đi-a-xơ (1487)',
+        'colombo': 'Đã chọn: Cô-lôm-bô (1492)',
+        'gama': 'Đã chọn: Va-xcô đơ Ga-ma (1497-1498)',
+        'magellan': 'Đã chọn: Ma-gien-lăng (1519-1522)'
+      };
+      const badge = document.getElementById('selected-badge');
+      if (badge && names[choiceId]) {
+        badge.innerText = names[choiceId];
+        badge.className = "text-[11px] font-bold text-white bg-blue-700 px-2 py-0.5 rounded-md shadow-sm";
+      }
+
+      saveDataToStorage();
+    }
+
+    function handleReasonTyping(textarea) {
+      const text = textarea.value.trim();
+      const count = text.length === 0 ? 0 : text.split(/\s+/).length;
+      document.getElementById('char-counter').innerText = `${count} từ`;
+      saveDataToStorage();
+    }
+
+    function insertSampleText() {
+      const selected = document.querySelector('input[name="expedition"]:checked');
+      let explorerName = selected ? selected.value : "[Tên nhà thám hiểm]";
+      
+      const sample = `Theo em, cuộc phát kiến của ${explorerName} là quan trọng nhất vì:
+1. Đã mở ra tuyến hàng hải huyết mạch kết nối các đại dương và nền văn minh.
+2. Tạo bước ngoặt lịch sử về giao thương quốc tế và mở rộng nhận thức khoa học của nhân loại.`;
+      
+      const textarea = document.getElementById('reason-input');
+      textarea.value = sample;
+      handleReasonTyping(textarea);
+    }
+
+    function toggleWorksheetMode() {
+      isBlankPrintMode = !isBlankPrintMode;
+      const typingBox = document.getElementById('typing-container');
+      const blankLines = document.getElementById('blank-lines-container');
+      const modeBtnText = document.getElementById('mode-text');
+      const modeIcon = document.getElementById('mode-icon');
+
+      if (isBlankPrintMode) {
+        typingBox.classList.add('hidden');
+        blankLines.classList.remove('hidden');
+        modeBtnText.innerText = "Chuyển Chế Độ Gõ Chữ";
+        modeIcon.innerText = "✍️";
+      } else {
+        typingBox.classList.remove('hidden');
+        blankLines.classList.add('hidden');
+        modeBtnText.innerText = "Chuyển Phiếu Trắng In Tay";
+        modeIcon.innerText = "📄";
+      }
+    }
+
+    function saveDataToStorage() {
+      const selected = document.querySelector('input[name="expedition"]:checked');
+      const choiceId = selected ? selected.id.replace('radio-', '') : null;
+
+      const data = {
+        name: document.getElementById('input-name').value,
+        class: document.getElementById('input-class').value,
+        date: document.getElementById('input-date').value,
+        choice: choiceId,
+        reason: document.getElementById('reason-input').value
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function clearWorksheetInputs() {
+      document.getElementById('input-name').value = '';
+      document.getElementById('input-class').value = '';
+      document.getElementById('reason-input').value = '';
+      document.getElementById('char-counter').innerText = '0 từ';
+      
+      const radios = document.querySelectorAll('input[name="expedition"]');
+      radios.forEach(r => r.checked = false);
+
+      const cards = document.querySelectorAll('.choice-card');
+      cards.forEach(card => {
+        card.classList.remove('border-blue-600', 'bg-blue-50/70', 'ring-2', 'ring-blue-400');
+        card.classList.add('border-slate-200', 'bg-white');
+      });
+
+      const badge = document.getElementById('selected-badge');
+      badge.innerText = "Chưa chọn";
+      badge.className = "text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200";
+
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  </script>
+</body>
+</html>
