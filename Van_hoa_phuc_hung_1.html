@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phiếu Học Tập Kéo Thả - Văn Hoá Phục Hưng (Bản Trình Chiếu 16:9)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            parchment: '#FCF8ED',
+            parchmentDark: '#F2E4CD',
+            renaissanceGold: '#C59B27',
+            renaissanceBorder: '#642605',
+            classicalNavy: '#122744',
+            classicalBlue: '#1F477D',
+            antiqueInk: '#23120B',
+            tableHeader: '#143152',
+            authorBg: '#F8F0E3',
+            boardBg: '#E9DEC7'
+          },
+          fontFamily: {
+            cinzel: ['Cinzel', 'serif'],
+            serif: ['Merriweather', 'Georgia', 'serif'],
+            sans: ['Nunito', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      font-family: 'Nunito', sans-serif;
+      color: #23120B;
+      background-color: #D8C7A5;
+      background-image: 
+        radial-gradient(#bca882 1.5px, transparent 1.5px), 
+        radial-gradient(#bca882 1.5px, #D8C7A5 1.5px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-y: auto;
+    }
+
+    /* 16:9 Presentation Frame Container - Always start from top to avoid vertical clipping */
+    .presentation-container {
+      width: 100%;
+      max-width: 1920px;
+      display: flex;
+      flex-direction: column;
+      background: #FAF3E6;
+      box-shadow: 0 10px 45px rgba(45, 23, 7, 0.35);
+      position: relative;
+      margin: 0 auto;
+    }
+
+    /* Drop Zone Highlighting */
+    .drop-zone {
+      transition: all 0.2s ease-in-out;
+    }
+    .drop-zone.drag-over {
+      background-color: #FEF08A !important;
+      border-color: #B45309 !important;
+      box-shadow: inset 0 0 16px rgba(180, 83, 9, 0.45);
+      transform: scale(1.01);
+    }
+
+    /* Draggable cards styling - Big text for projector */
+    .draggable-card {
+      touch-action: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+      cursor: grab;
+    }
+    .draggable-card:active {
+      cursor: grabbing;
+    }
+    .draggable-card.dragging {
+      opacity: 0.45;
+      transform: scale(0.95) rotate(-2deg);
+    }
+    .draggable-card.selected-card {
+      outline: 4px solid #D97706;
+      outline-offset: 3px;
+      background-color: #FEF3C7 !important;
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.4) !important;
+    }
+
+    /* Custom Scrollbar for Projector */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #EEDEC3;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #A06D3B;
+      border-radius: 6px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #784719;
+    }
+
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 lg:p-6 flex flex-col items-center justify-start min-h-screen">
+
+  <main id="app-frame" class="presentation-container border-4 border-[#642605] rounded-2xl p-3 sm:p-6 flex flex-col gap-4">
+    
+    <!-- TOP HEADER: Compact & High Legibility for 16:9 -->
+    <header class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b-2 border-[#8C531F]">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl lg:text-4xl select-none">🍇🏛️</span>
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#EEDBBD] border border-[#9A6432] rounded text-xs lg:text-sm font-bold text-[#55270A] uppercase tracking-wider">
+            <span>📜 Lịch Sử 7</span>
+            <span>•</span>
+            <span>Chế độ Trình Chiếu Giảng Dạy (16:9)</span>
+          </div>
+          <h1 class="font-cinzel text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black tracking-tight text-[#3B1703] uppercase">
+            Những Thành Tựu Tiêu Biểu Của Phong Trào Văn Hoá Phục Hưng
+          </h1>
+        </div>
+      </div>
+
+      <div class="flex items-center flex-wrap gap-2 lg:gap-3 no-print">
+        <!-- Live Score Counter for classroom view -->
+        <div class="flex items-center bg-[#122744] text-white px-4 py-2 rounded-xl shadow-md border border-[#305380]">
+          <span class="text-sm lg:text-base font-bold mr-2 text-amber-300 uppercase">Điểm lớp:</span>
+          <span id="score-badge" class="text-xl lg:text-2xl font-black tracking-wide">0 / 6</span>
+        </div>
+
+        <!-- Fullscreen Button -->
+        <button id="btn-fullscreen" onclick="toggleFullScreen()" title="Phóng to toàn màn hình lớp học (F11)" 
+          class="px-4 py-2 bg-[#8C3A00] hover:bg-[#6E2E00] active:scale-95 text-white font-bold text-sm lg:text-base rounded-xl shadow-md transition flex items-center gap-2 border border-amber-600">
+          <svg id="fs-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+          <span id="fs-text">Toàn Màn Hình</span>
+        </button>
+
+        <!-- Check Result Button -->
+        <button id="btn-check" onclick="checkAnswers()" 
+          class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 active:scale-95 text-white font-extrabold text-sm lg:text-base rounded-xl shadow-md transition flex items-center gap-1.5 border border-emerald-900">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          Kiểm Tra
+        </button>
+
+        <!-- Reset Button -->
+        <button id="btn-reset" onclick="resetWorksheet()" 
+          class="px-3.5 py-2 bg-amber-800 hover:bg-amber-900 active:scale-95 text-white font-bold text-sm lg:text-base rounded-xl shadow-md transition flex items-center gap-1 border border-amber-950">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Làm Lại
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content: Stacked Layout with Table on Top and Answer Cards at the Bottom -->
+    <div class="flex flex-col gap-4 flex-1">
+      
+      <!-- TOP SECTION: Full-Width 6-Author Interactive Worksheet Table -->
+      <section id="table-section" class="w-full flex flex-col">
+        <div class="rounded-xl border-4 border-[#5C2B09] overflow-hidden shadow-xl bg-[#FCF8F2] flex flex-col">
+          
+          <!-- Column Headers: Standardized 3 Columns for 100% Alignment -->
+          <div class="grid grid-cols-12 bg-classicalNavy text-white font-serif font-black text-center text-sm sm:text-base lg:text-xl border-b-3 border-[#542B09]">
+            <div class="col-span-3 sm:col-span-2 py-3.5 px-2 border-r-2 border-blue-900/70 flex items-center justify-center uppercase tracking-wide">
+              Lĩnh vực
+            </div>
+            <div class="col-span-4 sm:col-span-4 py-3.5 px-2 border-r-2 border-blue-900/70 flex items-center justify-center bg-[#154636] uppercase tracking-wide">
+              Đại diện tiêu biểu
+            </div>
+            <div class="col-span-5 sm:col-span-6 py-3.5 px-2 flex items-center justify-center bg-[#1F4168] uppercase tracking-wide">
+              Tác phẩm / Thành tựu tương ứng
+            </div>
+          </div>
+
+          <!-- TABLE BODY: 3 Categories, 6 Slots (Văn học is fully visible and prominent) -->
+          <div class="flex flex-col divide-y-2 divide-[#B89269]">
+            
+            <!-- SECTION 1: VĂN HỌC (2 Slots - Prominently Displayed) -->
+            <div class="grid grid-cols-12 bg-[#FFFDF8]">
+              <!-- Lĩnh vực Column -->
+              <div class="col-span-3 sm:col-span-2 bg-[#F5E6CE] p-3 sm:p-4 flex flex-col items-center justify-center text-center border-r-2 border-[#94683C]">
+                <span class="inline-block px-2 py-0.5 bg-[#8C3A00] text-amber-100 text-xs font-bold rounded mb-1">Mục 1</span>
+                <span class="font-black text-base sm:text-xl lg:text-2xl text-[#4A2007] font-serif uppercase">Văn học</span>
+                <span class="text-3xl sm:text-4xl mt-1.5 filter drop-shadow">📚🪶</span>
+              </div>
+              
+              <!-- 2 Tác giả & 2 Ô thả của Văn học -->
+              <div class="col-span-9 sm:col-span-10 divide-y-2 divide-[#DDC5A9] flex flex-col">
+                <!-- Slot 1: M. Xéc-van-tét -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FCF8F0]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-amber-700">✦</span> M. Xéc-van-tét
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(Tây Ban Nha)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="xec-van-tet" data-label="M. Xéc-van-tét">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="xec-van-tet">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép tác phẩm của M. Xéc-van-tét vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slot 2: W. Sếch-xpia -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FAF3E6]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-amber-700">✦</span> W. Sếch-xpia
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(Anh)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="sech-xpia" data-label="W. Sếch-xpia">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="sech-xpia">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép tác phẩm của W. Sếch-xpia vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: NGHỆ THUẬT (2 Slots) -->
+            <div class="grid grid-cols-12 bg-[#FFFDF8]">
+              <div class="col-span-3 sm:col-span-2 bg-[#F5E6CE] p-3 sm:p-4 flex flex-col items-center justify-center text-center border-r-2 border-[#94683C]">
+                <span class="inline-block px-2 py-0.5 bg-[#154636] text-emerald-100 text-xs font-bold rounded mb-1">Mục 2</span>
+                <span class="font-black text-sm sm:text-base lg:text-2xl text-[#4A2007] font-serif uppercase leading-tight">Nghệ thuật</span>
+                <span class="text-xs sm:text-sm font-bold text-stone-600">(Hội hoạ, Điêu khắc)</span>
+                <span class="text-3xl sm:text-4xl mt-1.5 filter drop-shadow">🎨🗿</span>
+              </div>
+              <div class="col-span-9 sm:col-span-10 divide-y-2 divide-[#DDC5A9] flex flex-col">
+                <!-- Slot 3: Lê-ô-na đơ Vanh-xi -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FCF8F0]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-emerald-800">✦</span> Lê-ô-na đơ Vanh-xi
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(I-ta-li-a)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="vanh-xi" data-label="Lê-ô-na đơ Vanh-xi">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="vanh-xi">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép tác phẩm của Lê-ô-na đơ Vanh-xi vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slot 4: Mi-ken-lăng-giơ -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FAF3E6]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-emerald-800">✦</span> Mi-ken-lăng-giơ
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(I-ta-li-a)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="miken-lang-gio" data-label="Mi-ken-lăng-giơ">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="miken-lang-gio">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép tác phẩm của Mi-ken-lăng-giơ vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 3: KHOA HỌC TỰ NHIÊN (2 Slots) -->
+            <div class="grid grid-cols-12 bg-[#FFFDF8]">
+              <div class="col-span-3 sm:col-span-2 bg-[#F5E6CE] p-3 sm:p-4 flex flex-col items-center justify-center text-center border-r-2 border-[#94683C]">
+                <span class="inline-block px-2 py-0.5 bg-[#1F4168] text-sky-100 text-xs font-bold rounded mb-1">Mục 3</span>
+                <span class="font-black text-sm sm:text-base lg:text-2xl text-[#4A2007] font-serif uppercase leading-tight">Khoa học<br>tự nhiên</span>
+                <span class="text-3xl sm:text-4xl mt-1.5 filter drop-shadow">🔭⚛️</span>
+              </div>
+              <div class="col-span-9 sm:col-span-10 divide-y-2 divide-[#DDC5A9] flex flex-col">
+                <!-- Slot 5: N. Cô-péc-ních -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FCF8F0]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-sky-800">✦</span> N. Cô-péc-ních
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(Ba Lan)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="co-pec-nich" data-label="N. Cô-péc-ních">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="co-pec-nich">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép phát minh của N. Cô-péc-ních vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slot 6: G. Ga-li-lê -->
+                <div class="grid grid-cols-9 sm:grid-cols-10 p-2.5 sm:p-3 items-center min-h-[90px] bg-[#FAF3E6]">
+                  <div class="col-span-4 sm:col-span-4 pr-3 border-r-2 border-[#94683C] flex flex-col justify-center">
+                    <span class="font-black text-sm sm:text-base lg:text-xl text-[#3B1904] flex items-center gap-1.5">
+                      <span class="text-sky-800">✦</span> G. Ga-li-lê
+                    </span>
+                    <span class="text-stone-600 font-semibold text-xs sm:text-sm lg:text-base pl-4">(I-ta-li-a)</span>
+                  </div>
+                  <div class="col-span-5 sm:col-span-6 pl-2.5 sm:pl-4 drop-zone relative" data-author="ga-li-le" data-label="G. Ga-li-lê">
+                    <div class="zone-cards min-h-[72px] border-2 border-dashed border-[#A87948] rounded-xl bg-[#FFFDF9] flex items-center justify-center p-2 transition-all hover:bg-[#FFF8EB]" data-author="ga-li-le">
+                      <div class="placeholder-text text-center pointer-events-none flex flex-col items-center justify-center gap-1 py-1">
+                        <div class="w-24 sm:w-40 border-b-2 border-dotted border-[#B58A5D]"></div>
+                        <span class="text-xs sm:text-sm lg:text-base text-[#8C531F] font-bold">
+                          [ Ghép phát minh của G. Ga-li-lê vào đây ]
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTTOM SECTION: Answer Cards Pool Positioned Across the Bottom + Reflection Question -->
+      <section id="answers-bottom-section" class="w-full flex flex-col gap-3">
+        
+        <!-- Answer Cards Pool (Spacious 3-column grid at bottom of page) -->
+        <div class="bg-[#F4E8D3] border-3 border-[#8C531F] rounded-2xl p-4 shadow-md flex flex-col">
+          <div class="flex items-center justify-between pb-2.5 mb-3 border-b-2 border-[#CCA67C]">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl sm:text-3xl">🏷️</span>
+              <h2 class="font-serif font-black text-[#421D04] text-base sm:text-lg lg:text-2xl uppercase">
+                Kho 6 Thẻ Đáp Án (Tác phẩm / Phát minh tiêu biểu):
+              </h2>
+            </div>
+            <span class="text-xs sm:text-sm lg:text-base font-bold bg-[#E4CDA9] text-[#55270A] px-3 py-1 rounded-full border border-[#B98E64]">
+              💡 Kéo thẻ lên trên hoặc Chạm để chọn rồi bấm ô trống
+            </span>
+          </div>
+
+          <!-- Cards Grid: 3 columns on tablet/desktop for clear widescreen presentation -->
+          <div id="items-pool" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 p-3 bg-[#FAF4EA] rounded-xl border-2 border-[#D4B995]">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Reflection Box -->
+        <div class="bg-[#FDFBF7] border-2 border-[#8C531F] rounded-2xl p-4 shadow-md flex flex-col gap-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="font-serif font-black text-sm sm:text-base lg:text-lg text-[#4A1E02] flex items-center gap-2">
+              <span class="text-xl">💡</span> Em ấn tượng với thành tựu nào nhất? Vì sao?
+            </h3>
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="fillSuggestion('Mona Lisa')" class="text-xs sm:text-sm bg-[#EEDCBF] hover:bg-[#E3CA9F] px-2.5 py-1 rounded-lg font-bold text-[#55270A] border border-[#B89269] transition">🖼️ Mona Lisa</button>
+              <button onclick="fillSuggestion('Thuyết Nhật tâm')" class="text-xs sm:text-sm bg-[#EEDCBF] hover:bg-[#E3CA9F] px-2.5 py-1 rounded-lg font-bold text-[#55270A] border border-[#B89269] transition">☀️ Thuyết Nhật tâm</button>
+              <button onclick="fillSuggestion('Đôn Ki-hô-tê')" class="text-xs sm:text-sm bg-[#EEDCBF] hover:bg-[#E3CA9F] px-2.5 py-1 rounded-lg font-bold text-[#55270A] border border-[#B89269] transition">📖 Đôn Ki-hô-tê</button>
+            </div>
+          </div>
+          <textarea id="reflection-input" rows="2" 
+            placeholder="Nhập cảm nhận của em (ví dụ: Em ấn tượng nhất với Thuyết Nhật tâm vì mở đường cho khoa học hiện đại, dũng cảm chứng minh chân lý...)"
+            class="w-full bg-[#FFFDF8] border border-[#B98E64] rounded-xl p-3 text-sm sm:text-base text-[#261102] font-serif focus:ring-2 focus:ring-[#8C3A00] outline-none placeholder:text-stone-500"></textarea>
+        </div>
+
+      </section>
+    </div>
+
+    <footer class="mt-2 pt-2 border-t border-[#C7A277] flex items-center justify-between text-xs lg:text-sm font-serif text-[#6D380E]">
+      <div class="flex items-center gap-2">
+        <span>🏛️ Phong trào Văn hoá Phục hưng Tây Âu (Thế kỉ XIV - XVII)</span>
+      </div>
+      <div class="flex items-center gap-3 no-print">
+        <button onclick="window.print()" class="hover:underline font-bold flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          In phiếu
+        </button>
+        <span class="text-stone-600">|</span>
+        <span class="text-stone-700 font-sans text-xs">Mẹo: Nhấn nút <strong>Toàn Màn Hình</strong> hoặc phím F11 để chiếu giảng dạy</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <div id="feedback-modal" class="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="modal-content" class="bg-[#FAF3E5] border-4 border-[#642605] rounded-2xl max-w-xl w-full p-6 sm:p-8 text-center shadow-2xl relative transform transition-all scale-95 opacity-0 duration-200">
+      <div id="modal-icon" class="text-6xl mb-3">🎉</div>
+      <h3 id="modal-title" class="text-2xl sm:text-3xl font-black font-serif text-[#3E1602] mb-2">Kết quả bài tập</h3>
+      <p id="modal-message" class="text-base sm:text-lg text-[#55270A] font-semibold mb-4 leading-relaxed"></p>
+      
+      <div id="modal-details" class="text-left text-sm sm:text-base bg-[#EEDCBF] p-4 rounded-xl border border-[#C5A278] mb-6 space-y-2 font-medium"></div>
+
+      <div class="flex justify-center gap-4">
+        <button onclick="closeModal()" class="px-6 py-3 bg-[#642605] hover:bg-[#4E1E04] active:scale-95 text-white font-black text-base rounded-xl shadow-lg transition">
+          Đóng và Tiếp tục
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-[#251003] text-white px-5 py-3 rounded-xl shadow-2xl text-sm lg:text-base font-bold border-2 border-amber-500/50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    Thông báo
+  </div>
+
+  <script>
+    // Audio synthesizer using Web Audio API
+    class AudioEffects {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playTone(freq, type = 'sine', duration = 0.15) {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      drop() { this.playTone(500, 'triangle', 0.12); }
+      select() { this.playTone(650, 'sine', 0.09); }
+      success() {
+        this.playTone(523.25, 'sine', 0.15);
+        setTimeout(() => this.playTone(659.25, 'sine', 0.15), 110);
+        setTimeout(() => this.playTone(783.99, 'sine', 0.25), 220);
+      }
+      error() {
+        this.playTone(320, 'sawtooth', 0.18);
+        setTimeout(() => this.playTone(250, 'sawtooth', 0.2), 120);
+      }
+    }
+
+    const sound = new AudioEffects();
+
+    // 6 Answer items corresponding to 6 authors, with enlarged typography
+    const achievements = [
+      {
+        id: 'ach-1',
+        title: 'Tiểu thuyết nổi tiếng Đôn Ki-hô-tê',
+        correctAuthor: 'xec-van-tet',
+        authorName: 'M. Xéc-van-tét (Tây Ban Nha)',
+        categoryLabel: 'Văn học',
+        icon: '📖'
+      },
+      {
+        id: 'ach-2',
+        title: 'Các vở kịch kiệt xuất: Rô-mê-ô và Giu-li-ét, Hăm-lét, Ô-ten-lô...',
+        correctAuthor: 'sech-xpia',
+        authorName: 'W. Sếch-xpia (Anh)',
+        categoryLabel: 'Văn học',
+        icon: '🎭'
+      },
+      {
+        id: 'ach-3',
+        title: 'Tác phẩm hội hoạ bất hủ: Bữa tiệc cuối cùng, Nàng La Giô-công-đơ (Mona Lisa)',
+        correctAuthor: 'vanh-xi',
+        authorName: 'Lê-ô-na đơ Vanh-xi (I-ta-li-a)',
+        categoryLabel: 'Nghệ thuật',
+        icon: '🖼️'
+      },
+      {
+        id: 'ach-4',
+        title: 'Tác phẩm điêu khắc và hội hoạ: Tượng Đa-vít, Bích hoạ trên vòm nhà thờ Xích-xtin...',
+        correctAuthor: 'miken-lang-gio',
+        authorName: 'Mi-ken-lăng-giơ (I-ta-li-a)',
+        categoryLabel: 'Nghệ thuật',
+        icon: '🗿'
+      },
+      {
+        id: 'ach-5',
+        title: 'Đề xuất Thuyết Nhật tâm (Mặt Trời là trung tâm vũ trụ, Trái Đất quay xung quanh)',
+        correctAuthor: 'co-pec-nich',
+        authorName: 'N. Cô-péc-ních (Ba Lan)',
+        categoryLabel: 'Khoa học tự nhiên',
+        icon: '☀️'
+      },
+      {
+        id: 'ach-6',
+        title: 'Phát triển và bảo vệ Thuyết Nhật tâm, chế tạo kính thiên văn quan sát thiên thể',
+        correctAuthor: 'ga-li-le',
+        authorName: 'G. Ga-li-lê (I-ta-li-a)',
+        categoryLabel: 'Khoa học tự nhiên',
+        icon: '🔭'
+      }
+    ];
+
+    let currentSelectedCardId = null;
+    let draggedElement = null;
+
+    // Toast Notification helper
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      toast.innerText = text;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 2500);
+    }
+
+    // Quick fill suggestion
+    function fillSuggestion(keyword) {
+      const textarea = document.getElementById('reflection-input');
+      let text = '';
+      if (keyword.includes('Mona Lisa')) {
+        text = 'Em ấn tượng nhất với bức tranh Nàng Mona Lisa của Lê-ô-na đơ Vanh-xi vì nụ cười bí ẩn và kỹ thuật vẽ điêu luyện.';
+      } else if (keyword.includes('Nhật tâm')) {
+        text = 'Em ấn tượng nhất với Thuyết Nhật tâm của N. Cô-péc-ních và G. Ga-li-lê vì các nhà khoa học đã dũng cảm bảo vệ chân lý khoa học đối lập với quan niệm cũ.';
+      } else {
+        text = 'Em ấn tượng nhất với tiểu thuyết Đôn Ki-hô-tê của M. Xéc-van-tét vì tinh thần châm biếm sâu sắc xã hội phong kiến lỗi thời.';
+      }
+      textarea.value = text;
+      textarea.focus();
+      showToast('Đã chèn nội dung gợi ý vào khung phát biểu!');
+    }
+
+    // Fullscreen Toggle Implementation for 16:9 Presentation
+    function toggleFullScreen() {
+      const doc = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (doc.requestFullscreen) {
+          doc.requestFullscreen();
+        } else if (doc.webkitRequestFullscreen) {
+          doc.webkitRequestFullscreen();
+        }
+        showToast('Đã chuyển sang chế độ Toàn màn hình trình chiếu!');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        showToast('Đã thoát chế độ toàn màn hình.');
+      }
+    }
+
+    // Listen to Fullscreen changes to update button icon & text
+    function handleFullscreenChange() {
+      const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      const fsText = document.getElementById('fs-text');
+      const fsIcon = document.getElementById('fs-icon');
+      if (isFS) {
+        fsText.innerText = 'Thu Nhỏ';
+        fsIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 9L4 4m0 5h5m-5-5v5m6 6l5 5m0-5h-5m5 5v-5M9 15l-5 5m5 0H4m5 0v-5m6-6l5-5m-5 0h5m0 0v5"/>`;
+      } else {
+        fsText.innerText = 'Toàn Màn Hình';
+        fsIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>`;
+      }
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    function createCardElement(item) {
+      const card = document.createElement('div');
+      card.id = item.id;
+      card.draggable = true;
+      card.className = "draggable-card bg-[#FFFDF9] hover:bg-[#FFF7E8] border-2 border-[#A37443] rounded-xl p-3 shadow-sm text-left relative flex flex-col justify-between transition-all";
+      card.setAttribute('data-target-author', item.correctAuthor);
+
+      card.innerHTML = `
+        <div class="flex items-start gap-3">
+          <span class="text-2xl sm:text-3xl lg:text-4xl flex-shrink-0 mt-0.5">${item.icon}</span>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-black text-base sm:text-lg lg:text-xl xl:text-2xl text-[#321301] leading-snug break-words tracking-tight">${item.title}</h4>
+            <div class="flex items-center gap-2 mt-2 flex-wrap">
+              <span class="text-xs sm:text-sm lg:text-base font-bold bg-[#F4E3CB] text-[#6B370E] px-2.5 py-0.5 rounded-lg border border-[#DEC4A2]">
+                ${item.categoryLabel}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2.5 pt-1.5 border-t border-[#F2E0C9] flex items-center justify-between text-xs sm:text-sm lg:text-base text-stone-600 font-semibold">
+          <span>Kéo lên hoặc bấm chọn</span>
+          <span class="card-status font-black"></span>
+        </div>
+      `;
+
+      card.addEventListener('dragstart', handleDragStart);
+      card.addEventListener('dragend', handleDragEnd);
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleCardSelection(card);
+      });
+
+      return card;
+    }
+
+    function renderInitialCards() {
+      const pool = document.getElementById('items-pool');
+      pool.innerHTML = '';
+      const shuffled = [...achievements].sort(() => Math.random() - 0.5);
+      shuffled.forEach(item => {
+        pool.appendChild(createCardElement(item));
+      });
+      updatePlaceholders();
+    }
+
+    function handleCardSelection(card) {
+      sound.select();
+      if (currentSelectedCardId === card.id) {
+        card.classList.remove('selected-card');
+        currentSelectedCardId = null;
+        showToast("Đã bỏ chọn thẻ.");
+        return;
+      }
+
+      document.querySelectorAll('.draggable-card').forEach(el => el.classList.remove('selected-card'));
+      card.classList.add('selected-card');
+      currentSelectedCardId = card.id;
+      showToast("Đã chọn thẻ! Hãy chạm vào ô tác giả tương ứng ở bảng trên để gắn vào.");
+      
+      // Auto-scroll gently towards the table so students and teachers can see the target slots clearly
+      const tableSection = document.getElementById('table-section');
+      if (tableSection) {
+        tableSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function handleDragStart(e) {
+      sound.select();
+      draggedElement = this;
+      this.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', this.id);
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragEnd() {
+      this.classList.remove('dragging');
+      draggedElement = null;
+      document.querySelectorAll('.drop-zone').forEach(zone => zone.classList.remove('drag-over'));
+    }
+
+    function setupDropZones() {
+      const dropZones = document.querySelectorAll('.drop-zone');
+      const pool = document.getElementById('items-pool');
+
+      dropZones.forEach(zone => {
+        const targetContainer = zone.querySelector('.zone-cards');
+
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          zone.classList.add('drag-over');
+        });
+
+        zone.addEventListener('dragleave', (e) => {
+          if (!zone.contains(e.relatedTarget)) {
+            zone.classList.remove('drag-over');
+          }
+        });
+
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('drag-over');
+          const cardId = e.dataTransfer.getData('text/plain') || (draggedElement ? draggedElement.id : null);
+          if (cardId) moveCardTo(cardId, targetContainer);
+        });
+
+        zone.addEventListener('click', () => {
+          if (currentSelectedCardId) {
+            moveCardTo(currentSelectedCardId, targetContainer);
+            const card = document.getElementById(currentSelectedCardId);
+            if (card) card.classList.remove('selected-card');
+            currentSelectedCardId = null;
+          }
+        });
+      });
+
+      pool.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      });
+
+      pool.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const cardId = e.dataTransfer.getData('text/plain') || (draggedElement ? draggedElement.id : null);
+        if (cardId) moveCardTo(cardId, pool);
+      });
+
+      pool.addEventListener('click', () => {
+        if (currentSelectedCardId) {
+          moveCardTo(currentSelectedCardId, pool);
+          const card = document.getElementById(currentSelectedCardId);
+          if (card) card.classList.remove('selected-card');
+          currentSelectedCardId = null;
+        }
+      });
+    }
+
+    function moveCardTo(cardId, destinationContainer) {
+      const card = document.getElementById(cardId);
+      const pool = document.getElementById('items-pool');
+      if (!card || !destinationContainer) return;
+
+      if (destinationContainer !== pool) {
+        const existingCards = destinationContainer.querySelectorAll('.draggable-card');
+        existingCards.forEach(existing => {
+          if (existing.id !== cardId) {
+            pool.appendChild(existing);
+            existing.classList.remove('border-emerald-600', 'bg-emerald-50', 'border-rose-600', 'bg-rose-50', 'selected-card');
+            const statusSpan = existing.querySelector('.card-status');
+            if (statusSpan) statusSpan.innerText = '';
+          }
+        });
+      }
+
+      destinationContainer.appendChild(card);
+      sound.drop();
+      card.classList.remove('border-emerald-600', 'bg-emerald-50', 'border-rose-600', 'bg-rose-50', 'selected-card');
+      const statusSpan = card.querySelector('.card-status');
+      if (statusSpan) statusSpan.innerText = '';
+
+      updatePlaceholders();
+    }
+
+    function updatePlaceholders() {
+      document.querySelectorAll('.zone-cards').forEach(zone => {
+        const placeholder = zone.querySelector('.placeholder-text');
+        const count = zone.querySelectorAll('.draggable-card').length;
+        if (placeholder) {
+          if (count > 0) placeholder.classList.add('hidden');
+          else placeholder.classList.remove('hidden');
+        }
+      });
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+      const totalCount = achievements.length;
+      const reviewDetails = [];
+
+      const zones = document.querySelectorAll('.zone-cards');
+      let placedCount = 0;
+
+      zones.forEach(zone => {
+        const expectedAuthor = zone.getAttribute('data-author');
+        const parentZone = zone.closest('.drop-zone');
+        const authorLabel = parentZone ? parentZone.getAttribute('data-label') : '';
+        const cards = zone.querySelectorAll('.draggable-card');
+
+        cards.forEach(card => {
+          placedCount++;
+          const targetAuthor = card.getAttribute('data-target-author');
+          const title = card.querySelector('h4').innerText;
+          const statusSpan = card.querySelector('.card-status');
+
+          if (targetAuthor === expectedAuthor) {
+            correctCount++;
+            card.classList.remove('border-rose-600', 'bg-rose-50', 'border-[#A37443]');
+            card.classList.add('border-emerald-600', 'bg-emerald-50');
+            if (statusSpan) {
+              statusSpan.innerHTML = '<span class="text-emerald-700 font-black">✓ Đúng</span>';
+            }
+          } else {
+            card.classList.remove('border-emerald-600', 'bg-emerald-50', 'border-[#A37443]');
+            card.classList.add('border-rose-600', 'bg-rose-50');
+            if (statusSpan) {
+              statusSpan.innerHTML = '<span class="text-rose-700 font-black">✗ Chưa đúng</span>';
+            }
+            reviewDetails.push(`• Thẻ "${title}" chưa đúng với tác giả <strong>${authorLabel}</strong>.`);
+          }
+        });
+      });
+
+      // Update Score on the big screen ribbon
+      const scoreBadge = document.getElementById('score-badge');
+      scoreBadge.innerText = `${correctCount} / ${totalCount}`;
+      if (correctCount === totalCount) {
+        sound.success();
+      } else {
+        sound.error();
+      }
+
+      // Show Presentation Result Modal
+      const modal = document.getElementById('feedback-modal');
+      const modalContent = document.getElementById('modal-content');
+      const modalIcon = document.getElementById('modal-icon');
+      const modalTitle = document.getElementById('modal-title');
+      const modalMsg = document.getElementById('modal-message');
+      const modalDetails = document.getElementById('modal-details');
+
+      if (correctCount === totalCount) {
+        modalIcon.innerText = '🏆';
+        modalTitle.innerText = 'Chúc Mừng Cả Lớp!';
+        modalMsg.innerText = `Đã ghép chính xác hoàn toàn ${totalCount}/${totalCount} tác phẩm và thành tựu của các tác giả thời Phục Hưng!`;
+        modalDetails.innerHTML = `<div class="text-emerald-900 font-bold">🌟 Cả lớp đã nắm rất vững kiến thức các danh nhân: M. Xéc-van-tét, W. Sếch-xpia, Lê-ô-na đơ Vanh-xi, Mi-ken-lăng-giơ, N. Cô-péc-ních và G. Ga-li-lê!</div>`;
+      } else if (placedCount < totalCount) {
+        modalIcon.innerText = '⏳';
+        modalTitle.innerText = 'Chưa Hoàn Thành 6 Vị Trí';
+        modalMsg.innerText = `Lớp đã làm đúng ${correctCount}/${totalCount} vị trí, nhưng vẫn còn thẻ nằm trong kho chưa được xếp.`;
+        modalDetails.innerHTML = `<div class="text-[#642605]">Hãy cùng thảo luận và kéo đủ cả 6 thẻ vào đúng vị trí của từng tác giả nhé!</div>`;
+      } else {
+        modalIcon.innerText = '💡';
+        modalTitle.innerText = 'Cần Thảo Luận Điều Chỉnh';
+        modalMsg.innerText = `Lớp đạt ${correctCount}/${totalCount} điểm.`;
+        modalDetails.innerHTML = reviewDetails.length > 0 ? reviewDetails.join('<br>') : 'Hãy xem lại tác giả của các thành tựu chưa chính xác.';
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('feedback-modal');
+      const modalContent = document.getElementById('modal-content');
+      modalContent.classList.add('scale-95', 'opacity-0');
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    function resetWorksheet() {
+      const pool = document.getElementById('items-pool');
+      document.querySelectorAll('.draggable-card').forEach(card => {
+        card.classList.remove('border-emerald-600', 'bg-emerald-50', 'border-rose-600', 'bg-rose-50', 'selected-card');
+        const statusSpan = card.querySelector('.card-status');
+        if (statusSpan) statusSpan.innerText = '';
+        pool.appendChild(card);
+      });
+      currentSelectedCardId = null;
+      document.getElementById('score-badge').innerText = '0 / 6';
+      updatePlaceholders();
+      showToast("Đã làm mới lại bài tập.");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderInitialCards();
+      setupDropZones();
+    });
+  </script>
+</body>
+</html>
