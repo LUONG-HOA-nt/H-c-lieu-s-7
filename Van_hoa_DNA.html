@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài Tập Tương Tác: Văn Hóa Đông Nam Á - Lịch Sử 7 (Tỉ lệ 16:9)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Be Vietnam Pro & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none; /* Tránh giật màn hình khi kéo thả trên bảng tương tác */
+    }
+
+    /* Khung chuẩn tỉ lệ 16:9 chuyên dụng cho máy chiếu */
+    .aspect-16-9 {
+      aspect-ratio: 16 / 9;
+    }
+
+    /* Mấu nối điểm neo kéo thả to bản, dễ chạm trên màn hình cảm ứng */
+    .anchor-node {
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      cursor: crosshair;
+    }
+    .anchor-node:hover, .anchor-node:active {
+      transform: scale(1.35);
+    }
+
+    /* Hiệu ứng thẻ ghép đôi */
+    .topic-card {
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s, border-color 0.2s, background-color 0.2s;
+    }
+    .topic-card:hover {
+      transform: translateY(-3px);
+    }
+    .topic-card.selected {
+      border-color: #f59e0b !important;
+      background-color: #fffbeb !important;
+      box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.4), 0 12px 24px -4px rgba(245, 158, 11, 0.25) !important;
+      transform: scale(1.02);
+    }
+    .topic-card.paired {
+      border-color: #4f46e5;
+      background-color: #f8fafc;
+    }
+    .topic-card.is-correct {
+      border-color: #10b981 !important;
+      background-color: #ecfdf5 !important;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.35), 0 8px 20px rgba(16, 185, 129, 0.2) !important;
+    }
+    .topic-card.is-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35), 0 8px 20px rgba(239, 68, 68, 0.2) !important;
+    }
+
+    /* Dây nối động SVG */
+    .wire-line {
+      stroke-linecap: round;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.25));
+      transition: stroke 0.3s ease;
+    }
+    .temp-wire {
+      stroke-linecap: round;
+      stroke-dasharray: 10 7;
+      animation: dashAnimation 0.9s linear infinite;
+    }
+    @keyframes dashAnimation {
+      to { stroke-dashoffset: -17; }
+    }
+
+    /* Hiệu ứng nhấp nháy đèn báo */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.15); }
+    }
+    .glow-dot {
+      animation: pulseGlow 1.5s infinite ease-in-out;
+    }
+
+    /* ĐỊNH DẠNG TỐI ƯU CHO BẢN IN KHỔ A4 / LƯU FILE PDF */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      #projectorScreen, #exportModal, #explanationModal {
+        display: none !important;
+      }
+      #printableWorksheet {
+        display: block !important;
+      }
+    }
+    @media screen {
+      #printableWorksheet {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-2 sm:p-4 overflow-x-hidden">
+  
+  <!-- KHUNG TRÌNH CHIẾU TỈ LỆ 16:9 CHUẨN LỚP HỌC -->
+  <div id="projectorScreen" class="w-full max-w-[1500px] aspect-16-9 bg-gradient-to-br from-amber-50 via-slate-50 to-orange-50 text-slate-900 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border-4 border-amber-300 flex flex-col justify-between overflow-hidden relative p-4 lg:p-7">
+    
+    <!-- THANH TIÊU ĐỀ & ĐIỀU KHIỂN TRÊN CÙNG -->
+    <header class="flex items-center justify-between gap-4 pb-3 border-b-2 border-amber-200 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-amber-600 text-white flex items-center justify-center text-2xl lg:text-3xl shadow-md flex-shrink-0">
+          🏛️
+        </div>
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs lg:text-sm font-extrabold uppercase tracking-wider">
+            Lịch Sử 7 • Văn Hóa Đông Nam Á
+          </div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-black text-slate-900 tracking-tight">
+            GHÉP ĐÔI: LĨNH VỰC & THÀNH TỰU TIÊU BIỂU
+          </h1>
+        </div>
+      </div>
+
+      <!-- Cụm công cụ giáo viên & học sinh -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- NÚT XUẤT BÀI TẬP / IN PHIẾU HỌC TẬP -->
+        <button id="btnExport" title="Xuất bài tập / In phiếu học tập PDF" class="flex items-center gap-2 px-3.5 lg:px-4 py-2.5 lg:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-sm lg:text-base shadow-md active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span>Xuất Bài Tập</span>
+        </button>
+
+        <!-- Đồng hồ bấm giờ thi đua -->
+        <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border-2 border-slate-300 shadow-sm font-mono font-black text-lg lg:text-xl text-slate-800">
+          <span class="text-amber-600">⏱️</span>
+          <span id="timerDisplay">00:00</span>
+        </div>
+
+        <!-- Bật tắt âm thanh -->
+        <button id="btnSoundToggle" title="Bật / Tắt âm thanh" class="p-2.5 lg:p-3 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-300 text-slate-700 shadow-sm active:scale-95 transition">
+          <span id="soundIcon" class="text-xl">🔊</span>
+        </button>
+
+        <!-- Toàn màn hình máy chiếu -->
+        <button id="btnFullscreen" class="flex items-center gap-2 px-4 py-2.5 lg:py-3 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-sm lg:text-base shadow-md active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+          <span class="hidden md:inline">Toàn Màn Hình</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- HƯỚNG DẪN THAO TÁC TRÊN BẢNG THÔNG MINH -->
+    <div class="bg-amber-100/90 border border-amber-300 text-amber-950 px-5 py-2 rounded-2xl flex items-center justify-between text-sm lg:text-base font-semibold shadow-inner mt-2 flex-shrink-0">
+      <div class="flex items-center gap-2.5">
+        <span class="text-xl">👉</span>
+        <span><strong>Cách chơi:</strong> Kéo điểm tròn hoặc <strong>chạm chọn ô ở Cột A</strong> rồi <strong>chạm ô tương ứng ở Cột B</strong> để nối đáp án!</span>
+      </div>
+      <div id="progressCounter" class="font-extrabold text-amber-900 bg-amber-200 px-3 py-1 rounded-xl border border-amber-400 text-xs lg:text-sm">
+        Đã nối: 0/3 cặp
+      </div>
+    </div>
+
+    <!-- KHU VỰC BÀI TẬP GHÉP ĐÔI 2 CỘT -->
+    <main id="activityArea" class="relative flex-1 my-3 lg:my-4 flex flex-col justify-center">
+      
+      <!-- Lớp Canvas SVG để vẽ đường nối Bezier mượt mà -->
+      <svg id="connectionSvg" class="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"></svg>
+
+      <div class="grid grid-cols-2 gap-8 lg:gap-24 xl:gap-32 h-full items-center px-3 sm:px-6 relative z-20">
+        
+        <!-- CỘT A: LĨNH VỰC -->
+        <div class="flex flex-col justify-around h-full space-y-3 lg:space-y-4">
+          <div class="flex items-center justify-between pb-1.5 border-b-2 border-indigo-400">
+            <span class="px-4 py-1 rounded-xl bg-indigo-600 text-white font-black text-sm lg:text-base uppercase tracking-wider shadow">
+              CỘT A: LĨNH VỰC
+            </span>
+            <span class="text-xs lg:text-sm font-bold text-slate-500 italic">Chọn nội dung gốc</span>
+          </div>
+
+          <div id="columnAContainer" class="flex flex-col justify-around flex-1 space-y-3 lg:space-y-4">
+            <!-- Tự động nạp dữ liệu từ JS -->
+          </div>
+        </div>
+
+        <!-- CỘT B: THÀNH TỰU TIÊU BIỂU (XÁO TRỘN) -->
+        <div class="flex flex-col justify-around h-full space-y-3 lg:space-y-4">
+          <div class="flex items-center justify-between pb-1.5 border-b-2 border-emerald-400">
+            <span class="px-4 py-1 rounded-xl bg-emerald-600 text-white font-black text-sm lg:text-base uppercase tracking-wider shadow">
+              CỘT B: THÀNH TỰU TIÊU BIỂU
+            </span>
+            <span class="text-xs lg:text-sm font-bold text-slate-500 italic">Chọn thành tựu tương ứng</span>
+          </div>
+
+          <div id="columnBContainer" class="flex flex-col justify-around flex-1 space-y-3 lg:space-y-4">
+            <!-- Tự động nạp dữ liệu từ JS -->
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- KHU VỰC ĐIỀU HÀNH DƯỚI CÙNG & ĐÁNH GIÁ -->
+    <footer class="flex items-center justify-between pt-3 border-t-2 border-slate-200 flex-shrink-0 gap-3">
+      <div id="feedbackText" class="text-sm lg:text-lg font-extrabold text-slate-700 flex items-center gap-2">
+        <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block glow-dot"></span>
+        <span>Sẵn sàng: Hãy nối tất cả các cặp trước khi bấm chấm điểm.</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Nút Xáo trộn / Làm lại -->
+        <button id="btnReset" class="flex items-center gap-2 px-5 py-2.5 lg:py-3 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-300 font-black text-slate-700 text-sm lg:text-base active:scale-95 transition shadow-sm">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          LÀM LẠI / XÁO BÀI
+        </button>
+
+        <!-- Nút Kiểm tra kết quả -->
+        <button id="btnCheck" class="flex items-center gap-2.5 px-6 lg:px-8 py-2.5 lg:py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base lg:text-xl active:scale-95 transition shadow-lg shadow-emerald-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+          KIỂM TRA KẾT QUẢ
+        </button>
+      </div>
+    </footer>
+
+    <!-- MODAL ĐÁP ÁN CHI TIẾT & BẢNG KIẾN THỨC CHUẨN (HIỂN THỊ KHI HOÀN THÀNH HOẶC CẦN HỖ TRỢ) -->
+    <div id="explanationModal" class="hidden absolute inset-4 lg:inset-8 bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 shadow-2xl border-4 border-indigo-400 z-50 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+          <div class="flex items-center gap-3">
+            <span id="modalIcon" class="text-4xl">🎉</span>
+            <div>
+              <h2 id="modalTitle" class="text-2xl lg:text-3xl font-black text-slate-900">XUẤT SẮC! ĐÚNG 3/3 CẶP</h2>
+              <p id="modalSubtitle" class="text-sm lg:text-base font-bold text-slate-600">Đối chiếu kiến thức chuẩn theo tài liệu Lịch sử 7:</p>
+            </div>
+          </div>
+          <button id="btnCloseModal" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold rounded-xl text-slate-800 text-sm">
+            Đóng bảng
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="p-4 rounded-2xl bg-blue-50 border-2 border-blue-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-blue-600 text-white font-black text-xs uppercase mb-2">1. Tín ngưỡng - Tôn giáo</span>
+            <p class="text-blue-950 font-bold text-sm lg:text-base mb-1">• Phật giáo:</p>
+            <p class="text-blue-900 text-xs lg:text-sm">Được truyền bá rộng rãi và trở nên phổ biến khắp khu vực.</p>
+            <p class="text-blue-950 font-bold text-sm lg:text-base mt-2 mb-1">• Hồi giáo:</p>
+            <p class="text-blue-900 text-xs lg:text-sm">Thế kỉ XIII du nhập vào, trở thành quốc giáo của nhiều tiểu quốc Hồi giáo.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-600 text-white font-black text-xs uppercase mb-2">2. Chữ viết - Văn học</span>
+            <p class="text-amber-950 font-bold text-sm lg:text-base mb-1">• Sáng tạo chữ viết:</p>
+            <p class="text-amber-900 text-xs lg:text-sm">Người Thái sáng tạo chữ trên cơ sở chữ Phạn; TK XVI có chữ Lào; người Việt cải tạo chữ Hán tạo chữ Nôm.</p>
+            <p class="text-amber-950 font-bold text-sm lg:text-base mt-2 mb-1">• Văn học phong phú:</p>
+            <p class="text-amber-900 text-xs lg:text-sm">Phát triển mạnh cả văn học dân gian và văn học viết với nhiều tác phẩm nổi tiếng.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-emerald-600 text-white font-black text-xs uppercase mb-2">3. Kiến trúc - Điêu khắc</span>
+            <p class="text-emerald-950 font-bold text-sm lg:text-base mb-1">• Công trình kì vĩ:</p>
+            <p class="text-emerald-900 text-xs lg:text-sm">Khu đền Ăng-co (Cam-pu-chia), Chùa Vàng (Mi-an-ma), Chùa Vàng (Thái Lan)...</p>
+            <p class="text-emerald-950 font-bold text-sm lg:text-base mt-2 mb-1">• Điêu khắc tinh xảo:</p>
+            <p class="text-emerald-900 text-xs lg:text-sm">Tạc tượng thần, Phật, phù điêu mang dấu ấn văn hóa Ấn Độ, Trung Quốc...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t-2 border-slate-200 flex justify-end gap-3 mt-4">
+        <button id="btnPlayAgainModal" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow-md">
+          Chơi lại màn mới
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL XUẤT BÀI TẬP VÀ IN ẤN (XUẤT PDF / PHIẾU HỌC TẬP) -->
+    <div id="exportModal" class="hidden absolute inset-4 lg:inset-8 bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 shadow-2xl border-4 border-amber-400 z-50 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">🖨️</span>
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-black text-slate-900">XUẤT PHIẾU HỌC TẬP & IN ẤN</h2>
+              <p class="text-sm lg:text-base font-bold text-slate-600">Tùy chọn xuất bài tập cho học sinh làm trên giấy hoặc lưu file PDF:</p>
+            </div>
+          </div>
+          <button id="btnCloseExportModal" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold rounded-xl text-slate-800 text-sm">
+            Đóng
+          </button>
+        </div>
+
+        <!-- Tùy chọn xuất phiếu -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <!-- Tùy chọn 1: Phiếu bài tập học sinh -->
+          <div class="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-amber-600 text-white font-black text-xs uppercase rounded-lg">Dành cho Học sinh</span>
+                <span class="text-xs font-bold text-slate-500">Khổ A4</span>
+              </div>
+              <h3 class="text-lg font-black text-slate-900">Phiếu Làm Bài Tự Luận / Nối Giấy</h3>
+              <p class="text-xs lg:text-sm text-slate-600 mt-1">
+                Tạo phiếu in có sẵn khung điền Tên, Lớp, 2 cột ghép nối và ô ghi chú nhận xét của giáo viên.
+              </p>
+            </div>
+            <button id="btnPrintStudent" class="mt-4 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm lg:text-base shadow active:scale-95 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+              </svg>
+              In Phiếu Học Tập (Học sinh)
+            </button>
+          </div>
+
+          <!-- Tùy chọn 2: Phiếu kèm đáp án chuẩn cho giáo viên -->
+          <div class="p-5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-indigo-600 text-white font-black text-xs uppercase rounded-lg">Dành cho Giáo viên</span>
+                <span class="text-xs font-bold text-slate-500">Kèm Đáp Án</span>
+              </div>
+              <h3 class="text-lg font-black text-slate-900">Phiếu Đáp Án & Hướng Dẫn Chấm</h3>
+              <p class="text-xs lg:text-sm text-slate-600 mt-1">
+                Bao gồm bảng nối hoàn chỉnh và phần giải thích chi tiết bám sát sách giáo khoa Lịch sử 7.
+              </p>
+            </div>
+            <button id="btnPrintTeacher" class="mt-4 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm lg:text-base shadow active:scale-95 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              In Kèm Đáp Án (Giáo viên)
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-2xl bg-slate-100 border border-slate-300 text-xs text-slate-600">
+          💡 <strong>Mẹo:</strong> Trong cửa sổ in của trình duyệt, chọn <em>"Lưu dưới dạng PDF" (Save as PDF)</em> tại mục Máy in (Destination) để tải file bài tập về máy tính.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHIẾU HỌC TẬP CHUẨN A4 ĐỂ IN ẤN HOẶC LƯU FILE PDF (@media print) -->
+  <div id="printableWorksheet" class="p-8 max-w-4xl mx-auto bg-white text-black font-sans leading-relaxed">
+    <!-- Tiêu đề phiếu in -->
+    <div class="flex justify-between items-start border-b-2 border-black pb-4 mb-4">
+      <div>
+        <p class="font-bold text-xs uppercase tracking-wider">TRƯỜNG THCS: ....................................................</p>
+        <p class="font-bold text-xs uppercase tracking-wider">MÔN: LỊCH SỬ VÀ ĐỊA LÍ 7</p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm">Họ và tên: ..............................................................</p>
+        <p class="text-sm">Lớp: ........................ Ngày: ...... / ...... / 202...</p>
+      </div>
+    </div>
+
+    <div class="text-center my-4">
+      <h2 class="text-2xl font-black uppercase">PHIẾU HỌC TẬP: VĂN HÓA ĐÔNG NAM Á</h2>
+      <p class="text-sm italic font-semibold mt-1">Bài tập nối thông tin giữa Lĩnh vực và Thành tựu tiêu biểu</p>
+    </div>
+
+    <div class="border border-black p-3 bg-slate-50 text-xs mb-5">
+      <strong>Yêu cầu:</strong> Em hãy đọc kĩ thông tin ở <strong>Cột A (Lĩnh vực)</strong> và dùng bút nối với nội dung tương ứng ở <strong>Cột B (Thành tựu tiêu biểu)</strong>.
+    </div>
+
+    <!-- Nội dung 2 cột bài tập in ấn -->
+    <div class="grid grid-cols-2 gap-8 my-6">
+      <div class="border-2 border-black rounded-lg p-4">
+        <h3 class="font-bold text-base text-center border-b pb-2 mb-4 uppercase bg-slate-100">CỘT A: LĨNH VỰC</h3>
+        <div class="space-y-6 text-sm">
+          <div class="p-3 border rounded">
+            <strong>1. Tín ngưỡng - Tôn giáo</strong>
+          </div>
+          <div class="p-3 border rounded">
+            <strong>2. Chữ viết - Văn học</strong>
+          </div>
+          <div class="p-3 border rounded">
+            <strong>3. Kiến trúc - Điêu khắc</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-2 border-black rounded-lg p-4">
+        <h3 class="font-bold text-base text-center border-b pb-2 mb-4 uppercase bg-slate-100">CỘT B: THÀNH TỰU TIÊU BIỂU</h3>
+        <div class="space-y-4 text-xs">
+          <div class="p-2.5 border rounded">
+            <strong>a.</strong> Người Thái tạo chữ từ chữ Phạn; TK XVI có chữ Lào; người Việt tạo chữ Nôm từ chữ Hán. Bên cạnh văn học dân gian, văn học viết phát triển với nhiều tác phẩm nổi tiếng.
+          </div>
+          <div class="p-2.5 border rounded">
+            <strong>b.</strong> Nổi tiếng với khu đền Ăng-co (Cam-pu-chia), Chùa Vàng (Mi-an-ma), Chùa Vàng (Thái Lan)... Nghệ thuật tạc tượng thần, Phật, phù điêu chịu ảnh hưởng từ Ấn Độ, Trung Quốc.
+          </div>
+          <div class="p-2.5 border rounded">
+            <strong>c.</strong> Phật giáo được truyền bá và phổ biến rộng rãi. Thế kỉ XIII, Hồi giáo bắt đầu du nhập, trở thành quốc giáo của nhiều tiểu quốc.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phần dành riêng khi in đáp án giáo viên -->
+    <div id="printTeacherKey" class="hidden my-5 p-4 border-2 border-dashed border-gray-700 rounded bg-gray-50">
+      <h4 class="font-bold text-sm uppercase mb-2">Đáp án chuẩn:</h4>
+      <p class="text-sm font-semibold">1 nối với c &nbsp;|&nbsp; 2 nối với a &nbsp;|&nbsp; 3 nối với b</p>
+    </div>
+
+    <!-- Khung nhận xét giáo viên -->
+    <div class="border-2 border-black rounded-lg p-3 mt-6">
+      <div class="flex justify-between text-xs font-bold mb-8">
+        <span>ĐIỂM SỐ: ...................</span>
+        <span>LỜI PHÊ CỦA GIÁO VIÊN:</span>
+      </div>
+      <p class="text-xs text-slate-400 italic">................................................................................................................................................................................................................</p>
+    </div>
+  </div>
+
+  <script>
+    /* BỘ TỔNG HỢP ÂM THANH WEB AUDIO API (Tương thích mọi trình duyệt, không lỗi mạng) */
+    class AudioFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playNote(freq, type = 'sine', duration = 0.15, vol = 0.15) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+      playConnect() {
+        this.playNote(523.25, 'sine', 0.12, 0.2); // C5
+      }
+      playVictory() {
+        if (!this.enabled) return;
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          setTimeout(() => this.playNote(freq, 'triangle', 0.28, 0.25), idx * 110);
+        });
+      }
+      playMistake() {
+        if (!this.enabled) return;
+        this.init();
+        this.playNote(220, 'sawtooth', 0.2, 0.2);
+        setTimeout(() => this.playNote(175, 'sawtooth', 0.3, 0.2), 120);
+      }
+    }
+    const audio = new AudioFX();
+
+    /* DỮ LIỆU TỪ TÀI LIỆU THAM CHIẾU */
+    const rawDataA = [
+      {
+        id: 'A1',
+        title: 'Tín ngưỡng - Tôn giáo',
+        badge: '1',
+        icon: '🕌',
+        colorBorder: 'border-blue-400',
+        colorBg: 'bg-blue-500',
+        correctMatchId: 'B_TONGIAO'
+      },
+      {
+        id: 'A2',
+        title: 'Chữ viết - Văn học',
+        badge: '2',
+        icon: '📜',
+        colorBorder: 'border-amber-400',
+        colorBg: 'bg-amber-500',
+        correctMatchId: 'B_CHUVAN'
+      },
+      {
+        id: 'A3',
+        title: 'Kiến trúc - Điêu khắc',
+        badge: '3',
+        icon: '🏛️',
+        colorBorder: 'border-emerald-400',
+        colorBg: 'bg-emerald-500',
+        correctMatchId: 'B_KIENTRUC'
+      }
+    ];
+
+    const rawDataB = [
+      {
+        id: 'B_TONGIAO',
+        labelKey: 'A',
+        title: 'Phật giáo & Hồi giáo',
+        bullets: [
+          'Phật giáo được truyền bá và phổ biến rộng rãi.',
+          'Thế kỉ XIII, Hồi giáo bắt đầu du nhập, trở thành quốc giáo của nhiều tiểu quốc.'
+        ]
+      },
+      {
+        id: 'B_CHUVAN',
+        labelKey: 'B',
+        title: 'Chữ viết & Tác phẩm văn học',
+        bullets: [
+          'Người Thái tạo chữ từ chữ Phạn; TK XVI có chữ Lào; người Việt tạo chữ Nôm từ chữ Hán.',
+          'Bên cạnh văn học dân gian, văn học viết phát triển với nhiều tác phẩm nổi tiếng.'
+        ]
+      },
+      {
+        id: 'B_KIENTRUC',
+        labelKey: 'C',
+        title: 'Công trình đền tháp & Điêu khắc',
+        bullets: [
+          'Nổi tiếng: khu đền Ăng-co (Cam-pu-chia), chùa Vàng (Mi-an-ma), chùa Vàng (Thái Lan)...',
+          'Nghệ thuật tạc tượng thần, Phật, phù điêu chịu ảnh hưởng từ Ấn Độ, Trung Quốc.'
+        ]
+      }
+    ];
+
+    /* TRẠNG THÁI ỨNG DỤNG */
+    let currentDataA = [...rawDataA];
+    let currentDataB = [];
+    let connections = new Map(); // Key: idA, Value: idB
+    let selectedA = null;
+    let isDragging = false;
+    let dragOrigin = null; // { id, side: 'A' | 'B' }
+    let pointerCoordinates = { x: 0, y: 0 };
+    let isChecked = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    // Bảng màu phân biệt từng đường nối (High contrast)
+    const linePalette = ['#4338ca', '#0d9488', '#ea580c', '#7c3aed'];
+
+    // Các phần tử DOM
+    const colAContainer = document.getElementById('columnAContainer');
+    const colBContainer = document.getElementById('columnBContainer');
+    const svgCanvas = document.getElementById('connectionSvg');
+    const projectorScreen = document.getElementById('projectorScreen');
+    const activityArea = document.getElementById('activityArea');
+    const progressCounter = document.getElementById('progressCounter');
+    const feedbackText = document.getElementById('feedbackText');
+    const btnCheck = document.getElementById('btnCheck');
+    const btnReset = document.getElementById('btnReset');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const btnSoundToggle = document.getElementById('btnSoundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+    const explanationModal = document.getElementById('explanationModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnPlayAgainModal = document.getElementById('btnPlayAgainModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSubtitle = document.getElementById('modalSubtitle');
+    const modalIcon = document.getElementById('modalIcon');
+    
+    // Nút & Modal Xuất Bài Tập
+    const btnExport = document.getElementById('btnExport');
+    const exportModal = document.getElementById('exportModal');
+    const btnCloseExportModal = document.getElementById('btnCloseExportModal');
+    const btnPrintStudent = document.getElementById('btnPrintStudent');
+    const btnPrintTeacher = document.getElementById('btnPrintTeacher');
+    const printTeacherKey = document.getElementById('printTeacherKey');
+
+    /* BỘ ĐẾM THỜI GIAN */
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerSeconds = 0;
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    /* XÁO TRỘN DANH SÁCH CỘT B ĐỂ CHƠI NHIỀU LƯỢT */
+    function shuffleDataB() {
+      const array = [...rawDataB];
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      // Gán lại nhãn a, b, c theo thứ tự trực quan
+      const labels = ['a', 'b', 'c'];
+      currentDataB = array.map((item, idx) => ({ ...item, displayBadge: labels[idx] }));
+    }
+
+    /* KHỞI TẠO VÀ RENDER THẺ BÀI HỌC */
+    function renderBoard() {
+      colAContainer.innerHTML = '';
+      colBContainer.innerHTML = '';
+
+      // Render Cột A
+      currentDataA.forEach(item => {
+        const card = document.createElement('div');
+        card.id = `card-${item.id}`;
+        card.className = `topic-card relative flex items-center justify-between p-3 lg:p-4 bg-white border-2 border-slate-300 rounded-2xl shadow-sm cursor-pointer select-none`;
+        card.innerHTML = `
+          <div class="flex items-center gap-3 lg:gap-4 flex-1 pr-3">
+            <span class="flex items-center justify-center w-11 h-11 lg:w-13 lg:h-13 rounded-2xl ${item.colorBg} text-white font-black text-xl lg:text-2xl shadow flex-shrink-0">
+              ${item.badge}
+            </span>
+            <div>
+              <span class="text-xs uppercase font-extrabold text-slate-600 block">${item.icon} LĨNH VỰC</span>
+              <span class="font-black text-slate-900 text-lg lg:text-2xl leading-snug">
+                ${item.title}
+              </span>
+            </div>
+          </div>
+          <!-- Mấu neo kết nối bên phải của Cột A -->
+          <div id="anchor-${item.id}" data-id="${item.id}" data-side="A"
+               class="anchor-node w-8 h-8 lg:w-9 lg:h-9 rounded-full border-4 border-white bg-indigo-500 shadow-md flex-shrink-0 relative -mr-7 lg:-mr-8 z-30 flex items-center justify-center">
+            <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.anchor-node')) return; // Tránh xung đột sự kiện kéo
+          audio.init();
+          onSelectCardA(item.id);
+        });
+
+        const anchor = card.querySelector(`#anchor-${item.id}`);
+        bindPointerEvents(anchor, item.id, 'A');
+
+        colAContainer.appendChild(card);
+      });
+
+      // Render Cột B
+      currentDataB.forEach(item => {
+        const card = document.createElement('div');
+        card.id = `card-${item.id}`;
+        card.className = `topic-card relative flex items-center justify-between p-3 lg:p-4 bg-white border-2 border-slate-300 rounded-2xl shadow-sm cursor-pointer select-none`;
+        card.innerHTML = `
+          <!-- Mấu neo kết nối bên trái của Cột B -->
+          <div id="anchor-${item.id}" data-id="${item.id}" data-side="B"
+               class="anchor-node w-8 h-8 lg:w-9 lg:h-9 rounded-full border-4 border-white bg-emerald-500 shadow-md flex-shrink-0 relative -ml-7 lg:-ml-8 z-30 flex items-center justify-center">
+            <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+          </div>
+          <div class="flex items-start gap-3 lg:gap-4 flex-1 pl-3">
+            <span class="flex items-center justify-center w-9 h-9 lg:w-11 lg:h-11 rounded-xl bg-emerald-600 text-white font-black text-lg lg:text-xl shadow flex-shrink-0 mt-0.5 uppercase">
+              ${item.displayBadge}
+            </span>
+            <div class="flex-1">
+              <ul class="text-slate-800 text-xs sm:text-sm lg:text-base font-semibold space-y-1">
+                ${item.bullets.map(b => `<li class="flex items-start gap-1.5"><span class="text-emerald-700 font-black">•</span><span>${b}</span></li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.anchor-node')) return;
+          audio.init();
+          onSelectCardB(item.id);
+        });
+
+        const anchor = card.querySelector(`#anchor-${item.id}`);
+        bindPointerEvents(anchor, item.id, 'B');
+
+        colBContainer.appendChild(card);
+      });
+
+      updateStyles();
+      renderSvgWires();
+    }
+
+    /* BẤM CHỌN THẺ ĐỂ GHÉP ĐÔI */
+    function onSelectCardA(idA) {
+      if (selectedA === idA) {
+        selectedA = null; // Bỏ chọn nếu click lại
+      } else {
+        selectedA = idA;
+        audio.playConnect();
+      }
+      updateStyles();
+    }
+
+    function onSelectCardB(idB) {
+      if (selectedA) {
+        pairItems(selectedA, idB);
+        selectedA = null;
+        updateStyles();
+        renderSvgWires();
+      } else {
+        // Nếu nhấp vào B đã có liên kết, xóa liên kết đó
+        for (let [a, b] of connections.entries()) {
+          if (b === idB) {
+            connections.delete(a);
+            audio.playConnect();
+            updateStyles();
+            renderSvgWires();
+            break;
+          }
+        }
+      }
+    }
+
+    /* CƠ CHẾ KÉO THẢ TRÊN BẢNG TƯƠNG TÁC / TOUCH */
+    function bindPointerEvents(element, id, side) {
+      element.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        element.setPointerCapture(e.pointerId);
+        audio.init();
+
+        isDragging = true;
+        dragOrigin = { id, side };
+        updatePointerPos(e);
+        renderSvgWires();
+
+        const onPointerMove = (ev) => {
+          if (!isDragging) return;
+          updatePointerPos(ev);
+          renderSvgWires();
+        };
+
+        const onPointerUp = (ev) => {
+          element.releasePointerCapture(ev.pointerId);
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup', onPointerUp);
+
+          const target = detectDropTarget(ev.clientX, ev.clientY, dragOrigin.side);
+          if (target) {
+            if (dragOrigin.side === 'A') {
+              pairItems(dragOrigin.id, target);
+            } else {
+              pairItems(target, dragOrigin.id);
+            }
+          }
+
+          isDragging = false;
+          dragOrigin = null;
+          updateStyles();
+          renderSvgWires();
+        };
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+      });
+    }
+
+    function updatePointerPos(e) {
+      const rect = activityArea.getBoundingClientRect();
+      pointerCoordinates.x = e.clientX - rect.left;
+      pointerCoordinates.y = e.clientY - rect.top;
+    }
+
+    function detectDropTarget(clientX, clientY, fromSide) {
+      const targetSide = fromSide === 'A' ? 'B' : 'A';
+      const targetList = targetSide === 'A' ? currentDataA : currentDataB;
+
+      for (let item of targetList) {
+        const card = document.getElementById(`card-${item.id}`);
+        if (!card) continue;
+        const r = card.getBoundingClientRect();
+        // Mở rộng vùng hứng thả ngón tay (Hitbox) cho màn hình cảm ứng
+        if (clientX >= r.left - 25 && clientX <= r.right + 25 &&
+            clientY >= r.top - 15 && clientY <= r.bottom + 15) {
+          return item.id;
+        }
+      }
+      return null;
+    }
+
+    /* GHÉP NỐI CẶP */
+    function pairItems(idA, idB) {
+      // Đảm bảo quan hệ 1 - 1
+      for (let [a, b] of connections.entries()) {
+        if (b === idB && a !== idA) {
+          connections.delete(a);
+        }
+      }
+      connections.set(idA, idB);
+      audio.playConnect();
+
+      if (isChecked) {
+        isChecked = false;
+      }
+      updateStatusDisplay();
+    }
+
+    function getAnchorCenter(elem) {
+      const containerRect = activityArea.getBoundingClientRect();
+      const dotRect = elem.getBoundingClientRect();
+      return {
+        x: (dotRect.left + dotRect.width / 2) - containerRect.left,
+        y: (dotRect.top + dotRect.height / 2) - containerRect.top
+      };
+    }
+
+    /* VẼ ĐƯỜNG NỐI SVG BEZIER CHUYÊN NGHIỆP */
+    function renderSvgWires() {
+      svgCanvas.innerHTML = '';
+      let colorIdx = 0;
+
+      // Vẽ các cặp đã nối thành công
+      for (let [idA, idB] of connections.entries()) {
+        const dotA = document.getElementById(`anchor-${idA}`);
+        const dotB = document.getElementById(`anchor-${idB}`);
+        if (!dotA || !dotB) continue;
+
+        const posA = getAnchorCenter(dotA);
+        const posB = getAnchorCenter(dotB);
+
+        const deltaX = Math.abs(posB.x - posA.x) * 0.45;
+        const pathData = `M ${posA.x} ${posA.y} C ${posA.x + deltaX} ${posA.y}, ${posB.x - deltaX} ${posB.y}, ${posB.x} ${posB.y}`;
+
+        const wireColor = linePalette[colorIdx % linePalette.length];
+        colorIdx++;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathData);
+        path.setAttribute('class', 'wire-line');
+        path.setAttribute('stroke', wireColor);
+        path.setAttribute('stroke-width', '6');
+        path.setAttribute('fill', 'none');
+        svgCanvas.appendChild(path);
+
+        // Đổi màu điểm neo tương ứng
+        dotA.style.backgroundColor = wireColor;
+        dotB.style.backgroundColor = wireColor;
+      }
+
+      // Vẽ đường nét đứt khi đang kéo chuột/ngón tay
+      if (isDragging && dragOrigin) {
+        const originDot = document.getElementById(`anchor-${dragOrigin.id}`);
+        if (originDot) {
+          const originPos = getAnchorCenter(originDot);
+          const currentPos = pointerCoordinates;
+          const isFromA = dragOrigin.side === 'A';
+          const dx = Math.abs(currentPos.x - originPos.x) * 0.45 || 60;
+
+          const cp1X = isFromA ? originPos.x + dx : originPos.x - dx;
+          const cp2X = isFromA ? currentPos.x - dx : currentPos.x + dx;
+          const pathData = `M ${originPos.x} ${originPos.y} C ${cp1X} ${originPos.y}, ${cp2X} ${currentPos.y}, ${currentPos.x} ${currentPos.y}`;
+
+          const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          tempPath.setAttribute('d', pathData);
+          tempPath.setAttribute('class', 'temp-wire');
+          tempPath.setAttribute('stroke', '#d97706');
+          tempPath.setAttribute('stroke-width', '5');
+          tempPath.setAttribute('fill', 'none');
+          svgCanvas.appendChild(tempPath);
+        }
+      }
+
+      // Reset màu mặc định cho các mấu neo chưa nối
+      currentDataA.forEach(item => {
+        if (!connections.has(item.id)) {
+          const d = document.getElementById(`anchor-${item.id}`);
+          if (d) d.style.backgroundColor = '#6366f1';
+        }
+      });
+      const connectedBSet = new Set(connections.values());
+      currentDataB.forEach(item => {
+        if (!connectedBSet.has(item.id)) {
+          const d = document.getElementById(`anchor-${item.id}`);
+          if (d) d.style.backgroundColor = '#10b981';
+        }
+      });
+    }
+
+    /* CẬP NHẬT HIỆU ỨNG THẺ & TRẠNG THÁI */
+    function updateStyles() {
+      // Cột A
+      currentDataA.forEach(item => {
+        const card = document.getElementById(`card-${item.id}`);
+        if (!card) return;
+        card.classList.remove('selected', 'paired', 'is-correct', 'is-wrong');
+
+        if (selectedA === item.id) {
+          card.classList.add('selected');
+        } else if (connections.has(item.id)) {
+          card.classList.add('paired');
+        }
+      });
+
+      // Cột B
+      const connectedBSet = new Set(connections.values());
+      currentDataB.forEach(item => {
+        const card = document.getElementById(`card-${item.id}`);
+        if (!card) return;
+        card.classList.remove('paired', 'is-correct', 'is-wrong');
+
+        if (connectedBSet.has(item.id)) {
+          card.classList.add('paired');
+        }
+      });
+
+      updateStatusDisplay();
+    }
+
+    function updateStatusDisplay() {
+      const count = connections.size;
+      progressCounter.innerHTML = `Đã nối: <strong class="text-indigo-900">${count}/3</strong> cặp`;
+
+      if (count === 3 && !isChecked) {
+        feedbackText.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block animate-bounce"></span>
+          <span class="text-emerald-700 font-black">Tuyệt vời! Đã hoàn thành 3 cặp, bấm "KIỂM TRA KẾT QUẢ" ngay nhé!</span>
+        `;
+      } else if (!isChecked) {
+        feedbackText.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-indigo-500 inline-block glow-dot"></span>
+          <span>Hãy tiếp tục ghép nối các mục còn lại.</span>
+        `;
+      }
+    }
+
+    /* CHẤM ĐIỂM VÀ ĐÁNH GIÁ KẾT QUẢ */
+    btnCheck.addEventListener('click', () => {
+      audio.init();
+
+      if (connections.size === 0) {
+        feedbackText.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-amber-500 inline-block glow-dot"></span>
+          <span class="text-amber-700 font-black">Em hãy nối ít nhất 1 cặp trước khi kiểm tra!</span>
+        `;
+        audio.playMistake();
+        return;
+      }
+
+      isChecked = true;
+      let score = 0;
+
+      currentDataA.forEach(item => {
+        const cardA = document.getElementById(`card-${item.id}`);
+        const userB = connections.get(item.id);
+
+        cardA.classList.remove('is-correct', 'is-wrong');
+
+        if (userB) {
+          const cardB = document.getElementById(`card-${userB}`);
+          cardB.classList.remove('is-correct', 'is-wrong');
+
+          if (userB === item.correctMatchId) {
+            score++;
+            cardA.classList.add('is-correct');
+            cardB.classList.add('is-correct');
+          } else {
+            cardA.classList.add('is-wrong');
+            cardB.classList.add('is-wrong');
+          }
+        }
+      });
+
+      if (score === 3) {
+        audio.playVictory();
+        triggerClassroomConfetti();
+        modalIcon.textContent = '🏆';
+        modalTitle.textContent = `XUẤT SẮC! ĐÚNG 3/3 CẶP (${timerDisplay.textContent})`;
+        modalSubtitle.textContent = 'Cả lớp cùng tuyên dương bạn đã hoàn thành chuẩn xác bài học hôm nay!';
+        setTimeout(() => {
+          explanationModal.classList.remove('hidden');
+        }, 800);
+      } else {
+        audio.playMistake();
+        feedbackText.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-rose-500 inline-block glow-dot"></span>
+          <span class="text-rose-700 font-black">Kết quả: Đúng ${score}/3 cặp. Các ô viền đỏ cần sửa lại!</span>
+        `;
+      }
+    });
+
+    /* LÀM LẠI & BẮT ĐẦU VÁN MỚI */
+    btnReset.addEventListener('click', restartActivity);
+    btnPlayAgainModal.addEventListener('click', () => {
+      explanationModal.classList.add('hidden');
+      restartActivity();
+    });
+    btnCloseModal.addEventListener('click', () => {
+      explanationModal.classList.add('hidden');
+    });
+
+    function restartActivity() {
+      connections.clear();
+      selectedA = null;
+      isChecked = false;
+      explanationModal.classList.add('hidden');
+      shuffleDataB();
+      renderBoard();
+      startTimer();
+      feedbackText.innerHTML = `
+        <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block glow-dot"></span>
+        <span>Đã xáo bài! Mời học sinh tiếp theo lên bảng thực hiện.</span>
+      `;
+    }
+
+    /* BẬT TẮT ÂM THANH */
+    btnSoundToggle.addEventListener('click', () => {
+      audio.enabled = !audio.enabled;
+      soundIcon.textContent = audio.enabled ? '🔊' : '🔇';
+    });
+
+    /* XỬ LÝ XUẤT BÀI TẬP VÀ IN ẤN */
+    btnExport.addEventListener('click', () => {
+      audio.init();
+      exportModal.classList.remove('hidden');
+    });
+
+    btnCloseExportModal.addEventListener('click', () => {
+      exportModal.classList.add('hidden');
+    });
+
+    btnPrintStudent.addEventListener('click', () => {
+      printTeacherKey.classList.add('hidden');
+      exportModal.classList.add('hidden');
+      window.print();
+    });
+
+    btnPrintTeacher.addEventListener('click', () => {
+      printTeacherKey.classList.remove('hidden');
+      exportModal.classList.add('hidden');
+      window.print();
+    });
+
+    /* TOÀN MÀN HÌNH MÁY CHIẾU LỚP HỌC */
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        projectorScreen.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      setTimeout(renderSvgWires, 150);
+    });
+    window.addEventListener('resize', () => {
+      renderSvgWires();
+    });
+
+    /* HIỆU ỨNG PHÁO HOA ĂN MỪNG TRÊN MÀN CHIẾU */
+    function triggerClassroomConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'absolute inset-0 pointer-events-none z-50 w-full h-full';
+      projectorScreen.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = projectorScreen.clientWidth;
+      canvas.height = projectorScreen.clientHeight;
+
+      const particles = [];
+      const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#06b6d4', '#eab308'];
+      for (let i = 0; i < 110; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+          y: canvas.height * 0.4,
+          w: Math.random() * 12 + 6,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.9) * 12,
+          rot: Math.random() * 360,
+          vrot: (Math.random() - 0.5) * 12
+        });
+      }
+
+      let frame = 0;
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.28; // Trọng lực rơi
+          p.rot += p.vrot;
+        });
+
+        frame++;
+        if (frame < 130) {
+          requestAnimationFrame(loop);
+        } else {
+          canvas.remove();
+        }
+      }
+      loop();
+    }
+
+    // Khởi động trang lần đầu
+    window.addEventListener('load', () => {
+      shuffleDataB();
+      renderBoard();
+      startTimer();
+    });
+  </script>
+</body>
+</html>
