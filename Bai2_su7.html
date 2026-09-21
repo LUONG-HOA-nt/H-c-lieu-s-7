@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Tiến Trình: Hành Trình Nảy Sinh Chủ Nghĩa Tư Bản - Lịch Sử 7</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Be Vietnam Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+    }
+
+    /* Khung chuẩn tỉ lệ 16:9 tối ưu cho máy chiếu và TV thông minh */
+    .aspect-16-9 {
+      aspect-ratio: 16 / 9;
+    }
+
+    /* Hiệu ứng thẻ kéo thả */
+    .drag-token {
+      cursor: grab;
+      touch-action: none;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .drag-token:active {
+      cursor: grabbing;
+      transform: scale(0.96);
+    }
+    .drag-token.is-selected {
+      border-color: #f59e0b !important;
+      background-color: #fef3c7 !important;
+      color: #78350f !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.4), 0 10px 20px -3px rgba(245, 158, 11, 0.3) !important;
+      transform: scale(1.03);
+    }
+    .drag-token.is-placed {
+      opacity: 0.4;
+      pointer-events: none;
+      filter: grayscale(0.6);
+      transform: scale(0.95);
+    }
+
+    /* Ô chứa khuyết từ (Dropzone) */
+    .dropzone-slot {
+      transition: all 0.25s ease;
+      min-height: 70px;
+    }
+    .dropzone-slot.drag-over {
+      border-color: #3b82f6 !important;
+      background-color: #eff6ff !important;
+      transform: scale(1.02);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    }
+    .dropzone-slot.has-content {
+      border-style: solid;
+      background-color: #ffffff;
+    }
+    .dropzone-slot.is-correct {
+      border-color: #10b981 !important;
+      background-color: #ecfdf5 !important;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3) !important;
+    }
+    .dropzone-slot.is-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    /* Hiệu ứng mũi tên tiến trình động */
+    .flow-arrow {
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      animation: bounceDown 1.8s infinite ease-in-out;
+    }
+    @keyframes bounceDown {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+
+    /* Tối ưu in phiếu A4 */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      #projectorScreen, #exportModal, #explanationModal {
+        display: none !important;
+      }
+      #printableWorksheet {
+        display: block !important;
+      }
+    }
+    @media screen {
+      #printableWorksheet {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-2 sm:p-4 overflow-x-hidden">
+
+  <!-- MÀN HÌNH TƯƠNG TÁC TỈ LỆ 16:9 -->
+  <div id="projectorScreen" class="w-full max-w-[1550px] aspect-16-9 bg-gradient-to-br from-amber-50 via-slate-50 to-orange-50 text-slate-900 rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] border-4 border-amber-300 flex flex-col justify-between overflow-hidden relative p-4 lg:p-6">
+    
+    <!-- THANH TIÊU ĐỀ & ĐIỀU KHIỂN -->
+    <header class="flex items-center justify-between gap-4 pb-2.5 border-b-2 border-amber-200 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-amber-600 text-white flex items-center justify-center text-2xl lg:text-3xl shadow-md flex-shrink-0">
+          ⚓
+        </div>
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs lg:text-sm font-extrabold uppercase tracking-wider">
+            Lịch Sử 7 • Tây Âu Thời Hậu Kỳ Trung Đại
+          </div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+            SƠ ĐỒ TIẾN TRÌNH: HÀNH TRÌNH NẢY SINH CHỦ NGHĨA TƯ BẢN
+          </h1>
+        </div>
+      </div>
+
+      <!-- Cụm công cụ điều khiển -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Nút Xuất Phiếu Học Tập -->
+        <button id="btnExport" title="Xuất bài tập / In phiếu học tập PDF" class="flex items-center gap-2 px-3.5 lg:px-4 py-2.5 lg:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-sm lg:text-base shadow-md active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span>Xuất Bài Tập</span>
+        </button>
+
+        <!-- Đồng hồ bấm giờ thi đấu -->
+        <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border-2 border-slate-300 shadow-sm font-mono font-black text-lg lg:text-xl text-slate-800">
+          <span class="text-amber-600">⏱️</span>
+          <span id="timerDisplay">00:00</span>
+        </div>
+
+        <!-- Nút Âm thanh -->
+        <button id="btnSoundToggle" title="Bật / Tắt âm thanh" class="p-2.5 lg:p-3 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-300 text-slate-700 shadow-sm active:scale-95 transition">
+          <span id="soundIcon" class="text-xl">🔊</span>
+        </button>
+
+        <!-- Toàn màn hình -->
+        <button id="btnFullscreen" class="flex items-center gap-2 px-4 py-2.5 lg:py-3 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-sm lg:text-base shadow-md active:scale-95 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+          </svg>
+          <span class="hidden md:inline">Toàn Màn Hình</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- HƯỚNG DẪN TƯƠNG TÁC THÔNG MINH TRÊN BẢNG LỚP -->
+    <div class="bg-amber-100/90 border border-amber-300 text-amber-950 px-4 py-1.5 rounded-2xl flex items-center justify-between text-xs lg:text-sm font-semibold shadow-inner mt-2 flex-shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">💡</span>
+        <span><strong>Cách thực hiện:</strong> Kéo các ô từ khoá bên dưới thả vào ô khuyết <strong>[ ? ]</strong>, hoặc <strong>chạm chọn ô từ khoá</strong> rồi <strong>chạm ô khuyết cần điền</strong>!</span>
+      </div>
+      <div id="progressStatus" class="font-extrabold text-amber-900 bg-amber-200 px-3 py-0.5 rounded-xl border border-amber-400">
+        Đã điền: 0/4 vị trí
+      </div>
+    </div>
+
+    <!-- KHU VỰC CHÍNH: SƠ ĐỒ TIẾN TRÌNH & NGÂN HÀNG TỪ KHÓA -->
+    <main class="grid grid-cols-12 gap-3 lg:gap-4 my-2 flex-1 items-stretch overflow-hidden">
+      
+      <!-- CỘT TRÁI (8 CỘT): SƠ ĐỒ TIẾN TRÌNH 4 BƯỚC NGUYÊN NHÂN - HỆ QUẢ -->
+      <div class="col-span-12 lg:col-span-8 flex flex-col justify-between h-full bg-white/90 rounded-2xl p-3 lg:p-4 border-2 border-slate-300 shadow-md overflow-y-auto">
+        
+        <!-- BƯỚC 1: TIỀN ĐỀ BẮT ĐẦU -->
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-700 text-white shadow-sm border border-sky-400">
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-xl flex-shrink-0">
+            1
+          </div>
+          <div class="flex-1">
+            <span class="text-[11px] uppercase tracking-wider font-extrabold text-sky-200 block">Tiền đề kinh tế & thương mại</span>
+            <div class="font-black text-base lg:text-lg">CÁC CUỘC PHÁT KIẾN ĐỊA LÍ (TK XV - XVI)</div>
+            <p class="text-xs text-sky-100 italic">Mở ra con đường biển mới, đem lại của cải và mở rộng thị trường thế giới.</p>
+          </div>
+          <span class="text-2xl">🗺️</span>
+        </div>
+
+        <!-- MŨI TÊN CHUYỂN TIẾP -->
+        <div class="flex justify-center -my-1">
+          <div class="flow-arrow text-slate-500 font-black text-xl">⬇️</div>
+        </div>
+
+        <!-- BƯỚC 2: TÍCH LŨY VỐN & TẬP TRUNG NHÂN CÔNG (CÓ 2 Ô KHUYẾT) -->
+        <div class="p-2.5 rounded-xl bg-amber-50/90 border-2 border-amber-300 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-amber-200">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-amber-600 text-white font-black text-sm flex items-center justify-center">2</span>
+              <span class="font-black text-slate-900 text-sm lg:text-base">TÍCH LŨY VỐN BAN ĐẦU & TẬP TRUNG NHÂN CÔNG</span>
+            </div>
+            <span class="text-xs font-bold text-amber-800 bg-amber-200 px-2 py-0.5 rounded-lg">Cơ sở tư bản ra đời</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- Ô KHUYẾT 1: VỐN -->
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1">
+                <span class="text-amber-600 font-black">•</span> Tích lũy nguồn vốn khổng lồ:
+              </span>
+              <div id="slot-SLOT_VON" data-slot="SLOT_VON" class="dropzone-slot flex-1 p-2 rounded-xl border-2 border-dashed border-slate-400 bg-slate-50 hover:bg-amber-50/60 flex items-center justify-center text-center cursor-pointer">
+                <span class="text-xs font-bold text-slate-400 italic pointer-events-none">[ Chạm hoặc kéo ô từ khoá vào đây ]</span>
+              </div>
+            </div>
+
+            <!-- Ô KHUYẾT 2: NHÂN CÔNG -->
+            <div class="flex flex-col">
+              <span class="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1">
+                <span class="text-amber-600 font-black">•</span> Tạo đội ngũ nhân công làm thuê:
+              </span>
+              <div id="slot-SLOT_NHANCONG" data-slot="SLOT_NHANCONG" class="dropzone-slot flex-1 p-2 rounded-xl border-2 border-dashed border-slate-400 bg-slate-50 hover:bg-amber-50/60 flex items-center justify-center text-center cursor-pointer">
+                <span class="text-xs font-bold text-slate-400 italic pointer-events-none">[ Chạm hoặc kéo ô từ khoá vào đây ]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MŨI TÊN CHUYỂN TIẾP -->
+        <div class="flex justify-center -my-1">
+          <div class="flow-arrow text-slate-500 font-black text-xl">⬇️</div>
+        </div>
+
+        <!-- BƯỚC 3: CÁC HÌNH THỨC KINH DOANH MỚI (1 Ô KHUYẾT) -->
+        <div class="p-2.5 rounded-xl bg-emerald-50/90 border-2 border-emerald-300 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-emerald-200">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-black text-sm flex items-center justify-center">3</span>
+              <span class="font-black text-slate-900 text-sm lg:text-base">HÌNH THÀNH CÁC HÌNH THỨC SẢN XUẤT - KINH DOANH MỚI</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-800 bg-emerald-200 px-2 py-0.5 rounded-lg">Thay thế phường hội</span>
+          </div>
+
+          <div id="slot-SLOT_KINHDOANH" data-slot="SLOT_KINHDOANH" class="dropzone-slot p-2 rounded-xl border-2 border-dashed border-slate-400 bg-slate-50 hover:bg-emerald-50/60 flex items-center justify-center text-center cursor-pointer">
+            <span class="text-xs font-bold text-slate-400 italic pointer-events-none">[ Chạm hoặc kéo ô từ khoá vào đây ]</span>
+          </div>
+        </div>
+
+        <!-- MŨI TÊN CHUYỂN TIẾP -->
+        <div class="flex justify-center -my-1">
+          <div class="flow-arrow text-slate-500 font-black text-xl">⬇️</div>
+        </div>
+
+        <!-- BƯỚC 4: QUAN HỆ SẢN XUẤT MỚI (1 Ô KHUYẾT) -->
+        <div class="p-2.5 rounded-xl bg-purple-50/90 border-2 border-purple-300 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-purple-200">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-purple-600 text-white font-black text-sm flex items-center justify-center">4</span>
+              <span class="font-black text-slate-900 text-sm lg:text-base">XÁC LẬP QUAN HỆ SẢN XUẤT MỚI (TƯ BẢN CHỦ NGHĨA)</span>
+            </div>
+            <span class="text-xs font-bold text-purple-800 bg-purple-200 px-2 py-0.5 rounded-lg">Hình thành 2 giai cấp mới</span>
+          </div>
+
+          <div id="slot-SLOT_QUANHESX" data-slot="SLOT_QUANHESX" class="dropzone-slot p-2 rounded-xl border-2 border-dashed border-slate-400 bg-slate-50 hover:bg-purple-50/60 flex items-center justify-center text-center cursor-pointer">
+            <span class="text-xs font-bold text-slate-400 italic pointer-events-none">[ Chạm hoặc kéo ô từ khoá vào đây ]</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CỘT PHẢI (4 CỘT): NGÂN HÀNG TỪ KHÓA (KHO THẺ KÉO THẢ) -->
+      <div class="col-span-12 lg:col-span-4 flex flex-col justify-between h-full bg-slate-100/95 rounded-2xl p-3 lg:p-4 border-2 border-slate-300 shadow-md">
+        
+        <div>
+          <div class="flex items-center justify-between pb-2 mb-2 border-b-2 border-slate-300">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">🏷️</span>
+              <span class="font-black text-slate-900 text-sm lg:text-base uppercase tracking-tight">KHO THẺ TỪ KHÓA</span>
+            </div>
+            <span class="text-[11px] font-bold text-slate-500 italic">4 thẻ sự kiện</span>
+          </div>
+
+          <p class="text-xs text-slate-600 mb-2 leading-relaxed">
+            Chọn thẻ thích hợp kéo thả vào đúng tiến trình nguyên nhân - kết quả của Chủ nghĩa Tư bản:
+          </p>
+
+          <!-- Danh sách thẻ bài học -->
+          <div id="tokenBank" class="space-y-2.5 overflow-y-auto pr-1">
+            <!-- Tự động nạp qua JavaScript -->
+          </div>
+        </div>
+
+        <!-- BẢNG HƯỚNG DẪN NHANH VỀ NGUYÊN NHÂN - HỆ QUẢ -->
+        <div class="mt-3 p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-[11px] text-amber-950 font-medium">
+          <div class="font-black text-amber-900 flex items-center gap-1.5 mb-1">
+            <span>📌</span> Ghi nhớ cốt lõi:
+          </div>
+          Vốn + Nhân công ➔ Cơ sở kinh doanh mới ➔ Xác lập quan hệ bóc lột làm thuê (Tư sản & Vô sản).
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- KHU VỰC ĐIỀU HÀNH & NÚT CHẤM ĐIỂM -->
+    <footer class="flex items-center justify-between pt-2.5 border-t-2 border-slate-200 flex-shrink-0 gap-3">
+      <div id="feedbackMessage" class="text-xs lg:text-base font-extrabold text-slate-700 flex items-center gap-2">
+        <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block"></span>
+        <span>Sẵn sàng: Hãy xếp đủ 4 thẻ vào sơ đồ rồi bấm "KIỂM TRA TIẾN TRÌNH".</span>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <!-- Nút Làm lại / Xáo bài -->
+        <button id="btnReset" class="flex items-center gap-2 px-4 lg:px-5 py-2 lg:py-2.5 rounded-2xl bg-white hover:bg-slate-100 border-2 border-slate-300 font-black text-slate-700 text-xs lg:text-sm active:scale-95 transition shadow-sm">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          LÀM LẠI / XÁO THẺ
+        </button>
+
+        <!-- Nút Kiểm tra kết quả -->
+        <button id="btnCheck" class="flex items-center gap-2 px-6 lg:px-8 py-2 lg:py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm lg:text-base active:scale-95 transition shadow-lg shadow-emerald-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+          KIỂM TRA TIẾN TRÌNH
+        </button>
+      </div>
+    </footer>
+
+    <!-- MODAL GIẢI THÍCH CHI TIẾT & CHÚC MỪNG -->
+    <div id="explanationModal" class="hidden absolute inset-4 lg:inset-8 bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 shadow-2xl border-4 border-indigo-400 z-50 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+          <div class="flex items-center gap-3">
+            <span id="modalIcon" class="text-4xl">🎉</span>
+            <div>
+              <h2 id="modalTitle" class="text-2xl lg:text-3xl font-black text-slate-900">CHÍNH XÁC HOÀN TOÀN! (ĐÚNG 4/4)</h2>
+              <p id="modalSubtitle" class="text-sm lg:text-base font-bold text-slate-600">Khái quát kiến thức chuẩn Lịch sử 7 - Sự ra đời Chủ nghĩa Tư bản:</p>
+            </div>
+          </div>
+          <button id="btnCloseModal" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold rounded-xl text-slate-800 text-sm">
+            Đóng
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+          <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-amber-600 text-white font-black text-xs uppercase mb-2">1. Vốn & Nhân công</span>
+            <p class="text-slate-800 text-xs lg:text-sm leading-relaxed">
+              • <strong>Nguồn vốn:</strong> Quý tộc, thương nhân Tây Âu cướp bóc thuộc địa, buôn bán nô lệ da đen đem về nguồn của cải vô tận.<br>
+              • <strong>Nhân công:</strong> Phong trào <em>"Rào đất cướp ruộng"</em> biến nông dân mất ruộng trở thành người làm thuê tự do.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-emerald-600 text-white font-black text-xs uppercase mb-2">2. Mô hình kinh tế mới</span>
+            <p class="text-slate-800 text-xs lg:text-sm leading-relaxed">
+              • Ra đời <strong>công trường thủ công</strong> với quy mô hàng trăm thợ, có sự chuyên môn hóa lao động sâu sắc.<br>
+              • Xuất hiện <strong>đồn điền quy mô lớn</strong> và các <strong>công ty thương mại</strong> độc quyền buôn bán quốc tế.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-purple-50 border-2 border-purple-300">
+            <span class="inline-block px-3 py-1 rounded-lg bg-purple-600 text-white font-black text-xs uppercase mb-2">3. Quan hệ sản xuất mới</span>
+            <p class="text-slate-800 text-xs lg:text-sm leading-relaxed">
+              • <strong>Giai cấp Tư sản:</strong> Nắm toàn bộ tư liệu sản xuất (nhà xưởng, máy móc, nguyên liệu, đồn điền).<br>
+              • <strong>Giai cấp Vô sản:</strong> Không có tư liệu sản xuất, phải bán sức lao động để nhận tiền lương ít ỏi.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t-2 border-slate-200 flex justify-end gap-3 mt-4">
+        <button id="btnPlayAgainModal" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow-md">
+          Chơi lại / Xáo lượt mới
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL XUẤT BÀI TẬP IN ẤN / LƯU PDF -->
+    <div id="exportModal" class="hidden absolute inset-4 lg:inset-8 bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 shadow-2xl border-4 border-amber-400 z-50 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+          <div class="flex items-center gap-3">
+            <span class="text-4xl">🖨️</span>
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-black text-slate-900">XUẤT BÀI TẬP & IN PHIẾU HỌC TẬP</h2>
+              <p class="text-sm lg:text-base font-bold text-slate-600">Chọn định dạng phiếu in A4 cho học sinh làm bài hoặc lưu file PDF:</p>
+            </div>
+          </div>
+          <button id="btnCloseExportModal" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-bold rounded-xl text-slate-800 text-sm">
+            Đóng
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <!-- Phiếu học sinh -->
+          <div class="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-amber-600 text-white font-black text-xs uppercase rounded-lg">Học sinh</span>
+                <span class="text-xs font-bold text-slate-500">Khổ A4 tiêu chuẩn</span>
+              </div>
+              <h3 class="text-lg font-black text-slate-900">Phiếu Điền Sơ Đồ Khuyết Từ</h3>
+              <p class="text-xs lg:text-sm text-slate-600 mt-1">
+                Bao gồm sơ đồ tiến trình với 4 ô khuyết từ để học sinh tự điền nội dung hoặc cắt dán từ khoá.
+              </p>
+            </div>
+            <button id="btnPrintStudent" class="mt-4 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-sm lg:text-base shadow active:scale-95 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+              </svg>
+              In Phiếu Bài Tập (Học sinh)
+            </button>
+          </div>
+
+          <!-- Phiếu giáo viên kèm đáp án -->
+          <div class="p-5 rounded-2xl bg-indigo-50 border-2 border-indigo-300 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-3 py-1 bg-indigo-600 text-white font-black text-xs uppercase rounded-lg">Giáo viên</span>
+                <span class="text-xs font-bold text-slate-500">Kèm Đáp Án & Hướng Dẫn</span>
+              </div>
+              <h3 class="text-lg font-black text-slate-900">Phiếu Sơ Đồ Chuẩn & Đáp Án</h3>
+              <p class="text-xs lg:text-sm text-slate-600 mt-1">
+                Hiển thị toàn bộ sơ đồ hoàn chỉnh kèm chú giải chi tiết phục vụ giáo án và chữa bài.
+              </p>
+            </div>
+            <button id="btnPrintTeacher" class="mt-4 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm lg:text-base shadow active:scale-95 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              In Bản Chuẩn Đáp Án (Giáo viên)
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-5 p-3 rounded-xl bg-slate-100 border border-slate-300 text-xs text-slate-600">
+          💡 <strong>Mẹo:</strong> Trong hộp thoại in của trình duyệt (Ctrl + P), tại mục <em>Máy in đích (Destination)</em>, hãy chọn <em>"Lưu dưới dạng PDF"</em> để tải file về máy tính.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHIẾU HỌC TẬP KHỔ A4 DÀNH RIÊNG CHO IN ẤN (@media print) -->
+  <div id="printableWorksheet" class="p-8 max-w-4xl mx-auto bg-white text-black font-sans leading-relaxed">
+    <div class="flex justify-between items-start border-b-2 border-black pb-3 mb-4">
+      <div>
+        <p class="font-bold text-xs uppercase tracking-wider">TRƯỜNG THCS: ................................................................</p>
+        <p class="font-bold text-xs uppercase tracking-wider">MÔN: LỊCH SỬ VÀ ĐỊA LÍ 7</p>
+      </div>
+      <div class="text-right text-xs">
+        <p>Họ và tên: ............................................................................</p>
+        <p>Lớp: ......................... Ngày: ......... / ......... / 202.........</p>
+      </div>
+    </div>
+
+    <div class="text-center my-3">
+      <h2 class="text-xl font-black uppercase tracking-tight">PHIẾU HỌC TẬP: HÀNH TRÌNH NẢY SINH CHỦ NGHĨA TƯ BẢN</h2>
+      <p class="text-xs italic font-semibold mt-1">Bài tập sơ đồ tiến trình nguyên nhân - kết quả</p>
+    </div>
+
+    <div class="border border-black p-2.5 bg-slate-50 text-xs mb-4">
+      <strong>Yêu cầu:</strong> Em hãy sắp xếp các nội dung cho sẵn ở khung từ khoá bên dưới và điền vào các vị trí <strong>(1), (2), (3), (4)</strong> trong sơ đồ tiến trình sao cho đúng logic lịch sử.
+    </div>
+
+    <!-- KHUNG TỪ KHÓA ĐỂ ĐIỀN -->
+    <div class="border-2 border-black p-3 mb-4 rounded bg-slate-100">
+      <h4 class="font-bold text-xs uppercase mb-2">NGÂN HÀNG TỪ KHÓA (CÁC MẢNH GHÉP TIẾN TRÌNH):</h4>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-2 border border-slate-400 bg-white rounded">
+          <strong>[A]</strong> Cướp bóc của cải, tài nguyên từ các vùng thuộc địa.
+        </div>
+        <div class="p-2 border border-slate-400 bg-white rounded">
+          <strong>[B]</strong> Tước đoạt ruộng đất của nông dân ("Rào đất cướp ruộng").
+        </div>
+        <div class="p-2 border border-slate-400 bg-white rounded">
+          <strong>[C]</strong> Công trường thủ công, đồn điền quy mô lớn, công ty thương mại.
+        </div>
+        <div class="p-2 border border-slate-400 bg-white rounded">
+          <strong>[D]</strong> Chủ công trường, đồn điền (Nắm TLSX) ⟷ Người làm thuê (Bán sức lao động).
+        </div>
+      </div>
+    </div>
+
+    <!-- SƠ ĐỒ TIẾN TRÌNH IN ẤN -->
+    <div class="border-2 border-black p-4 space-y-3 text-xs">
+      <!-- Bước 1 -->
+      <div class="p-2 border border-black font-bold text-center bg-slate-200">
+        CÁC CUỘC PHÁT KIẾN ĐỊA LÍ (TK XV - XVI)
+      </div>
+      <div class="text-center font-bold text-sm">↓</div>
+
+      <!-- Bước 2 -->
+      <div class="p-3 border border-black rounded">
+        <p class="font-bold uppercase text-xs mb-2">TÍCH LŨY VỐN BAN ĐẦU & TẬP TRUNG NHÂN CÔNG:</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-2.5 border border-dashed border-black min-h-[55px]">
+            <strong>(1) Nguồn vốn ban đầu:</strong><br>
+            <span class="text-slate-400 italic">.................................................................................................</span>
+          </div>
+          <div class="p-2.5 border border-dashed border-black min-h-[55px]">
+            <strong>(2) Tập trung nhân công:</strong><br>
+            <span class="text-slate-400 italic">.................................................................................................</span>
+          </div>
+        </div>
+      </div>
+      <div class="text-center font-bold text-sm">↓</div>
+
+      <!-- Bước 3 -->
+      <div class="p-3 border border-black rounded">
+        <p class="font-bold uppercase text-xs mb-2">HÌNH THÀNH CÁC HÌNH THỨC KINH DOANH MỚI:</p>
+        <div class="p-2.5 border border-dashed border-black min-h-[55px]">
+          <strong>(3) Mô hình kinh doanh mới:</strong><br>
+          <span class="text-slate-400 italic">.................................................................................................</span>
+        </div>
+      </div>
+      <div class="text-center font-bold text-sm">↓</div>
+
+      <!-- Bước 4 -->
+      <div class="p-3 border border-black rounded">
+        <p class="font-bold uppercase text-xs mb-2">XÁC LẬP QUAN HỆ SẢN XUẤT MỚI (TƯ BẢN CHỦ NGHĨA):</p>
+        <div class="p-2.5 border border-dashed border-black min-h-[55px]">
+          <strong>(4) Hai giai cấp cơ bản đối lập:</strong><br>
+          <span class="text-slate-400 italic">.................................................................................................</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ĐÁP ÁN CHO GIÁO VIÊN KHI CHỌN IN BẢN GIÁO VIÊN -->
+    <div id="printTeacherKey" class="hidden my-4 p-3 border-2 border-dashed border-black rounded bg-slate-50 text-xs">
+      <h4 class="font-bold uppercase mb-1">ĐÁP ÁN CHUẨN:</h4>
+      <p>• (1) = [A] Cướp bóc tài nguyên, thuộc địa (Tạo nguồn vốn khổng lồ)</p>
+      <p>• (2) = [B] Tước đoạt ruộng đất ("Rào đất cướp ruộng" tạo nguồn nhân công làm thuê)</p>
+      <p>• (3) = [C] Công trường thủ công, đồn điền quy mô lớn, công ty thương mại</p>
+      <p>• (4) = [D] Chủ công trường/đồn điền (Nắm TLSX) ⟷ Người làm thuê (Bán sức lao động)</p>
+    </div>
+
+    <!-- KHUNG ĐIỂM & LỜI PHÊ -->
+    <div class="border-2 border-black rounded p-3 mt-4 text-xs">
+      <div class="flex justify-between font-bold mb-6">
+        <span>ĐIỂM SỐ: ...........................</span>
+        <span>NHẬN XÉT CỦA GIÁO VIÊN:</span>
+      </div>
+      <p class="text-slate-400 italic">.......................................................................................................................................................................................................</p>
+    </div>
+  </div>
+
+  <script>
+    /* BỘ TỔNG HỢP ÂM THANH WEB AUDIO API */
+    class AudioFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, type = 'sine', duration = 0.15, vol = 0.15) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      }
+      playSelect() {
+        this.playTone(440, 'sine', 0.1, 0.15); // A4
+      }
+      playDrop() {
+        this.playTone(587.33, 'triangle', 0.15, 0.2); // D5
+      }
+      playVictory() {
+        if (!this.enabled) return;
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((f, idx) => {
+          setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.25), idx * 110);
+        });
+      }
+      playError() {
+        if (!this.enabled) return;
+        this.init();
+        this.playTone(220, 'sawtooth', 0.18, 0.2);
+        setTimeout(() => this.playTone(180, 'sawtooth', 0.25, 0.2), 110);
+      }
+    }
+    const audio = new AudioFX();
+
+    /* DỮ LIỆU TỪ KHÓA TIẾN TRÌNH */
+    const rawTokens = [
+      {
+        id: 'TOKEN_VON',
+        correctSlot: 'SLOT_VON',
+        categoryBadge: 'Vốn ban đầu',
+        badgeColor: 'bg-amber-500 text-white',
+        title: 'Cướp bóc tài nguyên, thuộc địa',
+        desc: 'Mang về nguồn vàng bạc và của cải khổng lồ tích lũy làm tư bản.',
+        icon: '💰'
+      },
+      {
+        id: 'TOKEN_NHANCONG',
+        correctSlot: 'SLOT_NHANCONG',
+        categoryBadge: 'Nhân công',
+        badgeColor: 'bg-rose-500 text-white',
+        title: 'Tước đoạt ruộng đất ("Rào đất cướp ruộng")',
+        desc: 'Tước đoạt tư liệu của nông dân, buộc họ phải vào làm thuê trong các xưởng xí nghiệp.',
+        icon: '🌾'
+      },
+      {
+        id: 'TOKEN_KINHDOANH',
+        correctSlot: 'SLOT_KINHDOANH',
+        categoryBadge: 'Hình thức mới',
+        badgeColor: 'bg-emerald-600 text-white',
+        title: 'Công trường thủ công, đồn điền quy mô lớn, công ty thương mại',
+        desc: 'Tổ chức sản xuất theo phương thức chuyên môn hóa, xóa bỏ dần các phường hội phong kiến.',
+        icon: '🏭'
+      },
+      {
+        id: 'TOKEN_QUANHESX',
+        correctSlot: 'SLOT_QUANHESX',
+        categoryBadge: 'Quan hệ sản xuất mới',
+        badgeColor: 'bg-purple-600 text-white',
+        title: 'Chủ xưởng/đồn điền (Nắm TLSX) ⟷ Người làm thuê (Bán sức lao động)',
+        desc: 'Hình thành 2 giai cấp cơ bản: Giai cấp Tư sản bóc lột và Giai cấp Vô sản làm thuê.',
+        icon: '🤝'
+      }
+    ];
+
+    /* TRẠNG THÁI ỨNG DỤNG */
+    let tokens = [...rawTokens];
+    // Map lưu vị trí: slotId -> tokenId
+    let slotPlacements = new Map();
+    let selectedTokenId = null;
+    let isChecked = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    // Các phần tử DOM
+    const tokenBankEl = document.getElementById('tokenBank');
+    const dropzoneSlots = document.querySelectorAll('.dropzone-slot');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    const progressStatus = document.getElementById('progressStatus');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const btnCheck = document.getElementById('btnCheck');
+    const btnReset = document.getElementById('btnReset');
+    const btnSoundToggle = document.getElementById('btnSoundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const projectorScreen = document.getElementById('projectorScreen');
+
+    // Modals
+    const explanationModal = document.getElementById('explanationModal');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnPlayAgainModal = document.getElementById('btnPlayAgainModal');
+    const btnExport = document.getElementById('btnExport');
+    const exportModal = document.getElementById('exportModal');
+    const btnCloseExportModal = document.getElementById('btnCloseExportModal');
+    const btnPrintStudent = document.getElementById('btnPrintStudent');
+    const btnPrintTeacher = document.getElementById('btnPrintTeacher');
+    const printTeacherKey = document.getElementById('printTeacherKey');
+
+    /* KHỞI TẠO VÀ BỘ ĐẾM THỜI GIAN */
+    function startTimer() {
+      clearInterval(timerInterval);
+      timerSeconds = 0;
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    /* XÁO TRỘN THẺ TỪ KHÓA */
+    function shuffleTokens() {
+      for (let i = tokens.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
+      }
+    }
+
+    /* RENDER KHO TỪ KHÓA */
+    function renderTokenBank() {
+      tokenBankEl.innerHTML = '';
+
+      tokens.forEach(token => {
+        const isPlaced = Array.from(slotPlacements.values()).includes(token.id);
+        const card = document.createElement('div');
+        card.id = `token-${token.id}`;
+        card.draggable = !isPlaced;
+        card.className = `drag-token p-2.5 rounded-xl bg-white border-2 border-slate-300 shadow-sm flex items-start gap-2.5 select-none ${isPlaced ? 'is-placed' : ''} ${selectedTokenId === token.id ? 'is-selected' : ''}`;
+        
+        card.innerHTML = `
+          <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-center text-lg flex-shrink-0">
+            ${token.icon}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="px-2 py-0.2 text-[10px] uppercase font-black rounded-md ${token.badgeColor}">${token.categoryBadge}</span>
+            </div>
+            <h4 class="font-extrabold text-slate-900 text-xs sm:text-sm leading-snug">${token.title}</h4>
+            <p class="text-[11px] text-slate-500 mt-0.5">${token.desc}</p>
+          </div>
+        `;
+
+        // Sự kiện Click để chọn (dành cho Smartboard hoặc màn hình cảm ứng)
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (isPlaced) return;
+          audio.init();
+
+          if (selectedTokenId === token.id) {
+            selectedTokenId = null;
+          } else {
+            selectedTokenId = token.id;
+            audio.playSelect();
+          }
+          renderTokenBank();
+          updateFeedback();
+        });
+
+        // Sự kiện Kéo thả HTML5 Drag
+        card.addEventListener('dragstart', (e) => {
+          audio.init();
+          selectedTokenId = token.id;
+          e.dataTransfer.setData('text/plain', token.id);
+          card.classList.add('opacity-50');
+        });
+
+        card.addEventListener('dragend', () => {
+          card.classList.remove('opacity-50');
+        });
+
+        tokenBankEl.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    /* GẮN SỰ KIỆN CHO CÁC Ô KHUYẾT (DROPZONES) */
+    function setupDropzones() {
+      dropzoneSlots.forEach(slot => {
+        const slotId = slot.dataset.slot;
+
+        // Xử lý Click vào ô khuyết
+        slot.addEventListener('click', () => {
+          audio.init();
+
+          // Trường hợp 1: Đang có thẻ được chọn, thả thẻ vào ô này
+          if (selectedTokenId) {
+            placeTokenInSlot(selectedTokenId, slotId);
+            selectedTokenId = null;
+            renderTokenBank();
+            renderSlotsContent();
+            return;
+          }
+
+          // Trường hợp 2: Bấm vào ô đã có thẻ để thu hồi thẻ về kho
+          if (slotPlacements.has(slotId)) {
+            slotPlacements.delete(slotId);
+            audio.playDrop();
+            if (isChecked) isChecked = false;
+            renderTokenBank();
+            renderSlotsContent();
+          }
+        });
+
+        // Xử lý Kéo thả Drag Over / Leave / Drop
+        slot.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          slot.classList.add('drag-over');
+        });
+
+        slot.addEventListener('dragleave', () => {
+          slot.classList.remove('drag-over');
+        });
+
+        slot.addEventListener('drop', (e) => {
+          e.preventDefault();
+          slot.classList.remove('drag-over');
+          const tokenId = e.dataTransfer.getData('text/plain') || selectedTokenId;
+          if (tokenId) {
+            placeTokenInSlot(tokenId, slotId);
+            selectedTokenId = null;
+            renderTokenBank();
+            renderSlotsContent();
+          }
+        });
+      });
+    }
+
+    /* ĐẶT THẺ VÀO Ô KHUYẾT */
+    function placeTokenInSlot(tokenId, slotId) {
+      // Nếu thẻ này đã ở một slot khác, gỡ khỏi slot đó
+      for (let [s, t] of slotPlacements.entries()) {
+        if (t === tokenId) {
+          slotPlacements.delete(s);
+        }
+      }
+
+      slotPlacements.set(slotId, tokenId);
+      audio.playDrop();
+
+      if (isChecked) {
+        isChecked = false;
+      }
+      updateFeedback();
+    }
+
+    /* VẼ NỘI DUNG TRONG CÁC Ô KHUYẾT */
+    function renderSlotsContent() {
+      dropzoneSlots.forEach(slot => {
+        const slotId = slot.dataset.slot;
+        const tokenId = slotPlacements.get(slotId);
+
+        slot.classList.remove('has-content', 'is-correct', 'is-wrong');
+
+        if (tokenId) {
+          const token = rawTokens.find(t => t.id === tokenId);
+          slot.classList.add('has-content');
+
+          slot.innerHTML = `
+            <div class="w-full flex items-center justify-between gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-2 text-left flex-1 min-w-0">
+                <span class="text-base flex-shrink-0">${token.icon}</span>
+                <div class="min-w-0">
+                  <div class="text-[10px] font-black uppercase text-slate-500">${token.categoryBadge}</div>
+                  <div class="text-xs font-black text-slate-900 truncate">${token.title}</div>
+                </div>
+              </div>
+              <button title="Gỡ thẻ" class="text-slate-400 hover:text-rose-600 font-black p-1 text-xs hover:bg-rose-50 rounded-lg flex-shrink-0">
+                ✕
+              </button>
+            </div>
+          `;
+        } else {
+          slot.innerHTML = `
+            <span class="text-xs font-bold text-slate-400 italic pointer-events-none">[ Chạm hoặc kéo ô từ khoá vào đây ]</span>
+          `;
+        }
+      });
+
+      updateProgress();
+    }
+
+    /* CẬP NHẬT TRẠNG THÁI TIẾN ĐỘ */
+    function updateProgress() {
+      const placedCount = slotPlacements.size;
+      progressStatus.innerHTML = `Đã điền: <strong class="text-indigo-900">${placedCount}/4</strong> vị trí`;
+
+      if (placedCount === 4 && !isChecked) {
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block animate-bounce"></span>
+          <span class="text-emerald-700 font-black">Đã điền đủ 4 vị trí! Bấm "KIỂM TRA TIẾN TRÌNH" để đánh giá.</span>
+        `;
+      }
+    }
+
+    function updateFeedback() {
+      if (selectedTokenId) {
+        const token = rawTokens.find(t => t.id === selectedTokenId);
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-amber-500 inline-block"></span>
+          <span class="text-amber-800 font-bold">Đang chọn: <strong>"${token.title}"</strong>. Hãy chạm vào ô khuyết muốn điền!</span>
+        `;
+      } else if (!isChecked) {
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block"></span>
+          <span>Sẵn sàng: Kéo hoặc chạm để đưa thẻ vào sơ đồ.</span>
+        `;
+      }
+    }
+
+    /* CHẤM ĐIỂM TIẾN TRÌNH */
+    btnCheck.addEventListener('click', () => {
+      audio.init();
+
+      if (slotPlacements.size === 0) {
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-amber-500 inline-block"></span>
+          <span class="text-amber-700 font-black">Em hãy điền ít nhất 1 ô trước khi kiểm tra!</span>
+        `;
+        audio.playError();
+        return;
+      }
+
+      isChecked = true;
+      let correctCount = 0;
+
+      dropzoneSlots.forEach(slot => {
+        const slotId = slot.dataset.slot;
+        const tokenId = slotPlacements.get(slotId);
+        slot.classList.remove('is-correct', 'is-wrong');
+
+        if (tokenId) {
+          const token = rawTokens.find(t => t.id === tokenId);
+          if (token.correctSlot === slotId) {
+            correctCount++;
+            slot.classList.add('is-correct');
+          } else {
+            slot.classList.add('is-wrong');
+          }
+        }
+      });
+
+      if (correctCount === 4) {
+        audio.playVictory();
+        triggerClassroomConfetti();
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+          <span class="text-emerald-700 font-black">Tuyệt vời! Đã hoàn thành chính xác 100% sơ đồ tiến trình!</span>
+        `;
+        setTimeout(() => {
+          explanationModal.classList.remove('hidden');
+        }, 700);
+      } else {
+        audio.playError();
+        feedbackMessage.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full bg-rose-500 inline-block"></span>
+          <span class="text-rose-700 font-black">Kết quả: Đúng ${correctCount}/4 vị trí. Hãy chỉnh sửa lại các ô viền màu đỏ!</span>
+        `;
+      }
+    });
+
+    /* LÀM LẠI & BẮT ĐẦU MÀN MỚI */
+    btnReset.addEventListener('click', restartActivity);
+    btnPlayAgainModal.addEventListener('click', () => {
+      explanationModal.classList.add('hidden');
+      restartActivity();
+    });
+    btnCloseModal.addEventListener('click', () => {
+      explanationModal.classList.add('hidden');
+    });
+
+    function restartActivity() {
+      slotPlacements.clear();
+      selectedTokenId = null;
+      isChecked = false;
+      explanationModal.classList.add('hidden');
+      shuffleTokens();
+      renderTokenBank();
+      renderSlotsContent();
+      startTimer();
+      feedbackMessage.innerHTML = `
+        <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block"></span>
+        <span>Đã xáo thẻ! Mời học sinh tiếp theo lên bảng tương tác.</span>
+      `;
+    }
+
+    /* BẬT TẮT ÂM THANH */
+    btnSoundToggle.addEventListener('click', () => {
+      audio.enabled = !audio.enabled;
+      soundIcon.textContent = audio.enabled ? '🔊' : '🔇';
+    });
+
+    /* TOÀN MÀN HÌNH */
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        projectorScreen.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    /* XUẤT BÀI TẬP VÀ IN ẤN */
+    btnExport.addEventListener('click', () => {
+      audio.init();
+      exportModal.classList.remove('hidden');
+    });
+
+    btnCloseExportModal.addEventListener('click', () => {
+      exportModal.classList.add('hidden');
+    });
+
+    btnPrintStudent.addEventListener('click', () => {
+      printTeacherKey.classList.add('hidden');
+      exportModal.classList.add('hidden');
+      window.print();
+    });
+
+    btnPrintTeacher.addEventListener('click', () => {
+      printTeacherKey.classList.remove('hidden');
+      exportModal.classList.add('hidden');
+      window.print();
+    });
+
+    /* HIỆU ỨNG PHÁO HOA ĂN MỪNG */
+    function triggerClassroomConfetti() {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'absolute inset-0 pointer-events-none z-50 w-full h-full';
+      projectorScreen.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
+      canvas.width = projectorScreen.clientWidth;
+      canvas.height = projectorScreen.clientHeight;
+
+      const particles = [];
+      const colors = ['#f59e0b', '#10b981', '#6366f1', '#ec4899', '#06b6d4', '#eab308'];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+          y: canvas.height * 0.4,
+          w: Math.random() * 12 + 6,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.9) * 12,
+          rot: Math.random() * 360,
+          vrot: (Math.random() - 0.5) * 10
+        });
+      }
+
+      let frame = 0;
+      function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.28;
+          p.rot += p.vrot;
+        });
+
+        frame++;
+        if (frame < 120) {
+          requestAnimationFrame(loop);
+        } else {
+          canvas.remove();
+        }
+      }
+      loop();
+    }
+
+    // Khởi chạy khi tải trang
+    window.addEventListener('load', () => {
+      shuffleTokens();
+      renderTokenBank();
+      setupDropzones();
+      renderSlotsContent();
+      startTimer();
+    });
+  </script>
+</body>
+</html>
