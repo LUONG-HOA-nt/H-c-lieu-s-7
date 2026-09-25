@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài Tập Ghép Đôi: Thành Tựu Văn Hóa Trung Quốc</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti cho hiệu ứng chúc mừng -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Phông chữ Google Fonts Be Vietnam Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      min-height: 100vh;
+      color: #0f172a;
+    }
+
+    /* Hiệu ứng nổi khối và tương tác của thẻ */
+    .card-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Thẻ được chọn để ghép đôi */
+    .selected-card {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.4), 0 12px 28px rgba(0,0,0,0.18) !important;
+      transform: translateY(-3px) scale(1.01) !important;
+    }
+
+    /* Điểm nối connector */
+    .connector-point {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .connector-point:hover {
+      transform: scale(1.25);
+    }
+
+    /* Kiểu dáng in ấn chuẩn A4 */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      #printWorksheet {
+        display: block !important;
+        background: #ffffff !important;
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 flex flex-col items-center justify-center">
+
+  <main id="appContainer" class="w-full max-w-7xl bg-slate-900/90 backdrop-blur-md border border-slate-700/60 rounded-3xl shadow-2xl p-4 sm:p-6 md:p-8 flex flex-col gap-5 no-print">
+    
+    <!-- THANH TIÊU ĐỀ & ĐIỀU KHIỂN (Chuẩn máy chiếu 16:9) -->
+    <header class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-700/80">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-amber-500/30">
+          🏛️
+        </div>
+        <div>
+          <span class="text-xs font-black tracking-widest uppercase text-amber-400">Lịch sử 7 • Văn hóa Đông phương</span>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">Thành Tựu Văn Hóa Trung Quốc</h1>
+          <p class="text-xs sm:text-sm text-slate-300 font-medium">Từ thế kỉ III TCN đến giữa thế kỉ XIX</p>
+        </div>
+      </div>
+
+      <!-- BỘ CÔNG CỤ: Đồng hồ + Nút thao tác -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <!-- Đồng hồ bấm giờ thi đua -->
+        <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-600 px-3.5 py-2 rounded-xl text-amber-300 font-black text-sm sm:text-base shadow-inner">
+          <span>⏱️</span>
+          <span id="timerDisplay">00:00</span>
+        </div>
+
+        <!-- Nút Xuất Bài Tập (In A4) -->
+        <button id="btnExport" class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-700/40 transition-all active:scale-95">
+          <span>📄</span>
+          <span>Xuất / In Phiếu A4</span>
+        </button>
+
+        <!-- Nút Xáo lại bài -->
+        <button id="btnReset" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow transition-all active:scale-95">
+          <span>🔄</span>
+          <span>Xáo bài</span>
+        </button>
+
+        <!-- Nút Toàn màn hình -->
+        <button id="btnFullscreen" class="flex items-center gap-1.5 bg-indigo-600/80 hover:bg-indigo-600 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow transition-all active:scale-95" title="Bật chế độ trình chiếu">
+          <span>⛶</span>
+          <span class="hidden sm:inline">Trình chiếu</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- THANH CHỈ DẪN & TRẠNG THÁI -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/80 border border-slate-700/80 px-4 py-3 rounded-2xl">
+      <div id="instructionText" class="flex items-center gap-2.5 text-xs sm:text-sm md:text-base text-slate-200 font-semibold">
+        <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+        <span>Chạm chọn thẻ ở <strong class="text-amber-300">Cột A</strong> rồi chạm thẻ ở <strong class="text-indigo-300">Cột B</strong> (hoặc kéo dây nối) để ghép cặp!</span>
+      </div>
+      <div id="pairedCounter" class="bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-black text-xs sm:text-sm px-3 py-1.5 rounded-xl">
+        Đã ghép: <span id="pairCountNum" class="text-amber-400 text-base">0</span>/4 cặp
+      </div>
+    </div>
+
+    <!-- KHU VỰC CHÍNH: 2 CỘT GHÉP ĐÔI CÙNG LỚP CANVAS TRUNG GIAN -->
+    <div id="boardArea" class="relative grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-8 items-stretch min-h-[460px] py-1 select-none">
+      
+      <!-- Canvas vẽ đường nối trực quan -->
+      <canvas id="linkCanvas" class="absolute inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+
+      <!-- CỘT A: 4 LĨNH VỰC VĂN HÓA (Thu hẹp còn 4/12 trên tablet và 3/12 trên máy chiếu) -->
+      <div class="md:col-span-4 lg:col-span-3 flex flex-col justify-between gap-3.5 z-20">
+        <div class="flex items-center justify-between px-2 pb-1 border-b border-slate-700">
+          <h2 class="text-sm sm:text-base font-black tracking-wide uppercase text-amber-400 flex items-center gap-2">
+            <span>🏷️ Cột A</span>
+            <span class="text-xs text-slate-400 font-medium">(Lĩnh vực)</span>
+          </h2>
+          <span class="text-xs text-slate-400 font-semibold">4 Mục</span>
+        </div>
+        <div id="colAContainer" class="flex flex-col justify-between gap-3.5 flex-1">
+          <!-- Các thẻ Cột A được JavaScript sinh ra tự động -->
+        </div>
+      </div>
+
+      <!-- CỘT B: CÁC THÀNH TỰU TIÊU BIỂU (Mở rộng lên 8/12 trên tablet và 9/12 trên máy chiếu) -->
+      <div class="md:col-span-8 lg:col-span-9 flex flex-col justify-between gap-3.5 z-20">
+        <div class="flex items-center justify-between px-2 pb-1 border-b border-slate-700">
+          <h2 class="text-sm sm:text-base md:text-lg font-black tracking-wide uppercase text-indigo-400 flex items-center gap-2">
+            <span>📜 Cột B</span>
+            <span class="text-xs sm:text-sm text-slate-300 font-medium">(Thành tựu tiêu biểu - Chữ to dễ đọc từ xa)</span>
+          </h2>
+          <span class="text-xs sm:text-sm text-slate-400 font-semibold">Kéo / chạm nối</span>
+        </div>
+        <div id="colBContainer" class="flex flex-col justify-between gap-3.5 flex-1">
+          <!-- Các thẻ Cột B được JavaScript sinh ra tự động -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- THANH NÚT HÀNH ĐỘNG DƯỚI CÙNG -->
+    <div class="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-700/80">
+      <div class="text-xs text-slate-400 flex items-center gap-2">
+        <span class="text-base">💡</span>
+        <span>Mẹo: Nhấn vào dấu <strong class="text-rose-400 font-bold">✕</strong> trên thẻ Cột B để hủy ghép đôi khi muốn nối lại.</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="btnClear" class="px-4 py-2.5 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm transition-all active:scale-95">
+          Gỡ tất cả
+        </button>
+        <button id="btnCheck" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm sm:text-base shadow-lg shadow-amber-500/30 transition-all transform active:scale-95 flex items-center gap-2">
+          <span>✨</span>
+          <span>Kiểm Tra Đáp Án</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL BÁO CÁO KẾT QUẢ VÀ GIẢI THÍCH CHI TIẾT -->
+  <div id="resultModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+    <div class="w-full max-w-5xl bg-slate-900/95 border-2 border-amber-500/90 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col gap-3.5 text-white max-h-[96vh] overflow-y-auto">
+      
+      <!-- Tiêu đề và tổng kết điểm số thu gọn khoa học -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-700/80">
+        <div class="flex items-center gap-3">
+          <div id="resultBadgeIcon" class="w-12 h-12 rounded-xl bg-amber-500/20 text-3xl flex items-center justify-center border border-amber-500/40">
+            🏆
+          </div>
+          <div>
+            <h3 id="resultTitle" class="text-xl sm:text-2xl font-black text-amber-400 leading-tight">Xuất Sắc!</h3>
+            <p id="resultSubtitle" class="text-xs sm:text-sm text-slate-300">Em đã trả lời chính xác tất cả các lĩnh vực!</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 font-black text-amber-300 text-base sm:text-lg shadow-inner">
+          <span>Kết quả:</span>
+          <span id="finalScore" class="text-emerald-400">4/4</span>
+          <span class="text-slate-500">•</span>
+          <span class="text-xs sm:text-sm font-semibold text-slate-300">⏱️ <span id="finalTime">00:45</span></span>
+        </div>
+      </div>
+
+      <!-- Bảng đối chiếu đáp án chi tiết hiển thị toàn diện theo dạng lưới 2 cột -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs uppercase tracking-widest font-black text-amber-300/90 flex items-center gap-1.5">
+            <span>📖</span>
+            <span>BẢNG ĐỐI CHIẾU VÀ GIẢI THÍCH ĐẦY ĐỦ KIẾN THỨC LỊCH SỬ</span>
+          </h4>
+          <span class="text-[11px] text-slate-400 font-medium">Hiển thị đầy đủ tất cả dữ kiện</span>
+        </div>
+        <div id="feedbackList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <!-- JavaScript sẽ điền kết quả chi tiết không bị cắt bớt vào đây -->
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-700/80">
+        <button id="btnCloseModal" class="px-5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs sm:text-sm transition-all active:scale-95">
+          Xem lại bài ghép
+        </button>
+        <button id="btnPlayAgain" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-amber-500/30 transition-all active:scale-95">
+          <span>🔄</span>
+          <span>Chơi Lượt Mới</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PHIẾU IN BÀI TẬP A4 (ẨN KHI XEM MÁY CHIẾU - HIỆN KHI IN HOẶC XUẤT) -->
+  <div id="printWorksheet" class="hidden bg-white text-slate-900 p-8 max-w-4xl mx-auto rounded-none border-0">
+    <!-- Tiêu đề phiếu A4 -->
+    <div class="border-b-2 border-slate-900 pb-4 mb-5 flex justify-between items-start">
+      <div>
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-600">PHIẾU HỌC TẬP LỊCH SỬ LỚP 7</h2>
+        <h1 class="text-xl font-black text-slate-900 uppercase">THÀNH TỰU VĂN HÓA TIÊU BIỂU CỦA TRUNG QUỐC</h1>
+        <p class="text-xs text-slate-500 italic">(Từ thế kỉ III TCN đến giữa thế kỉ XIX)</p>
+      </div>
+      <div class="border border-slate-400 p-3 rounded-xl w-60 text-xs flex flex-col gap-1.5">
+        <div>Họ và tên: ....................................................</div>
+        <div>Lớp: ......................... Điểm: ......................</div>
+        <div>Lời phê: .....................................................</div>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <p class="text-sm font-bold text-slate-800">
+        Yêu cầu: Em hãy dùng bút nối các nội dung ở <strong>Cột A</strong> (Lĩnh vực) tương ứng đúng với <strong>Cột B</strong> (Thành tựu tiêu biểu):
+      </p>
+    </div>
+
+    <!-- 2 Cột bài tập in ấn -->
+    <div class="grid grid-cols-2 gap-6 my-4 border border-slate-300 rounded-xl p-4">
+      <!-- Cột A in ấn -->
+      <div class="flex flex-col gap-5 border-r border-slate-300 pr-5">
+        <h3 class="text-xs font-black uppercase text-amber-700 pb-1 border-b border-amber-200">Cột A: LĨNH VỰC</h3>
+        <div class="p-3 border border-slate-300 rounded-lg flex items-center justify-between">
+          <div><strong class="text-sm">1. Tư tưởng – Tôn giáo</strong></div>
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600"></span>
+        </div>
+        <div class="p-3 border border-slate-300 rounded-lg flex items-center justify-between">
+          <div><strong class="text-sm">2. Văn học</strong></div>
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600"></span>
+        </div>
+        <div class="p-3 border border-slate-300 rounded-lg flex items-center justify-between">
+          <div><strong class="text-sm">3. Kiến trúc, điêu khắc</strong></div>
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600"></span>
+        </div>
+        <div class="p-3 border border-slate-300 rounded-lg flex items-center justify-between">
+          <div><strong class="text-sm">4. Khoa học – Kỹ thuật</strong></div>
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600"></span>
+        </div>
+      </div>
+
+      <!-- Cột B in ấn -->
+      <div class="flex flex-col gap-3.5 pl-2">
+        <h3 class="text-xs font-black uppercase text-indigo-700 pb-1 border-b border-indigo-200">Cột B: THÀNH TỰU TIÊU BIỂU</h3>
+        <div class="p-2.5 border border-slate-300 rounded-lg flex items-start gap-2 text-xs">
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600 mt-1 flex-shrink-0"></span>
+          <div>
+            <strong>a.</strong> Thể <em>phú</em> thời Hán; đỉnh cao <em>Thơ Đường</em> (Lý Bạch, Đỗ Phủ); tiểu thuyết chương hồi thời Nguyên - Thanh (Tứ đại danh tác: <em>Thủy hử, Tam quốc, Tây du kí, Hồng lâu mộng</em>).
+          </div>
+        </div>
+        <div class="p-2.5 border border-slate-300 rounded-lg flex items-start gap-2 text-xs">
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600 mt-1 flex-shrink-0"></span>
+          <div>
+            <strong>b.</strong> Xây dựng nhiều công trình kiến trúc đồ sộ (Vạn Lý Trường Thành, lăng Ly Sơn, Tử Cấm Thành, Viên Minh Viên); nghệ thuật tạc tượng Phật tinh xảo, sinh động.
+          </div>
+        </div>
+        <div class="p-2.5 border border-slate-300 rounded-lg flex items-start gap-2 text-xs">
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600 mt-1 flex-shrink-0"></span>
+          <div>
+            <strong>c.</strong> Nho giáo là hệ tư tưởng chính thống từ thời Hán; Phật giáo cực thịnh thời Đường (cho xây chùa, đúc tượng, bản in <em>Kinh Kim Cương năm 868</em> hoàn chỉnh cổ nhất thế giới).
+          </div>
+        </div>
+        <div class="p-2.5 border border-slate-300 rounded-lg flex items-start gap-2 text-xs">
+          <span class="w-4 h-4 rounded-full border-2 border-slate-600 mt-1 flex-shrink-0"></span>
+          <div>
+            <strong>d.</strong> Sử học biên soạn quy củ (<em>Sử kí, Hán thư...</em>); Y học cổ truyền châm cứu, bấm huyệt (<em>Bản thảo cương mục</em>); Tứ đại phát minh kỹ thuật (<em>giấy, in, la bàn, thuốc súng</em>).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Khung đáp án giáo viên -->
+    <div id="printAnswerKey" class="mt-4 pt-4 border-t border-dashed border-slate-400 text-xs">
+      <div class="font-bold text-slate-700">HƯỚNG DẪN ĐÁP ÁN: 1 - c | 2 - a | 3 - b | 4 - d</div>
+    </div>
+  </div>
+
+  <script>
+    /* DỮ LIỆU CHUẨN XÁC THEO TÀI LIỆU */
+    const GAME_DATA = {
+      fields: [
+        {
+          id: 'field_1',
+          code: '1',
+          name: 'Tư tưởng – Tôn giáo',
+          icon: '📜',
+          color: '#f59e0b', // amber
+          borderClass: 'border-amber-400',
+          bgClass: 'bg-amber-950/30',
+          badgeClass: 'bg-amber-500 text-slate-950'
+        },
+        {
+          id: 'field_2',
+          code: '2',
+          name: 'Văn học',
+          icon: '✍️',
+          color: '#3b82f6', // blue
+          borderClass: 'border-blue-400',
+          bgClass: 'bg-blue-950/30',
+          badgeClass: 'bg-blue-500 text-white'
+        },
+        {
+          id: 'field_3',
+          code: '3',
+          name: 'Kiến trúc, điêu khắc',
+          icon: '🏯',
+          color: '#ec4899', // pink
+          borderClass: 'border-pink-400',
+          bgClass: 'bg-pink-950/30',
+          badgeClass: 'bg-pink-500 text-white'
+        },
+        {
+          id: 'field_4',
+          code: '4',
+          name: 'Khoa học – Kỹ thuật',
+          icon: '🧭',
+          color: '#10b981', // emerald
+          borderClass: 'border-emerald-400',
+          bgClass: 'bg-emerald-950/30',
+          badgeClass: 'bg-emerald-500 text-slate-950'
+        }
+      ],
+      achievements: [
+        {
+          id: 'ach_c',
+          matchFieldId: 'field_1',
+          code: 'c',
+          title: 'Nho giáo chính thống & Phật giáo hưng thịnh',
+          desc: 'Nho giáo trở thành hệ tư tưởng chính thống từ thời Hán. Phật giáo cực thịnh dưới thời Đường: xây chùa, đúc tượng, dịch kinh; bản in Kinh Kim Cương năm 868 là sách in hoàn chỉnh cổ nhất thế giới.',
+          tags: ['Nho giáo thời Hán', 'Phật giáo thời Đường', 'Kinh Kim Cương (868)']
+        },
+        {
+          id: 'ach_a',
+          matchFieldId: 'field_2',
+          code: 'a',
+          title: 'Phú Hán, Thơ Đường & Tứ đại danh tác',
+          desc: 'Thời Hán có thể phú (Giả Nghị, Tư Mã Tương Như). Thời Đường thi ca đạt đỉnh cao (Lý Bạch, Đỗ Phủ, Bạch Cư Dị). Thời Nguyên - Thanh xuất hiện tiểu thuyết chương hồi đồ sộ (Thủy hử, Tam quốc, Tây du kí, Hồng lâu mộng).',
+          tags: ['Phú Hán', 'Thơ Đường', 'Tứ đại danh tác']
+        },
+        {
+          id: 'ach_b',
+          matchFieldId: 'field_3',
+          code: 'b',
+          title: 'Công trình đồ sộ & Tạc tượng Phật tinh xảo',
+          desc: 'Xây dựng nhiều công trình kiến trúc đồ sộ mang phong cách đặc sắc: Vạn Lý Trường Thành, lăng Ly Sơn, Tử Cấm Thành, Viên Minh Viên. Nghệ thuật tạc tượng Phật điêu khắc tinh xảo, sinh động.',
+          tags: ['Vạn Lý Trường Thành', 'Tử Cấm Thành', 'Điêu khắc tượng Phật']
+        },
+        {
+          id: 'ach_d',
+          matchFieldId: 'field_4',
+          code: 'd',
+          title: 'Sử học, Y học cổ truyền & Tứ đại phát minh',
+          desc: 'Biên soạn quốc sử quy củ (Sử kí, Hán thư...); Y học cổ truyền chữa bệnh bằng thảo dược, châm cứu (Bản thảo cương mục); Bốn phát minh kỹ thuật vĩ đại: Kỹ thuật làm giấy, kỹ thuật in, la bàn và thuốc súng.',
+          tags: ['Sử kí Tư Mã Thiên', 'Bản thảo cương mục', 'Tứ đại phát minh']
+        }
+      ]
+    };
+
+    const SoundEffects = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      playSelect() {
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(480, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(720, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      },
+      playConnect() {
+        this.init();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99]; // Đô - Mi - Sol
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.05);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.05 + 0.15);
+          osc.start(this.ctx.currentTime + idx * 0.05);
+          osc.stop(this.ctx.currentTime + idx * 0.05 + 0.15);
+        });
+      },
+      playWin() {
+        this.init();
+        if (!this.ctx) return;
+        const chords = [523.25, 659.25, 783.99, 1046.5];
+        chords.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + idx * 0.08 + 0.35);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.35);
+        });
+      }
+    };
+
+    let currentShuffledAchievements = [];
+    let userPairs = new Map(); // key: fieldId -> value: achId
+    let selectedFieldId = null;
+    let selectedAchId = null;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+
+    // Các phần tử DOM
+    const boardArea = document.getElementById('boardArea');
+    const linkCanvas = document.getElementById('linkCanvas');
+    const ctx = linkCanvas.getContext('2d');
+    const colAContainer = document.getElementById('colAContainer');
+    const colBContainer = document.getElementById('colBContainer');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const instructionText = document.getElementById('instructionText');
+    const pairCountNum = document.getElementById('pairCountNum');
+
+    /* BỘ ĐẾM GIỜ THI ĐẤU */
+    function startTimer() {
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+      const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `${mins}:${secs}`;
+    }
+
+    /* XÁO TRỘN MẢNG CỘT B */
+    function shuffleAchievements() {
+      const arr = [...GAME_DATA.achievements];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      currentShuffledAchievements = arr;
+    }
+
+    function renderColA() {
+      colAContainer.innerHTML = '';
+      GAME_DATA.fields.forEach(field => {
+        const isPaired = userPairs.has(field.id);
+        const card = document.createElement('div');
+        card.id = `card-field-${field.id}`;
+        
+        const isSelected = selectedFieldId === field.id;
+        card.className = `card-hover relative p-3 sm:p-3.5 rounded-2xl bg-slate-800/90 border-2 ${isSelected ? 'selected-card' : field.borderClass} shadow-md flex items-center justify-between gap-2.5 cursor-pointer select-none transition-all`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${field.badgeClass} font-black text-sm sm:text-base flex items-center justify-center flex-shrink-0 shadow-md">
+              ${field.code}
+            </span>
+            <div class="min-w-0">
+              <h3 class="font-black text-white text-sm sm:text-base md:text-lg leading-tight truncate sm:whitespace-normal">${field.name}</h3>
+              <span class="text-[11px] text-slate-400 font-semibold flex items-center gap-1 mt-0.5">
+                <span>${field.icon}</span> Lĩnh vực
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            ${isPaired ? '<span class="hidden xl:inline-block text-[10px] font-black text-emerald-300 bg-emerald-950/80 border border-emerald-500/50 px-1.5 py-0.5 rounded-md">Đã nối</span>' : ''}
+            <div id="dot-field-${field.id}" class="connector-point w-7 h-7 rounded-full border-2 border-white shadow-md flex items-center justify-center flex-shrink-0" style="background-color: ${field.color};">
+              <span class="w-2 h-2 rounded-full bg-white"></span>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          SoundEffects.playSelect();
+          handleFieldClick(field.id);
+        });
+
+        colAContainer.appendChild(card);
+      });
+    }
+
+    function renderColB() {
+      colBContainer.innerHTML = '';
+      currentShuffledAchievements.forEach(ach => {
+        // Tìm xem thẻ này có đang nối với field nào không
+        let connectedFieldId = null;
+        for (let [fId, aId] of userPairs.entries()) {
+          if (aId === ach.id) {
+            connectedFieldId = fId;
+            break;
+          }
+        }
+        const connectedField = connectedFieldId ? GAME_DATA.fields.find(f => f.id === connectedFieldId) : null;
+        
+        const card = document.createElement('div');
+        card.id = `card-ach-${ach.id}`;
+        const isSelected = selectedAchId === ach.id;
+        
+        let borderClass = connectedField ? connectedField.borderClass : 'border-slate-700 hover:border-slate-500';
+        let bgStyle = connectedField ? connectedField.bgClass : 'bg-slate-800/80';
+
+        card.className = `card-hover relative p-3.5 sm:p-4 rounded-2xl ${bgStyle} border-2 ${isSelected ? 'selected-card' : borderClass} shadow-md flex items-start justify-between gap-3 sm:gap-4 cursor-pointer select-none transition-all`;
+
+        card.innerHTML = `
+          <div class="flex items-start gap-3 sm:gap-4 flex-1">
+            <div id="dot-ach-${ach.id}" class="connector-point w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-md mt-1 flex items-center justify-center flex-shrink-0" style="background-color: ${connectedField ? connectedField.color : '#64748b'};">
+              <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+            </div>
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <h4 class="font-black text-amber-300 text-base sm:text-lg md:text-xl leading-snug">${ach.title}</h4>
+                ${connectedField ? `
+                  <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-3 py-1 rounded-lg text-slate-950 shadow-md" style="background-color: ${connectedField.color}">
+                    ✓ Đã ghép: ${connectedField.code}. ${connectedField.name}
+                  </span>
+                ` : ''}
+              </div>
+              <p class="text-sm sm:text-base md:text-[17px] text-slate-100 leading-relaxed font-normal">${ach.desc}</p>
+            </div>
+          </div>
+          ${connectedFieldId ? `
+            <button title="Gỡ ghép đôi này" onclick="event.stopPropagation(); removeSpecificPair('${connectedFieldId}');" class="w-8 h-8 rounded-xl bg-rose-950/90 hover:bg-rose-900 border border-rose-500/60 text-rose-200 font-black text-base flex items-center justify-center flex-shrink-0 transition-transform active:scale-90 ml-2">
+              ✕
+            </button>
+          ` : ''}
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          SoundEffects.playSelect();
+          handleAchClick(ach.id);
+        });
+
+        colBContainer.appendChild(card);
+      });
+    }
+
+    function handleFieldClick(fieldId) {
+      if (selectedAchId) {
+        // Đã chọn thẻ B trước đó -> Tạo liên kết ngay
+        pairItems(fieldId, selectedAchId);
+        selectedFieldId = null;
+        selectedAchId = null;
+      } else {
+        // Đổi hoặc chọn thẻ A
+        selectedFieldId = (selectedFieldId === fieldId) ? null : fieldId;
+      }
+      updateUI();
+    }
+
+    function handleAchClick(achId) {
+      if (selectedFieldId) {
+        // Đã chọn thẻ A trước đó -> Tạo liên kết ngay
+        pairItems(selectedFieldId, achId);
+        selectedFieldId = null;
+        selectedAchId = null;
+      } else {
+        // Đổi hoặc chọn thẻ B
+        selectedAchId = (selectedAchId === achId) ? null : achId;
+      }
+      updateUI();
+    }
+
+    function pairItems(fieldId, achId) {
+      // Nếu thành tựu này đã được gắn cho lĩnh vực khác, gỡ ra trước
+      for (let [fId, aId] of userPairs.entries()) {
+        if (aId === achId) {
+          userPairs.delete(fId);
+        }
+      }
+      userPairs.set(fieldId, achId);
+      SoundEffects.playConnect();
+      updateUI();
+    }
+
+    window.removeSpecificPair = function(fieldId) {
+      userPairs.delete(fieldId);
+      SoundEffects.playSelect();
+      updateUI();
+    };
+
+    function updateUI() {
+      renderColA();
+      renderColB();
+      pairCountNum.textContent = userPairs.size;
+
+      // Cập nhật câu nhắc hướng dẫn
+      if (selectedFieldId && !selectedAchId) {
+        const f = GAME_DATA.fields.find(item => item.id === selectedFieldId);
+        instructionText.innerHTML = `
+          <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+          <span>Đang chọn <strong class="text-amber-300">"${f.name}"</strong>. Hãy chạm vào 1 thẻ ở Cột B để kết nối!</span>
+        `;
+      } else if (selectedAchId && !selectedFieldId) {
+        const a = GAME_DATA.achievements.find(item => item.id === selectedAchId);
+        instructionText.innerHTML = `
+          <span class="w-3 h-3 rounded-full bg-indigo-400 animate-ping"></span>
+          <span>Đã chọn thành tựu. Hãy chạm vào 1 Lĩnh vực ở Cột A để kết nối!</span>
+        `;
+      } else if (userPairs.size === GAME_DATA.fields.length) {
+        instructionText.innerHTML = `
+          <span class="w-3 h-3 rounded-full bg-emerald-400 animate-bounce"></span>
+          <span class="text-emerald-300 font-bold">Đã ghép đủ 4 cặp! Hãy bấm nút "Kiểm Tra Đáp Án" để chấm điểm.</span>
+        `;
+        
+        // Tự động cuộn mượt xuống phía dưới để hiển thị rõ khu vực nút hành động và nút "Kiểm Tra Đáp Án"
+        setTimeout(() => {
+          const btnCheck = document.getElementById('btnCheck');
+          if (btnCheck) {
+            btnCheck.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            // Thêm hiệu ứng nhấp nháy thu hút sự chú ý vào nút kiểm tra
+            btnCheck.classList.add('ring-4', 'ring-amber-300', 'animate-pulse');
+            setTimeout(() => {
+              btnCheck.classList.remove('ring-4', 'ring-amber-300', 'animate-pulse');
+            }, 2500);
+          }
+        }, 220);
+      } else {
+        instructionText.innerHTML = `
+          <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+          <span>Chạm chọn thẻ ở <strong class="text-amber-300">Cột A</strong> rồi chạm thẻ ở <strong class="text-indigo-300">Cột B</strong> để ghép cặp!</span>
+        `;
+      }
+
+      requestAnimationFrame(drawConnectionLines);
+    }
+
+    function resizeCanvas() {
+      if (!boardArea || !linkCanvas) return;
+      const rect = boardArea.getBoundingClientRect();
+      linkCanvas.width = Math.round(rect.width);
+      linkCanvas.height = Math.round(rect.height);
+      drawConnectionLines();
+    }
+
+    function drawConnectionLines() {
+      if (!ctx || !linkCanvas) return;
+      const cRect = linkCanvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, linkCanvas.width, linkCanvas.height);
+
+      userPairs.forEach((achId, fieldId) => {
+        const dotA = document.getElementById(`dot-field-${fieldId}`);
+        const dotB = document.getElementById(`dot-ach-${achId}`);
+        const fieldMeta = GAME_DATA.fields.find(f => f.id === fieldId);
+
+        if (dotA && dotB) {
+          const rA = dotA.getBoundingClientRect();
+          const rB = dotB.getBoundingClientRect();
+
+          // Tính toạ độ tâm điểm nối chính xác tuyệt đối theo Canvas
+          const x1 = (rA.left + rA.width / 2) - cRect.left;
+          const y1 = (rA.top + rA.height / 2) - cRect.top;
+          const x2 = (rB.left + rB.width / 2) - cRect.left;
+          const y2 = (rB.top + rB.height / 2) - cRect.top;
+
+          // Đường cong mềm mại
+          const dx = x2 - x1;
+          const cp1x = x1 + dx * 0.45;
+          const cp1y = y1;
+          const cp2x = x1 + dx * 0.55;
+          const cp2y = y2;
+
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x2, y2);
+          ctx.strokeStyle = fieldMeta ? fieldMeta.color : '#f59e0b';
+          ctx.lineWidth = 5;
+          ctx.lineCap = 'round';
+          ctx.shadowColor = fieldMeta ? fieldMeta.color : 'rgba(245, 158, 11, 0.5)';
+          ctx.shadowBlur = 8;
+          ctx.stroke();
+          ctx.shadowBlur = 0; // reset shadow
+        }
+      });
+    }
+
+    document.getElementById('btnCheck').addEventListener('click', () => {
+      SoundEffects.init();
+      if (userPairs.size === 0) {
+        alertBox('Hãy ghép ít nhất một cặp trước khi kiểm tra!');
+        return;
+      }
+
+      let correctCount = 0;
+      const feedbackList = document.getElementById('feedbackList');
+      feedbackList.innerHTML = '';
+
+      GAME_DATA.fields.forEach(field => {
+        const userAchId = userPairs.get(field.id);
+        const userAch = GAME_DATA.achievements.find(a => a.id === userAchId);
+        const correctAch = GAME_DATA.achievements.find(a => a.matchFieldId === field.id);
+        const isCorrect = userAchId && userAch.matchFieldId === field.id;
+
+        if (isCorrect) correctCount++;
+
+        const row = document.createElement('div');
+        row.className = `p-3.5 rounded-2xl border flex flex-col justify-between gap-2 shadow-md ${
+          isCorrect 
+            ? 'bg-emerald-950/40 border-emerald-500/70 text-emerald-200' 
+            : 'bg-rose-950/40 border-rose-500/70 text-rose-200'
+        }`;
+        
+        row.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between pb-1.5 border-b ${isCorrect ? 'border-emerald-500/30' : 'border-rose-500/30'}">
+              <span class="flex items-center gap-2 font-black text-sm sm:text-base text-white">
+                <span class="text-base sm:text-lg">${isCorrect ? '✅' : '❌'}</span>
+                <span>${field.code}. ${field.name}</span>
+              </span>
+              <span class="text-[11px] font-black px-2.5 py-0.5 rounded-full ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}">
+                ${isCorrect ? 'Chính xác' : 'Chưa đúng'}
+              </span>
+            </div>
+
+            ${!isCorrect && userAch ? `
+              <div class="text-xs text-rose-300/90 font-medium mt-1.5 bg-rose-900/30 p-2 rounded-lg border border-rose-500/30">
+                <span class="font-bold">Lựa chọn của em:</span> ${userAch.title}
+              </div>
+            ` : ''}
+
+            <div class="mt-2 text-xs sm:text-[13px] text-slate-200 leading-relaxed font-normal">
+              <span class="font-bold text-amber-300 block mb-1">📌 Thành tựu đúng: ${correctAch.title}</span>
+              <p class="text-slate-300 text-justify">${correctAch.desc}</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5 pt-1.5 mt-1 border-t border-slate-700/60">
+            ${correctAch.tags.map(tag => `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-amber-300 border border-slate-600">🏷️ ${tag}</span>`).join('')}
+          </div>
+        `;
+        feedbackList.appendChild(row);
+      });
+
+      document.getElementById('finalScore').textContent = `${correctCount}/4`;
+      document.getElementById('finalTime').textContent = timerDisplay.textContent;
+
+      const resultTitle = document.getElementById('resultTitle');
+      const resultSubtitle = document.getElementById('resultSubtitle');
+      const resultBadgeIcon = document.getElementById('resultBadgeIcon');
+
+      if (correctCount === 4) {
+        SoundEffects.playWin();
+        resultTitle.textContent = "Tuyệt Vời! Xuất Sắc!";
+        resultSubtitle.textContent = "Em đã ghép chính xác tất cả các thành tựu văn hóa tiêu biểu!";
+        resultBadgeIcon.textContent = "🌟";
+        // Bắn pháo hoa ăn mừng
+        if (window.confetti) {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        }
+      } else {
+        resultTitle.textContent = `Kết quả: ${correctCount}/4 cặp đúng`;
+        resultSubtitle.textContent = "Hãy xem kỹ bảng đối chiếu bên dưới để ghi nhớ trọn vẹn kiến thức nhé!";
+        resultBadgeIcon.textContent = "📖";
+      }
+
+      document.getElementById('resultModal').classList.remove('hidden');
+    });
+
+    /* GỠ TẤT CẢ VÀ XÁO BÀI */
+    document.getElementById('btnClear').addEventListener('click', () => {
+      userPairs.clear();
+      selectedFieldId = null;
+      selectedAchId = null;
+      updateUI();
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      resetGame();
+    });
+
+    document.getElementById('btnPlayAgain').addEventListener('click', () => {
+      document.getElementById('resultModal').classList.add('hidden');
+      resetGame();
+    });
+
+    document.getElementById('btnCloseModal').addEventListener('click', () => {
+      document.getElementById('resultModal').classList.add('hidden');
+    });
+
+    function resetGame() {
+      userPairs.clear();
+      selectedFieldId = null;
+      selectedAchId = null;
+      shuffleAchievements();
+      startTimer();
+      updateUI();
+    }
+
+    /* BẬT / TẮT TOÀN MÀN HÌNH */
+    document.getElementById('btnFullscreen').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    });
+
+    /* XUẤT / IN PHIẾU BÀI TẬP A4 */
+    document.getElementById('btnExport').addEventListener('click', () => {
+      window.print();
+    });
+
+    /* THÔNG BÁO TÙY BIẾN THAY THẾ ALERT */
+    function alertBox(msg) {
+      instructionText.innerHTML = `
+        <span class="w-3 h-3 rounded-full bg-rose-400 animate-ping"></span>
+        <span class="text-rose-300 font-bold">${msg}</span>
+      `;
+      setTimeout(() => {
+        updateUI();
+      }, 3000);
+    }
+
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(resizeCanvas);
+    });
+
+    window.addEventListener('scroll', () => {
+      requestAnimationFrame(drawConnectionLines);
+    }, { passive: true });
+
+    window.addEventListener('orientationchange', () => {
+      setTimeout(resizeCanvas, 200);
+    });
+
+    function initializeApplication() {
+      shuffleAchievements();
+      startTimer();
+      updateUI();
+      resizeCanvas();
+
+      if (window.ResizeObserver && boardArea) {
+        new ResizeObserver(() => {
+          resizeCanvas();
+        }).observe(boardArea);
+      }
+    }
+
+    // Tự động khởi chạy
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApplication);
+    } else {
+      initializeApplication();
+    }
+  </script>
+</body>
+</html>
