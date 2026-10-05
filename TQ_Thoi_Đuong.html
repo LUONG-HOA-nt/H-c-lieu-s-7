@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập Kéo thả - Trung Quốc dưới thời Đường</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Thêm thư viện âm thanh và pháo hoa -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* CSS tùy chỉnh cho các hiệu ứng kéo thả */
+        .draggable {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .droppable {
+            min-height: 120px;
+            transition: background-color 0.3s, border-color 0.3s;
+            cursor: pointer; /* Thêm con trỏ chuột cho vùng đích */
+        }
+        .droppable:hover {
+            background-color: #fef9c3; /* Vàng nhạt khi hover */
+        }
+        .droppable.drag-over {
+            background-color: #fef08a !important; /* Màu vàng sáng khi kéo qua */
+            border-color: #854d0e !important; /* Viền nâu đậm khi kéo qua */
+            border-style: dashed;
+        }
+        /* Style cho thẻ đang được bấm chọn */
+        .selected-item {
+            background-color: #fde047 !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4), 8px 8px 0 0 rgba(0,0,0,1) !important;
+            transform: scale(1.03) translateY(-4px);
+            z-index: 50;
+        }
+        .correct-animation {
+            animation: pulse-green 0.5s ease-in-out;
+        }
+        .incorrect-animation {
+            animation: shake-red 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse-green {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        
+        @keyframes shake-red {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); border-color: #ef4444; }
+            40%, 80% { transform: translateX(5px); border-color: #ef4444; }
+        }
+        
+        /* CSS cho thiệp chúc mừng */
+        @keyframes card-flip {
+            0% { transform: perspective(1000px) rotateY(90deg) scale(0.5); opacity: 0; }
+            100% { transform: perspective(1000px) rotateY(0deg) scale(1); opacity: 1; }
+        }
+        .card-animate {
+            animation: card-flip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        /* Đảm bảo các item kéo vào sẽ nằm gọn gàng */
+        .droppable .drag-item {
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-200 min-h-screen font-sans text-gray-900 p-2 md:p-4">
+
+    <div class="w-full max-w-[1400px] mx-auto bg-white rounded-2xl shadow-2xl border-4 border-gray-900 overflow-hidden flex flex-col h-[95vh]">
+        
+        <!-- Header -->
+        <div class="bg-gray-900 text-yellow-300 p-3 md:p-4 text-center border-b-4 border-gray-900">
+            <h1 class="text-3xl md:text-4xl font-black mb-2 tracking-wide uppercase">Trung Quốc dưới thời Đường</h1>
+            <p class="text-xl md:text-2xl font-bold text-white leading-relaxed">
+                Kéo thả hoặc Bấm chọn thẻ vào các lĩnh vực, sau đó bấm <span class="text-white bg-blue-600 px-2 py-0.5 rounded-lg border-2 border-blue-400 inline-block transform -rotate-1 shadow-[2px_2px_0_0_rgba(59,130,246,0.5)]">KIỂM TRA</span>
+            </p>
+        </div>
+
+        <!-- Khu vực chính -->
+        <div class="flex flex-col md:flex-row flex-grow overflow-hidden">
+            
+            <!-- Cột bên trái: Khu vực đích (Drop zones) -->
+            <div class="w-full md:w-2/3 p-4 md:p-6 overflow-y-auto border-r-4 border-gray-900 bg-gray-50">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    
+                    <!-- Box Chính trị -->
+                    <div class="rounded-xl border-4 border-gray-900 bg-blue-50 overflow-hidden flex flex-col shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform">
+                        <h3 class="font-black text-white bg-blue-700 text-3xl md:text-4xl p-5 text-center uppercase tracking-wider border-b-4 border-gray-900 cursor-pointer" onclick="document.getElementById('zone-chinhtri').click()">1. Chính trị</h3>
+                        <div id="zone-chinhtri" class="droppable flex-grow bg-white/60 p-4 min-h-[180px] text-2xl font-bold" data-category="chinhtri">
+                            <!-- Items will be dropped here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Box Nông nghiệp -->
+                    <div class="rounded-xl border-4 border-gray-900 bg-green-50 overflow-hidden flex flex-col shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform">
+                        <h3 class="font-black text-white bg-green-700 text-3xl md:text-4xl p-5 text-center uppercase tracking-wider border-b-4 border-gray-900 cursor-pointer" onclick="document.getElementById('zone-nongnghiep').click()">2. Nông nghiệp</h3>
+                        <div id="zone-nongnghiep" class="droppable flex-grow bg-white/60 p-4 min-h-[180px] text-2xl font-bold" data-category="nongnghiep">
+                            <!-- Items will be dropped here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Box Thủ công nghiệp -->
+                    <div class="rounded-xl border-4 border-gray-900 bg-orange-50 overflow-hidden flex flex-col shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform">
+                        <h3 class="font-black text-white bg-orange-700 text-3xl md:text-4xl p-5 text-center uppercase tracking-wider border-b-4 border-gray-900 cursor-pointer" onclick="document.getElementById('zone-thucongnghiep').click()">3. Thủ công nghiệp</h3>
+                        <div id="zone-thucongnghiep" class="droppable flex-grow bg-white/60 p-4 min-h-[180px] text-2xl font-bold" data-category="thucongnghiep">
+                            <!-- Items will be dropped here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Box Thương nghiệp & Giao thương -->
+                    <div class="rounded-xl border-4 border-gray-900 bg-purple-50 overflow-hidden flex flex-col shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform">
+                        <h3 class="font-black text-white bg-purple-700 text-3xl md:text-4xl p-5 text-center uppercase tracking-wider border-b-4 border-gray-900 cursor-pointer" onclick="document.getElementById('zone-thuongnghiep').click()">4. Thương nghiệp</h3>
+                        <div id="zone-thuongnghiep" class="droppable flex-grow bg-white/60 p-4 min-h-[180px] text-2xl font-bold" data-category="thuongnghiep">
+                            <!-- Items will be dropped here -->
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <!-- Cột bên phải: Danh sách các mục để kéo -->
+            <div class="w-full md:w-1/3 bg-gray-100 p-4 md:p-6 flex flex-col overflow-y-auto">
+                <h2 class="text-4xl font-black mb-6 text-gray-900 text-center uppercase border-b-4 border-gray-900 pb-4">
+                    Thành tựu
+                </h2>
+                
+                <div id="items-container" class="droppable flex flex-col gap-4 min-h-[300px] flex-grow p-2 rounded-xl border-4 border-transparent hover:border-gray-300 transition-colors" data-category="pool">
+                    <!-- Danh sách các item sẽ được render bằng JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-300 p-4 md:p-6 border-t-4 border-gray-900 flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-4 z-10 shrink-0">
+            <div class="text-3xl md:text-4xl font-black text-gray-900 bg-white px-6 md:px-8 py-3 md:py-4 rounded-xl border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] text-center w-full sm:w-auto">
+                ĐIỂM: <span id="score" class="text-blue-700">0</span>/<span id="total-score" class="text-gray-900">8</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <button id="check-btn" class="flex-1 sm:flex-none px-6 md:px-10 py-3 md:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-2xl md:text-4xl border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-transform active:translate-y-1 active:shadow-none flex items-center justify-center">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 mr-2 hidden sm:block" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    KIỂM TRA
+                </button>
+                <button id="reset-btn" class="flex-1 sm:flex-none px-6 md:px-10 py-3 md:py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-2xl md:text-4xl border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] transition-transform active:translate-y-1 active:shadow-none flex items-center justify-center">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 mr-2 hidden sm:block" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    LÀM LẠI
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal Chúc mừng -->
+        <div id="success-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <!-- Khung thiệp chúc mừng thiết kế 3D -->
+            <div class="card-animate relative bg-gradient-to-br from-yellow-100 to-yellow-300 border-8 border-red-500 rounded-3xl p-8 md:p-12 max-w-2xl w-full mx-4 text-center shadow-[15px_15px_0_0_rgba(239,68,68,1)] overflow-hidden">
+                
+                <!-- Ruy băng trang trí -->
+                <div class="absolute -right-16 top-8 bg-red-600 text-white font-black py-2 px-16 transform rotate-45 border-y-4 border-yellow-400 shadow-md tracking-wider">XUẤT SẮC</div>
+                <div class="absolute -left-16 top-8 bg-red-600 text-white font-black py-2 px-16 transform -rotate-45 border-y-4 border-yellow-400 shadow-md tracking-wider">ĐIỂM 10</div>
+                
+                <div class="w-32 h-32 bg-white border-4 border-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner relative z-10">
+                    <span class="text-6xl text-center">🏆</span>
+                </div>
+                
+                <h2 class="text-5xl md:text-6xl font-black text-red-600 mb-4 uppercase drop-shadow-md relative z-10">Chúc Mừng!</h2>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 relative z-10">Bạn đã hoàn thành xuất sắc thử thách!</p>
+                
+                <button id="close-modal-btn" class="relative z-10 w-full py-4 bg-red-600 hover:bg-red-700 text-yellow-300 border-4 border-gray-900 rounded-xl font-black text-3xl transition-transform shadow-[6px_6px_0_0_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none uppercase">
+                    Chơi Lại & Nhận Quà Khác
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Dữ liệu bài tập
+        const quizData = [
+            { id: 'item1', text: 'Bộ máy nhà nước được củng cố và hoàn thiện', category: 'chinhtri' },
+            { id: 'item2', text: 'Tiếp tục mở rộng lãnh thổ', category: 'chinhtri' },
+            { id: 'item3', text: 'Thi hành chính sách giảm thuế, chế độ quân điền', category: 'nongnghiep' },
+            { id: 'item4', text: 'Áp dụng nhiều kỹ thuật canh tác mới', category: 'nongnghiep' },
+            { id: 'item5', text: 'Xuất hiện các xưởng thủ công (luyện sắt, đóng thuyền)', category: 'thucongnghiep' },
+            { id: 'item6', text: 'Xưởng thủ công quy mô hàng chục người', category: 'thucongnghiep' },
+            { id: 'item7', text: 'Nhiều thành thị trở nên phồn thịnh', category: 'thuongnghiep' },
+            { id: 'item8', text: 'Quan hệ buôn bán với hầu hết các nước châu Á', category: 'thuongnghiep' },
+            { id: 'item9', text: 'Hình thành "con đường tơ lụa" nổi tiếng', category: 'thuongnghiep' }
+        ];
+
+        // Biến trạng thái
+        let score = 0;
+        const totalItems = quizData.length;
+        document.getElementById('total-score').innerText = totalItems;
+        
+        let draggedItem = null;
+        let selectedItem = null; // Thêm biến lưu thẻ đang được bấm chọn
+
+        // --- HỆ THỐNG ÂM THANH (TONE.JS) ---
+        let isAudioInit = false;
+        let synth, polySynth, errorSynth;
+
+        async function initAudio() {
+            if (isAudioInit) return;
+            await Tone.start();
+            
+            // Âm thanh pop (khi chọn/kéo)
+            synth = new Tone.Synth({
+                oscillator: { type: "triangle" },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.1 }
+            }).toDestination();
+            
+            // Âm thanh báo đúng/thắng lợi
+            polySynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "square" },
+                envelope: { attack: 0.05, decay: 0.2, sustain: 0.4, release: 1.5 }
+            }).toDestination();
+            polySynth.volume.value = -5;
+
+            // Âm thanh báo sai
+            errorSynth = new Tone.Synth({
+                oscillator: { type: "sawtooth" },
+                envelope: { attack: 0.1, decay: 0.2, sustain: 0.2, release: 0.5 }
+            }).toDestination();
+            errorSynth.volume.value = -10;
+
+            isAudioInit = true;
+        }
+
+        // Kích hoạt âm thanh khi người dùng tương tác lần đầu để trình duyệt cho phép phát
+        window.addEventListener('click', initAudio, { once: true });
+        window.addEventListener('touchstart', initAudio, { once: true });
+
+        function playSound(type) {
+            if (!isAudioInit) return;
+            const now = Tone.now();
+            switch (type) {
+                case 'pick':
+                    synth.triggerAttackRelease("G4", "32n");
+                    break;
+                case 'drop':
+                    synth.triggerAttackRelease("C5", "16n");
+                    break;
+                case 'error':
+                    errorSynth.triggerAttackRelease("D3", "8n");
+                    break;
+                case 'win':
+                    // Fanfare chiến thắng
+                    polySynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", now);
+                    polySynth.triggerAttackRelease(["E4", "G4", "C5"], "8n", now + 0.2);
+                    polySynth.triggerAttackRelease(["G4", "C5", "E5"], "4n", now + 0.4);
+                    break;
+            }
+        }
+
+        // --- HỆ THỐNG PHÁO HOA (CANVAS-CONFETTI) ---
+        function shootFireworks() {
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                // Phóng pháo hoa từ 2 bên mép màn hình
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ef4444', '#fde047', '#3b82f6', '#22c55e']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ef4444', '#fde047', '#3b82f6', '#22c55e']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        // Khởi tạo trò chơi
+        function initGame() {
+            score = 0;
+            selectedItem = null;
+            updateScoreDisplay();
+            
+            const itemsContainer = document.getElementById('items-container');
+            itemsContainer.innerHTML = '';
+            
+            // Xóa nội dung trong các drop zone
+            document.querySelectorAll('.droppable').forEach(zone => {
+                zone.innerHTML = '';
+            });
+            
+            // Trộn mảng (Shuffle array) để thứ tự ngẫu nhiên
+            const shuffledData = [...quizData].sort(() => Math.random() - 0.5);
+            
+            // Render items
+            shuffledData.forEach(item => {
+                const el = document.createElement('div');
+                el.className = 'drag-item draggable bg-yellow-100 p-5 rounded-xl border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:bg-yellow-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition-all select-none flex items-center gap-4 mb-5 cursor-pointer';
+                el.draggable = true;
+                el.id = item.id;
+                el.dataset.category = item.category;
+                
+                // Icon trang trí nhỏ
+                el.innerHTML = `
+                    <div class="bg-gray-900 rounded-full p-3 flex-shrink-0 mt-1 self-start">
+                        <svg class="w-8 h-8 text-yellow-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </div>
+                    <span class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight">${item.text}</span>
+                `;
+                
+                // Thêm sự kiện drag
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragend', handleDragEnd);
+                
+                // Hỗ trợ cảm ứng (Touch events for mobile)
+                el.addEventListener('touchstart', handleTouchStart, {passive: false});
+                el.addEventListener('touchmove', handleTouchMove, {passive: false});
+                el.addEventListener('touchend', handleTouchEnd);
+                
+                // Hỗ trợ Click để ghép (Click-to-match)
+                el.addEventListener('click', handleItemClick);
+                
+                itemsContainer.appendChild(el);
+            });
+        }
+
+        // --- XỬ LÝ SỰ KIỆN KÉO THẢ CHO CHUỘT (DESKTOP) ---
+        function handleDragStart(e) {
+            // Không cho phép kéo nếu thẻ đã được khóa (trả lời đúng)
+            if (this.classList.contains('is-correct')) {
+                e.preventDefault();
+                return;
+            }
+            playSound('pick');
+            draggedItem = this;
+            this.classList.add('opacity-50');
+            // Đặt data chuyển đi
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.id);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('opacity-50');
+            document.querySelectorAll('.droppable').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+            draggedItem = null;
+        }
+
+        // Thiết lập các Drop Zones
+        const dropZones = document.querySelectorAll('.droppable');
+        
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('dragenter', handleDragEnter);
+            zone.addEventListener('dragleave', handleDragLeave);
+            zone.addEventListener('drop', handleDrop);
+            
+            // Lắng nghe sự kiện click cho vùng đích
+            zone.addEventListener('click', handleZoneClick);
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Cho phép drop
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.stopPropagation();
+            this.classList.remove('drag-over');
+            
+            const itemId = e.dataTransfer.getData('text/plain');
+            const itemElement = document.getElementById(itemId);
+            
+            if(!itemElement) return;
+            
+            checkAndPlaceItem(itemElement, this);
+            return false;
+        }
+
+        // --- XỬ LÝ CẢM ỨNG (MOBILE/TABLET) ---
+        let currentDropZone = null;
+        
+        function handleTouchStart(e) {
+            if (this.classList.contains('is-correct')) return; // Không cho kéo nếu đã đặt đúng
+            
+            playSound('pick');
+            draggedItem = this;
+            this.classList.add('opacity-50', 'absolute', 'z-50');
+            
+            // Lấy vị trí touch
+            const touch = e.touches[0];
+            // Đặt vị trí ban đầu
+            updateTouchItemPosition(touch.clientX, touch.clientY);
+            
+            // Ngăn chặn cuộn trang
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            if (!draggedItem) return;
+            e.preventDefault(); // Ngăn cuộn trang
+            
+            const touch = e.touches[0];
+            updateTouchItemPosition(touch.clientX, touch.clientY);
+            
+            // Tìm drop zone bên dưới ngón tay
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const dropZone = elementBelow ? elementBelow.closest('.droppable') : null;
+            
+            // Xóa highlight cũ
+            if (currentDropZone && currentDropZone !== dropZone) {
+                currentDropZone.classList.remove('drag-over');
+            }
+            
+            // Highlight zone mới
+            if (dropZone) {
+                dropZone.classList.add('drag-over');
+                currentDropZone = dropZone;
+            } else {
+                currentDropZone = null;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!draggedItem) return;
+            
+            draggedItem.classList.remove('opacity-50', 'absolute', 'z-50');
+            draggedItem.style.left = '';
+            draggedItem.style.top = '';
+            
+            if (currentDropZone) {
+                currentDropZone.classList.remove('drag-over');
+                checkAndPlaceItem(draggedItem, currentDropZone);
+            }
+            
+            draggedItem = null;
+            currentDropZone = null;
+        }
+        
+        function updateTouchItemPosition(x, y) {
+            if(draggedItem) {
+                // Căn giữa item vào ngón tay
+                const rect = draggedItem.getBoundingClientRect();
+                draggedItem.style.left = (x - rect.width / 2) + 'px';
+                draggedItem.style.top = (y - rect.height / 2) + 'px';
+            }
+        }
+
+        // --- XỬ LÝ SỰ KIỆN BẤM CHỌN (CLICK TO MATCH) ---
+        function handleItemClick(e) {
+            if (this.classList.contains('is-correct')) return; // Bỏ qua nếu đã đúng
+
+            playSound('pick');
+
+            // Nếu thẻ đang ở trong một vùng đích (không phải container gốc) -> Bấm để thu hồi về
+            if (this.parentElement.classList.contains('droppable') && this.parentElement.id !== 'items-container') {
+                document.getElementById('items-container').appendChild(this);
+                resetItemStyling(this);
+                if (selectedItem === this) selectedItem = null;
+                return;
+            }
+
+            // Nếu bấm lại chính thẻ đang chọn -> bỏ chọn
+            if (selectedItem === this) {
+                this.classList.remove('selected-item');
+                selectedItem = null;
+                return;
+            }
+
+            // Bỏ chọn thẻ trước đó (nếu có)
+            if (selectedItem) {
+                selectedItem.classList.remove('selected-item');
+            }
+
+            // Chọn thẻ mới
+            this.classList.add('selected-item');
+            selectedItem = this;
+            
+            // Thêm hiệu ứng nhấp nháy nhẹ cho các vùng đích để gợi ý
+            document.querySelectorAll('.droppable').forEach(zone => {
+                if(zone.id !== 'items-container') {
+                    zone.classList.add('ring-4', 'ring-yellow-400', 'ring-opacity-50');
+                    setTimeout(() => zone.classList.remove('ring-4', 'ring-yellow-400', 'ring-opacity-50'), 500);
+                }
+            });
+        }
+
+        function handleZoneClick(e) {
+            if (!selectedItem) return; // Nếu chưa chọn thẻ nào thì không làm gì cả
+            if (this.id === 'items-container') return; // Không bấm vùng gốc để thả vào
+            
+            const targetZone = this;
+            checkAndPlaceItem(selectedItem, targetZone);
+        }
+
+        // --- LOGIC CHÍNH: XẾP VÀ KIỂM TRA ĐÚNG/SAI ---
+        function checkAndPlaceItem(item, targetZone) {
+            if (item.classList.contains('is-correct')) return;
+
+            // Xóa trạng thái selected (nếu có)
+            item.classList.remove('selected-item');
+            if (selectedItem === item) selectedItem = null;
+
+            // Đặt thẻ vào vùng đích
+            targetZone.appendChild(item);
+            playSound('drop');
+            
+            // Đặt lại style mặc định (xóa nền đỏ nếu trước đó bị báo sai)
+            resetItemStyling(item);
+        }
+
+        function resetItemStyling(item) {
+            if (item.classList.contains('is-correct')) return;
+
+            item.className = 'drag-item draggable bg-yellow-100 p-5 rounded-xl border-4 border-gray-900 shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:bg-yellow-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_rgba(0,0,0,1)] transition-all select-none flex items-center gap-4 mb-5 cursor-pointer';
+            item.draggable = true;
+            
+            const iconContainer = item.querySelector('div');
+            iconContainer.className = 'bg-gray-900 rounded-full p-3 flex-shrink-0 mt-1 self-start';
+            const svg = item.querySelector('svg');
+            svg.className = 'w-8 h-8 text-yellow-300';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>';
+        }
+
+        function checkAnswers() {
+            let currentScore = 0;
+            let hasError = false;
+            let hasCheckedItems = false;
+            const zones = ['zone-chinhtri', 'zone-nongnghiep', 'zone-thucongnghiep', 'zone-thuongnghiep'];
+            
+            zones.forEach(zoneId => {
+                const zone = document.getElementById(zoneId);
+                const expectedCategory = zone.dataset.category;
+                const itemsInZone = zone.querySelectorAll('.drag-item');
+                
+                itemsInZone.forEach(item => {
+                    hasCheckedItems = true;
+                    if (item.dataset.category === expectedCategory) {
+                        currentScore++;
+                        markItemCorrect(item, zone);
+                    } else {
+                        hasError = true;
+                        markItemIncorrect(item, zone);
+                    }
+                });
+            });
+            
+            score = currentScore;
+            updateScoreDisplay();
+            
+            if (score === totalItems) {
+                playSound('win');
+                shootFireworks();
+                setTimeout(showSuccessModal, 800); // Đợi pháo hoa nổ một chút rồi hiện thiệp
+            } else if (hasError) {
+                playSound('error');
+            } else if (hasCheckedItems && !hasError) {
+                playSound('drop'); // Báo hiệu đã chấm những thẻ đang xếp đúng (nhưng chưa đủ)
+            }
+        }
+
+        function markItemCorrect(item, zone) {
+            item.className = 'drag-item is-correct bg-green-100 p-5 rounded-xl border-4 border-green-700 flex items-center gap-4 mb-5 shadow-sm transition-all';
+            item.draggable = false; 
+            item.style.cursor = 'default';
+            
+            // Thay icon thành dấu check
+            const iconContainer = item.querySelector('div');
+            iconContainer.className = 'bg-green-600 rounded-full p-3 flex-shrink-0 mt-1 self-start';
+            const svg = item.querySelector('svg');
+            svg.className = 'w-8 h-8 text-white';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>';
+            
+            zone.classList.add('correct-animation');
+            setTimeout(() => zone.classList.remove('correct-animation'), 500);
+        }
+
+        function markItemIncorrect(item, zone) {
+            // Thay đổi màu thẻ thành đỏ để báo sai nhưng vẫn cho phép kéo lại
+            item.classList.remove('bg-yellow-100', 'border-gray-900', 'hover:bg-yellow-300');
+            item.classList.add('bg-red-200', 'border-red-600');
+            
+            zone.classList.add('incorrect-animation');
+            item.classList.add('incorrect-animation');
+            
+            setTimeout(() => {
+                zone.classList.remove('incorrect-animation');
+                item.classList.remove('incorrect-animation');
+            }, 500);
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score').innerText = score;
+        }
+
+        function showSuccessModal() {
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('hidden');
+            
+            // Khởi động lại animation của thiệp
+            const card = modal.querySelector('.card-animate');
+            if (card) {
+                card.style.animation = 'none';
+                card.offsetHeight; // trigger reflow
+                card.style.animation = null; 
+            }
+        }
+
+        function hideSuccessModal() {
+            const modal = document.getElementById('success-modal');
+            modal.classList.add('hidden');
+        }
+
+        // --- CÁC NÚT ĐIỀU KHIỂN ---
+        document.getElementById('check-btn').addEventListener('click', checkAnswers);
+        document.getElementById('reset-btn').addEventListener('click', initGame);
+        
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            hideSuccessModal();
+            initGame();
+        });
+
+        // Khởi động khi tải trang
+        window.addEventListener('DOMContentLoaded', initGame);
+
+    </script>
+</body>
+</html>
