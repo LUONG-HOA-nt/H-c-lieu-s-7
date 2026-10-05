@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sự phát triển kinh tế thời Minh – Thanh</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+            overscroll-behavior-y: none;
+        }
+
+        /* Styling for draggable items */
+        .draggable {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Styling for drop zones */
+        .dropzone {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .dropzone.drag-over {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+            border-style: dashed;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .correct-match {
+            animation: pulse-green 1s;
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+        }
+        
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Adjusted text for better fit */
+        .classroom-text {
+            font-size: 1.25rem; /* 20px */
+            line-height: 1.75rem;
+        }
+        @media (min-width: 1024px) {
+            .classroom-text {
+                font-size: 1.5rem; /* 24px */
+                line-height: 2rem;
+            }
+        }
+        
+        /* Custom scrollbar for modal table */
+        #modal-table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #modal-table-container::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        #modal-table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        #modal-table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col p-2 md:p-4 no-select overflow-hidden">
+    
+    <header class="text-center mb-3">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-green-800 mb-1 drop-shadow-sm uppercase">Sự phát triển kinh tế thời Minh – Thanh</h1>
+        <p class="text-base md:text-lg text-gray-700 font-semibold bg-white inline-block px-4 py-1 rounded-full shadow-sm">Kéo thả (hoặc Nhấp chọn) thẻ thông tin vào đúng lĩnh vực</p>
+    </header>
+
+    <main class="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
+        
+        <!-- Cột Thẻ thông tin (Draggables) -->
+        <section class="lg:w-1/2 flex flex-col h-full">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-2 bg-yellow-200 py-2 rounded-xl shadow sticky top-0 z-10">Thẻ Thông Tin</h2>
+            <div id="source-container" class="flex-1 overflow-y-auto pr-2 flex flex-col gap-3 pb-2 rounded-xl bg-gray-50/50 p-2 border-2 border-dashed border-gray-300">
+                <!-- Thẻ được tạo bằng JS -->
+            </div>
+        </section>
+
+        <!-- Cột Lĩnh vực (Dropzones) -->
+        <section class="lg:w-1/2 flex flex-col gap-4 overflow-y-auto pr-2 pb-2 h-full relative">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-0 bg-blue-200 py-2 rounded-xl shadow sticky top-0 z-10">Lĩnh Vực Kinh Tế</h2>
+            
+            <div class="dropzone flex-1 bg-white rounded-2xl border-4 border-gray-200 p-3 flex flex-col min-h-[220px]" data-category="1">
+                <h3 class="text-2xl font-bold text-green-700 mb-2 border-b-2 border-green-200 pb-1 text-center sticky top-0 bg-white z-10">Nông nghiệp</h3>
+                <div class="target-area flex-1 flex flex-col gap-2"></div>
+            </div>
+
+            <div class="dropzone flex-1 bg-white rounded-2xl border-4 border-gray-200 p-3 flex flex-col min-h-[220px]" data-category="2">
+                <h3 class="text-2xl font-bold text-orange-700 mb-2 border-b-2 border-orange-200 pb-1 text-center sticky top-0 bg-white z-10">Thủ công nghiệp</h3>
+                <div class="target-area flex-1 flex flex-col gap-2"></div>
+            </div>
+
+            <div class="dropzone flex-1 bg-white rounded-2xl border-4 border-gray-200 p-3 flex flex-col min-h-[220px]" data-category="3">
+                <h3 class="text-2xl font-bold text-blue-700 mb-2 border-b-2 border-blue-200 pb-1 text-center sticky top-0 bg-white z-10">Thương nghiệp</h3>
+                <div class="target-area flex-1 flex flex-col gap-2"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="mt-3 flex justify-center gap-4 shrink-0 pb-2">
+        <button id="check-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-full text-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 hidden">Kiểm tra kết quả</button>
+        <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transition-transform transform hover:scale-105 active:scale-95">Làm lại</button>
+    </div>
+
+    <!-- Modal Thông báo & Bảng tổng hợp -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl transform transition-all scale-95 opacity-0 flex flex-col max-h-[95vh]" id="modal-content">
+            <div id="modal-header" class="shrink-0">
+                <div id="modal-icon" class="text-5xl md:text-6xl mb-2"></div>
+                <h2 id="modal-title" class="text-3xl font-bold mb-2"></h2>
+                <p id="modal-message" class="text-xl text-gray-600 mb-4"></p>
+            </div>
+            
+            <!-- Bảng tổng hợp (chỉ hiện khi thành công) -->
+            <div id="modal-table-container" class="hidden overflow-y-auto text-left mb-4 w-full rounded-xl border border-gray-200"></div>
+            
+            <div class="mt-auto shrink-0 pt-2">
+                <button id="close-modal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-xl w-full max-w-sm mx-auto block shadow-md">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardsData = [
+            { id: 'A', category: '2', text: 'Xuất hiện các xưởng dệt lớn, chuyên môn hóa cao ở Tô Châu, Tùng Giang.' },
+            { id: 'B', category: '1', text: 'Kỹ thuật gieo trồng có bước tiến, diện tích vượt xa thời kỳ trước, sản lượng lương thực tăng nhiều.' },
+            { id: 'C', category: '2', text: 'Trấn Cảnh Đức trở thành "kinh đô đồ sứ" với sản phẩm "trắng như ngọc, sáng như gương, mỏng như giấy, vang như chuông".' },
+            { id: 'D', category: '3', text: 'Nhiều thương cảng lớn như Quảng Châu, Phúc Kiến trở thành trung tâm giao thương sầm uất với Đông Nam Á, Ấn Độ, Ba Tư.' },
+            { id: 'E', category: '3', text: 'Thành thị Bắc Kinh, Nam Kinh phát triển phồn thịnh.' }
+        ];
+
+        const sourceContainer = document.getElementById('source-container');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const dropzones = document.querySelectorAll('.dropzone');
+        
+        let draggedItem = null;
+        let selectedItem = null; 
+
+        // Shuffle array to randomize initial card order
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Khởi tạo trò chơi
+        function initGame() {
+            sourceContainer.innerHTML = '';
+            dropzones.forEach(zone => {
+                zone.querySelector('.target-area').innerHTML = '';
+                zone.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'correct-match');
+            });
+            checkBtn.classList.add('hidden');
+            selectedItem = null;
+
+            const shuffledCards = [...cardsData];
+            shuffleArray(shuffledCards);
+
+            shuffledCards.forEach(card => {
+                const el = document.createElement('div');
+                el.classList.add('draggable', 'bg-white', 'border-l-8', 'border-gray-800', 'p-4', 'rounded-xl', 'shadow', 'classroom-text', 'font-medium', 'text-gray-800', 'hover:bg-gray-50', 'transition-all', 'duration-200');
+                el.setAttribute('draggable', 'true');
+                el.setAttribute('data-id', card.id);
+                el.setAttribute('data-target', card.category);
+                
+                el.innerHTML = `<div class="flex items-start gap-3">
+                                    <span class="bg-gray-800 text-white font-bold w-10 h-10 flex items-center justify-center rounded-lg shrink-0">${card.id}</span>
+                                    <span class="pt-1">${card.text}</span>
+                                </div>`;
+                
+                setupDragEvents(el);
+                sourceContainer.appendChild(el);
+            });
+        }
+
+        function setupDragEvents(el) {
+            // --- MOUSE EVENTS ---
+            el.addEventListener('dragstart', (e) => {
+                draggedItem = el;
+                clearSelection();
+                setTimeout(() => el.style.opacity = '0.5', 0);
+            });
+
+            el.addEventListener('dragend', () => {
+                setTimeout(() => {
+                    if(draggedItem) draggedItem.style.opacity = '1';
+                    draggedItem = null;
+                    checkCompletion();
+                }, 0);
+                dropzones.forEach(z => z.classList.remove('drag-over'));
+            });
+
+            // --- CLICK TO SELECT ---
+            el.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                if (selectedItem === el) {
+                    clearSelection();
+                } else {
+                    clearSelection();
+                    selectedItem = el;
+                    el.classList.add('ring-4', 'ring-blue-500', 'scale-[1.02]', 'shadow-xl', 'z-20', 'relative', 'bg-blue-50');
+                    el.classList.remove('hover:bg-gray-50');
+                }
+            });
+
+            // --- TOUCH EVENTS ---
+            el.addEventListener('touchstart', handleTouchStart, {passive: false});
+            el.addEventListener('touchmove', handleTouchMove, {passive: false});
+            el.addEventListener('touchend', handleTouchEnd);
+        }
+
+        function clearSelection() {
+            if (selectedItem) {
+                selectedItem.classList.remove('ring-4', 'ring-blue-500', 'scale-[1.02]', 'shadow-xl', 'z-20', 'relative', 'bg-blue-50');
+                selectedItem.classList.add('hover:bg-gray-50');
+                selectedItem = null;
+            }
+        }
+
+        let touchOffsetX = 0, touchOffsetY = 0, clone = null;
+
+        function handleTouchStart(e) {
+            if (e.target.closest('button')) return;
+            draggedItem = this;
+            const rect = this.getBoundingClientRect();
+            const touch = e.touches[0];
+            touchOffsetX = touch.clientX - rect.left;
+            touchOffsetY = touch.clientY - rect.top;
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault(); 
+            if (!clone) {
+                clearSelection();
+                const rect = draggedItem.getBoundingClientRect();
+                clone = draggedItem.cloneNode(true);
+                clone.style.position = 'fixed';
+                clone.style.left = `${rect.left}px`;
+                clone.style.top = `${rect.top}px`;
+                clone.style.width = `${rect.width}px`;
+                clone.style.opacity = '0.8';
+                clone.style.zIndex = '1000';
+                clone.style.pointerEvents = 'none'; 
+                document.body.appendChild(clone);
+                draggedItem.style.opacity = '0.3';
+            }
+            
+            const touch = e.touches[0];
+            clone.style.left = `${touch.clientX - touchOffsetX}px`;
+            clone.style.top = `${touch.clientY - touchOffsetY}px`;
+
+            dropzones.forEach(zone => zone.classList.remove('drag-over'));
+            const elementsUnder = document.elementsFromPoint(touch.clientX, touch.clientY);
+            const dropzone = elementsUnder.find(el => el.classList.contains('dropzone'));
+            if (dropzone) dropzone.classList.add('drag-over');
+        }
+
+        function handleTouchEnd(e) {
+            if (!clone) {
+                draggedItem = null;
+                return;
+            }
+            const touch = e.changedTouches[0];
+            const elementsUnder = document.elementsFromPoint(touch.clientX, touch.clientY);
+            const dropzone = elementsUnder.find(el => el.classList.contains('dropzone'));
+
+            if (dropzone) {
+                dropzone.querySelector('.target-area').appendChild(draggedItem);
+            }
+
+            document.body.removeChild(clone);
+            clone = null;
+            draggedItem.style.opacity = '1';
+            dropzones.forEach(zone => zone.classList.remove('drag-over'));
+            draggedItem = null;
+            checkCompletion();
+        }
+
+        dropzones.forEach(zone => {
+            // Click to drop functionality
+            zone.addEventListener('click', () => {
+                if (selectedItem) {
+                    zone.querySelector('.target-area').appendChild(selectedItem);
+                    clearSelection();
+                    checkCompletion();
+                }
+            });
+
+            zone.addEventListener('dragover', e => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', e => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                if (draggedItem) {
+                    zone.querySelector('.target-area').appendChild(draggedItem);
+                }
+            });
+        });
+
+        sourceContainer.addEventListener('dragover', e => e.preventDefault());
+        sourceContainer.addEventListener('drop', e => {
+            e.preventDefault();
+            if (draggedItem) sourceContainer.appendChild(draggedItem);
+        });
+        sourceContainer.addEventListener('click', () => {
+            if (selectedItem) {
+                sourceContainer.appendChild(selectedItem);
+                clearSelection();
+                checkCompletion();
+            }
+        });
+
+        function checkCompletion() {
+            if (sourceContainer.children.length === 0) {
+                checkBtn.classList.remove('hidden');
+            } else {
+                checkBtn.classList.add('hidden');
+            }
+        }
+
+        checkBtn.addEventListener('click', () => {
+            let allCorrect = true;
+
+            dropzones.forEach(zone => {
+                const categoryId = zone.dataset.category;
+                const items = zone.querySelectorAll('.draggable');
+                let zoneCorrect = true;
+
+                items.forEach(item => {
+                    const targetId = item.dataset.target;
+                    if (targetId === categoryId) {
+                        item.classList.replace('border-gray-800', 'border-green-500');
+                        item.classList.remove('bg-red-50');
+                        item.classList.add('bg-green-50');
+                    } else {
+                        item.classList.replace('border-gray-800', 'border-red-500');
+                        item.classList.replace('border-green-500', 'border-red-500');
+                        item.classList.add('bg-red-50');
+                        item.classList.remove('bg-green-50');
+                        zoneCorrect = false;
+                        allCorrect = false;
+                    }
+                });
+
+                if (items.length > 0) {
+                    if (zoneCorrect) {
+                        zone.classList.add('correct-match', 'border-green-500');
+                        zone.classList.remove('border-gray-200', 'border-red-500');
+                    } else {
+                        zone.classList.add('border-red-500');
+                        zone.classList.remove('border-gray-200', 'border-green-500');
+                    }
+                }
+            });
+
+            showModal(allCorrect);
+        });
+
+        resetBtn.addEventListener('click', initGame);
+
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalTableContainer = document.getElementById('modal-table-container');
+
+        function showModal(isSuccess) {
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // Trigger reflow
+            
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+
+            if (isSuccess) {
+                modalIcon.innerHTML = '🎉';
+                modalTitle.textContent = 'Chính xác hoàn toàn!';
+                modalTitle.className = 'text-3xl md:text-4xl font-bold mb-1 text-green-600';
+                modalMessage.textContent = 'Mời cả lớp cùng xem lại bảng tổng hợp kiến thức dưới đây:';
+                
+                // Mở rộng modal và hiển thị bảng
+                modalContent.classList.remove('max-w-md');
+                modalContent.classList.add('max-w-5xl');
+                modalTableContainer.classList.remove('hidden');
+                
+                // Render bảng tổng hợp
+                modalTableContainer.innerHTML = `
+                    <table class="w-full text-left text-lg md:text-xl border-collapse bg-white">
+                        <thead class="bg-blue-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-4 border-b border-r border-blue-200 text-blue-900 w-1/3 text-center uppercase">Lĩnh Vực Kinh Tế</th>
+                                <th class="p-4 border-b border-blue-200 text-blue-900 w-2/3 uppercase text-center">Thành Tựu / Biểu Hiện</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-5 font-bold text-green-700 align-middle border-r border-gray-200 text-center text-2xl">🌾 Nông nghiệp</td>
+                                <td class="p-5 text-gray-800">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>Kỹ thuật gieo trồng có bước tiến, diện tích vượt xa thời kỳ trước, sản lượng lương thực tăng nhiều.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-5 font-bold text-orange-700 align-middle border-r border-gray-200 text-center text-2xl">🔨 Thủ công nghiệp</td>
+                                <td class="p-5 text-gray-800">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>Xuất hiện các xưởng dệt lớn, chuyên môn hóa cao ở Tô Châu, Tùng Giang.</li>
+                                        <li>Trấn Cảnh Đức trở thành "kinh đô đồ sứ" với sản phẩm "trắng như ngọc, sáng như gương, mỏng như giấy, vang như chuông".</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="p-5 font-bold text-blue-700 align-middle border-r border-gray-200 text-center text-2xl">🚢 Thương nghiệp</td>
+                                <td class="p-5 text-gray-800">
+                                    <ul class="list-disc pl-5 space-y-2">
+                                        <li>Nhiều thương cảng lớn như Quảng Châu, Phúc Kiến trở thành trung tâm giao thương sầm uất với Đông Nam Á, Ấn Độ, Ba Tư.</li>
+                                        <li>Thành thị Bắc Kinh, Nam Kinh phát triển phồn thịnh.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                modalIcon.innerHTML = '🧐';
+                modalTitle.textContent = 'Chưa chính xác!';
+                modalTitle.className = 'text-3xl md:text-4xl font-bold mb-2 text-orange-500';
+                modalMessage.textContent = 'Có một vài thẻ chưa đúng vị trí. Hãy đóng cửa sổ này và thử xếp lại các thẻ màu đỏ nhé!';
+                
+                // Thu nhỏ modal lại và ẩn bảng
+                modalContent.classList.remove('max-w-5xl');
+                modalContent.classList.add('max-w-md');
+                modalTableContainer.classList.add('hidden');
+                modalTableContainer.innerHTML = '';
+            }
+        }
+
+        closeModalBtn.addEventListener('click', () => {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        });
+
+        // Initialize on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
