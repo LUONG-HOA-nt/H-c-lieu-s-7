@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài Tập Tương Tác: Một số nét tiêu biểu về văn hóa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #f8fafc;
+      color: #0f172a;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-item {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .card-item:active {
+      transform: scale(0.97);
+    }
+    .card-selected {
+      transform: scale(1.03) translateY(-3px);
+      box-shadow: 0 0 0 4px #fbbf24, 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+      z-index: 50;
+      border-color: #fbbf24 !important;
+    }
+    
+    .drop-zone {
+      transition: all 0.3s;
+      min-height: 110px;
+      height: 100%;
+    }
+    
+    .table-custom {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      table-layout: fixed;
+    }
+    .table-custom th, .table-custom td {
+      border: 4px solid #0f766e;
+    }
+    .table-custom th {
+      background-color: #0f766e;
+      color: #ffffff;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+    .table-custom .row-header {
+      background-color: #f0fdfa;
+      color: #0f766e;
+    }
+
+    #fireworks-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+    }
+
+    #victory-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease-in-out;
+    }
+    #victory-screen.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .certificate {
+      background: radial-gradient(circle, #fffbeb 0%, #fef3c7 100%);
+      border: 12px double #d97706;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-1deg); }
+      75% { transform: translateX(5px) rotate(1deg); }
+    }
+    .shake { animation: shake 0.4s ease-in-out; }
+  </style>
+</head>
+<body class="p-3 sm:p-5 flex flex-col items-center">
+
+  <header class="w-full max-w-[1400px] flex flex-col sm:flex-row justify-between items-center mb-2 gap-4">
+    <div class="text-center sm:text-left flex-1">
+      <h1 class="text-2xl sm:text-3xl font-black text-teal-900 tracking-tight uppercase drop-shadow-md">
+        Một số nét tiêu biểu về văn hóa
+      </h1>
+      <p class="text-base sm:text-lg text-slate-900 mt-1 font-black">
+        Chạm chọn thẻ ở dưới kho, sau đó chạm vào đúng ô trống trong bảng để ghép!
+      </p>
+    </div>
+    <div class="flex flex-wrap justify-center gap-2">
+      <button onclick="toggleFullscreen()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white font-bold text-sm sm:text-base shadow-md transition-all">
+        ⛶ Toàn màn hình
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-[1400px] flex-1 flex flex-col gap-4">
+    
+    <div class="w-full overflow-x-auto shadow-xl rounded-xl border-4 border-[#0f766e]">
+      <table class="table-custom text-lg sm:text-xl">
+        <thead>
+          <tr>
+            <th class="p-4 w-[25%] text-3xl font-black tracking-wide">Lĩnh vực</th>
+            <th colspan="2" class="p-4 w-[75%] text-3xl font-black tracking-wide">Thành tựu tiêu biểu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Hàng 1: Tín ngưỡng, tôn giáo -->
+          <tr>
+            <td class="row-header p-3 text-center font-black text-2xl align-middle">Tín ngưỡng,<br>tôn giáo</td>
+            <td class="p-2 align-top bg-white cursor-pointer hover:bg-slate-50 transition-colors w-[37.5%]" onclick="placeCard('tinnguong_1')">
+              <div id="zone-tinnguong_1" class="drop-zone w-full flex flex-col gap-2 rounded p-2 border-2 border-dashed border-slate-300"></div>
+            </td>
+            <td class="p-2 align-top bg-white cursor-pointer hover:bg-slate-50 transition-colors w-[37.5%]" onclick="placeCard('tinnguong_2')">
+              <div id="zone-tinnguong_2" class="drop-zone w-full flex flex-col gap-2 rounded p-2 border-2 border-dashed border-slate-300"></div>
+            </td>
+          </tr>
+          
+          <!-- Hàng 2: Chữ viết, văn học -->
+          <tr>
+            <td class="row-header p-3 text-center font-black text-2xl align-middle">Chữ viết,<br>văn học</td>
+            <td class="p-2 align-top bg-white cursor-pointer hover:bg-slate-50 transition-colors w-[37.5%]" onclick="placeCard('chuviet_1')">
+              <div id="zone-chuviet_1" class="drop-zone w-full flex flex-col gap-2 rounded p-2 border-2 border-dashed border-slate-300"></div>
+            </td>
+            <td class="p-2 align-top bg-white cursor-pointer hover:bg-slate-50 transition-colors w-[37.5%]" onclick="placeCard('chuviet_2')">
+              <div id="zone-chuviet_2" class="drop-zone w-full flex flex-col gap-2 rounded p-2 border-2 border-dashed border-slate-300"></div>
+            </td>
+          </tr>
+
+          <!-- Hàng 3: Kiến trúc, điêu khắc -->
+          <tr>
+            <td class="row-header p-3 text-center font-black text-2xl align-middle">Kiến trúc,<br>điêu khắc</td>
+            <td colspan="2" class="p-2 align-top bg-white cursor-pointer hover:bg-slate-50 transition-colors" onclick="placeCard('kientruc_1')">
+              <div id="zone-kientruc_1" class="drop-zone w-full flex flex-col gap-2 rounded p-2 border-2 border-dashed border-slate-300"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="pool-container" class="bg-white border-4 border-slate-300 rounded-2xl p-5 shadow-lg flex flex-col gap-4 mt-2 mb-10">
+      <div class="flex justify-between items-center border-b-4 border-slate-200 pb-3">
+        <h3 class="text-2xl sm:text-3xl font-black text-slate-900 uppercase">Kho thẻ kiến thức</h3>
+        <div class="flex gap-3">
+          <button onclick="resetGame()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold text-lg transition-colors border-2 border-slate-300">
+            🔄 Làm lại
+          </button>
+          <button id="btnCheck" onclick="checkAnswers()" class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-black text-lg shadow-md transition-all opacity-50 cursor-not-allowed border-2 border-emerald-700">
+            ✨ Kiểm Tra
+          </button>
+        </div>
+      </div>
+      
+      <div id="pool-zone" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 min-h-[120px]">
+        <!-- Render thẻ bằng JS -->
+      </div>
+    </div>
+  </main>
+
+  <div id="victory-screen">
+    <div class="certificate w-[90%] max-w-4xl p-10 rounded-2xl flex flex-col items-center text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-4 bg-teal-600"></div>
+      <div class="absolute bottom-0 left-0 w-full h-4 bg-teal-600"></div>
+      
+      <div class="text-amber-500 text-6xl mb-4">🏆</div>
+      <h1 class="text-5xl font-black text-red-600 uppercase tracking-wider mb-2">Tuyệt Vời!</h1>
+      <h2 class="text-3xl font-bold text-teal-800 mb-8">Hoàn Thành Chính Xác</h2>
+      
+      <p class="text-2xl text-slate-800 font-bold mb-6 leading-relaxed">
+        Các em đã nắm vững các nét tiêu biểu về văn hóa!
+      </p>
+      
+      <button onclick="closeVictory()" class="mt-6 px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white text-2xl font-black rounded-xl shadow-xl transition-transform active:scale-95 z-10 border-4 border-teal-800">
+        Đóng & Xem Lại Bảng
+      </button>
+    </div>
+  </div>
+
+  <canvas id="fireworks-canvas"></canvas>
+
+  <script>
+    const cardData = [
+      { id: 'c1', row: 'tinnguong', text: 'Phồn thực, tục cầu mưa,...' },
+      { id: 'c2', row: 'tinnguong', text: 'Hin-đu giáo và Phật giáo' },
+      { id: 'c3', row: 'chuviet', text: 'Sáng tạo ra vào thế kỉ VII, ngày càng được hoàn chỉnh hơn' },
+      { id: 'c4', row: 'chuviet', text: 'Văn học phong phú.' },
+      { id: 'c5', row: 'kientruc', text: 'Rất phát triển, tiêu biểu là quần thể kiến trúc Ăng-co Vát, Ăng-co Thom.' }
+    ];
+
+    const zones = [
+      'tinnguong_1', 'tinnguong_2', 
+      'chuviet_1', 'chuviet_2', 
+      'kientruc_1'
+    ];
+
+    let state = {
+      pool: [...cardData],
+      tinnguong_1: [], tinnguong_2: [],
+      chuviet_1: [], chuviet_2: [],
+      kientruc_1: [],
+      selectedCardId: null
+    };
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioContext();
+    }
+
+    function playSound(type) {
+      if (!audioCtx) initAudio();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+
+      if (type === 'select') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+      } else if (type === 'place') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now); osc.stop(now + 0.15);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+      } else if (type === 'win') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g); g.connect(audioCtx.destination);
+          o.type = 'sine'; o.frequency.value = freq;
+          g.gain.setValueAtTime(0, now);
+          g.gain.linearRampToValueAtTime(0.2, now + 0.1 + (i*0.1));
+          g.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+          o.start(now); o.stop(now + 2);
+        });
+      }
+    }
+
+    function render() {
+      const poolEl = document.getElementById('pool-zone');
+      poolEl.innerHTML = '';
+      state.pool.forEach(card => poolEl.appendChild(createCardElement(card, 'pool')));
+
+      zones.forEach(zoneId => {
+        const zoneEl = document.getElementById(`zone-${zoneId}`);
+        zoneEl.innerHTML = '';
+        state[zoneId].forEach(card => zoneEl.appendChild(createCardElement(card, zoneId)));
+        
+        // Highlight logic
+        zoneEl.parentElement.classList.toggle('bg-amber-50', state.selectedCardId !== null);
+        zoneEl.classList.toggle('border-amber-400', state.selectedCardId !== null);
+        zoneEl.classList.toggle('bg-amber-100', state.selectedCardId !== null);
+      });
+
+      const btnCheck = document.getElementById('btnCheck');
+      const placedCount = zones.reduce((sum, zoneId) => sum + state[zoneId].length, 0);
+      
+      if (placedCount === cardData.length) {
+        btnCheck.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnCheck.classList.add('animate-pulse', 'ring-4', 'ring-emerald-300');
+        // Auto scroll to check button smoothly when fully placed
+        setTimeout(() => {
+            btnCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      } else {
+        btnCheck.classList.add('opacity-50', 'cursor-not-allowed');
+        btnCheck.classList.remove('animate-pulse', 'ring-4', 'ring-emerald-300');
+      }
+    }
+
+    function createCardElement(card, currentZone) {
+      const el = document.createElement('div');
+      // Thẻ chữ to, viền cam đậm, chữ đen, font-black cực kỳ rõ nét
+      el.className = `card-item bg-orange-100 border-4 border-orange-500 text-black rounded-xl p-3 sm:p-4 cursor-pointer flex items-center justify-center min-h-[90px]`;
+      el.dataset.id = card.id;
+
+      if (state.selectedCardId === card.id) {
+        el.classList.add('card-selected');
+      }
+
+      el.innerHTML = `<p class="text-xl sm:text-2xl font-black leading-snug w-full text-center">${card.text}</p>`;
+
+      el.onclick = (e) => {
+        e.stopPropagation();
+        initAudio();
+        
+        if (state.selectedCardId === card.id) {
+          state.selectedCardId = null; // Bỏ chọn
+          playSound('select');
+        } else if (currentZone !== 'pool' && state.selectedCardId === null) {
+          // Bấm vào thẻ đang ở trên bảng để đưa lại về kho
+          moveCard(card.id, currentZone, 'pool');
+          playSound('place');
+        } else {
+          // Chọn thẻ mới
+          state.selectedCardId = card.id;
+          playSound('select');
+        }
+        render();
+      };
+      return el;
+    }
+
+    function moveCard(cardId, fromZone, toZone) {
+      const index = state[fromZone].findIndex(c => c.id === cardId);
+      if (index > -1) {
+        // Nếu ô đích đã có thẻ, đẩy thẻ cũ về kho
+        if (toZone !== 'pool' && state[toZone].length > 0) {
+            const oldCard = state[toZone].pop();
+            state['pool'].push(oldCard);
+        }
+        
+        const card = state[fromZone].splice(index, 1)[0];
+        state[toZone].push(card);
+      }
+    }
+
+    function placeCard(targetZone) {
+      if (state.selectedCardId) {
+        let fromZone = 'pool';
+        for (const zone of zones) {
+          if (state[zone].find(c => c.id === state.selectedCardId)) {
+            fromZone = zone; break;
+          }
+        }
+
+        if (fromZone !== targetZone) {
+          moveCard(state.selectedCardId, fromZone, targetZone);
+          playSound('place');
+        }
+        state.selectedCardId = null;
+        render();
+      }
+    }
+
+    function resetGame() {
+      // Xáo trộn ngẫu nhiên thẻ
+      state.pool = [...cardData].sort(() => Math.random() - 0.5);
+      zones.forEach(zone => state[zone] = []);
+      state.selectedCardId = null;
+      document.querySelectorAll('.card-item').forEach(el => {
+        el.classList.remove('bg-green-100', 'bg-red-100', 'border-green-600', 'border-red-600', 'text-green-900', 'text-red-900', 'shake');
+      });
+      render();
+    }
+
+    function checkAnswers() {
+      const placedCount = zones.reduce((sum, zoneId) => sum + state[zoneId].length, 0);
+      if (placedCount < cardData.length) return;
+
+      // Cuộn lên xem bảng kết quả
+      document.querySelector('.table-custom').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      let allCorrect = true;
+
+      // Delay check để học sinh nhìn thấy bảng vừa được cuộn lên (1.2 giây)
+      setTimeout(() => {
+        zones.forEach(zoneId => {
+          const targetRow = zoneId.split('_')[0]; 
+          const zoneEl = document.getElementById(`zone-${zoneId}`);
+          const cardEls = zoneEl.querySelectorAll('.card-item');
+          
+          cardEls.forEach(el => {
+            const cardId = el.dataset.id;
+            const card = cardData.find(c => c.id === cardId);
+            
+            // Chỉ cần thẻ được đặt đúng hàng tương ứng (Bất kể ô 1 hay ô 2)
+            if (card.row === targetRow) {
+              el.classList.add('bg-green-100', 'border-green-600', 'text-green-900');
+              el.classList.remove('bg-orange-100', 'border-orange-500', 'bg-red-100', 'border-red-600', 'text-red-900', 'text-black');
+            } else {
+              el.classList.add('bg-red-100', 'border-red-600', 'text-red-900', 'shake');
+              el.classList.remove('bg-orange-100', 'border-orange-500', 'bg-green-100', 'border-green-600', 'text-green-900', 'text-black');
+              allCorrect = false;
+            }
+          });
+        });
+
+        if (allCorrect) {
+          playSound('win');
+          setTimeout(() => {
+            document.getElementById('victory-screen').classList.add('show');
+            startFireworks();
+          }, 800);
+        } else {
+          playSound('wrong');
+          setTimeout(() => {
+            const modal = document.createElement('div');
+            modal.className = "fixed inset-0 bg-slate-900/40 z-[100] flex items-center justify-center p-4 backdrop-blur-sm";
+            modal.innerHTML = `
+              <div class="bg-white p-8 rounded-2xl text-center max-w-lg shadow-2xl border-4 border-slate-200">
+                <div class="text-6xl mb-4">😅</div>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">Vị trí chưa đúng!</h2>
+                <p class="text-xl text-slate-600 font-medium mb-6">Một số thành tựu bị xếp nhầm lĩnh vực (màu đỏ). Các em hãy xếp lại nhé!</p>
+                <button onclick="this.parentElement.parentElement.remove()" class="px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xl rounded-xl transition-transform active:scale-95 border-2 border-teal-800">Đã hiểu</button>
+              </div>
+            `;
+            document.body.appendChild(modal);
+          }, 800);
+        }
+      }, 1200); // Đợi 1.2s
+    }
+
+    function closeVictory() {
+      document.getElementById('victory-screen').classList.remove('show');
+      stopFireworks();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(e => console.log(e));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let fwWidth, fwHeight, particles = [], animationId = null, isFiring = false;
+
+    function resizeCanvas() {
+      fwWidth = window.innerWidth; fwHeight = window.innerHeight;
+      canvas.width = fwWidth; canvas.height = fwHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 2;
+        this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+        this.alpha = 1; this.decay = Math.random() * 0.015 + 0.01;
+        this.size = Math.random() * 4 + 2;
+      }
+      update() {
+        this.vy += 0.1; this.x += this.vx; this.y += this.vy; this.alpha -= this.decay;
+      }
+      draw(ctx) {
+        ctx.globalAlpha = this.alpha; ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1;
+      }
+    }
+
+    function createExplosion(x, y) {
+      const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let i = 0; i < 80; i++) particles.push(new Particle(x, y, color));
+    }
+
+    function animateFireworks() {
+      if (!isFiring) return;
+      ctx.clearRect(0, 0, fwWidth, fwHeight);
+      if (Math.random() < 0.08) createExplosion(Math.random() * fwWidth, Math.random() * (fwHeight / 2));
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update(); particles[i].draw(ctx);
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+      }
+      animationId = requestAnimationFrame(animateFireworks);
+    }
+
+    function startFireworks() { canvas.style.display = 'block'; isFiring = true; animateFireworks(); }
+    function stopFireworks() { isFiring = false; canvas.style.display = 'none'; particles = []; cancelAnimationFrame(animationId); }
+
+    // Khởi tạo Game
+    resetGame();
+  </script>
+</body>
+</html>
