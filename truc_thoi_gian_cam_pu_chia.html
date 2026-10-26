@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trục thời gian tiến trình lịch sử Cam-pu-chia</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #f0fdfa; /* Nền xanh mint rất nhạt, dịu mắt */
+      color: #0f172a;
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-item {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.15), 0 2px 6px -2px rgba(0, 0, 0, 0.1);
+    }
+    .card-item:active {
+      transform: scale(0.97);
+    }
+    .card-selected {
+      transform: scale(1.03) translateY(-3px);
+      box-shadow: 0 0 0 5px #fbbf24, 0 15px 20px -5px rgba(0, 0, 0, 0.3);
+      z-index: 50;
+      border-color: #fbbf24 !important;
+    }
+    
+    .drop-zone {
+      transition: all 0.3s;
+      height: 100%;
+      min-height: 160px;
+    }
+    
+    /* Hiệu ứng rung khi sai */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-1deg); }
+      75% { transform: translateX(5px) rotate(1deg); }
+    }
+    .shake { animation: shake 0.4s ease-in-out; }
+
+    #fireworks-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+    }
+
+    #victory-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease-in-out;
+    }
+    #victory-screen.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .certificate {
+      background: radial-gradient(circle, #fffbeb 0%, #fef3c7 100%);
+      border: 12px double #d97706;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    
+    /* Timeline styles */
+    .time-label {
+      background-color: #0f766e;
+      color: white;
+      font-weight: 900;
+      padding: 12px 20px;
+      border-radius: 16px;
+      box-shadow: 0 8px 15px -3px rgba(0,0,0,0.2);
+      text-align: center;
+      border: 3px solid #115e59;
+    }
+    .timeline-dot {
+      width: 40px;
+      height: 40px;
+      background-color: #f59e0b;
+      border-radius: 50%;
+      border: 6px solid white;
+      box-shadow: 0 0 0 4px #0f766e, 0 5px 10px rgba(0,0,0,0.3);
+      z-index: 10;
+      position: relative;
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 flex flex-col items-center">
+
+  <header class="w-full max-w-[1500px] flex justify-between items-center mb-2 gap-4">
+    <div class="text-left flex-1">
+      <h1 class="text-2xl sm:text-3xl font-black text-teal-900 tracking-tight uppercase drop-shadow-sm">
+        Trục thời gian tiến trình lịch sử Cam-pu-chia
+      </h1>
+      <p class="text-base sm:text-lg text-slate-800 mt-1 font-black">
+        Chạm chọn sự kiện ở dưới kho, sau đó chạm vào đúng ô trống trên trục để ghép!
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="toggleFullscreen()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white font-bold text-sm sm:text-base shadow-md transition-all">
+        ⛶ Toàn màn hình
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-[1500px] flex-1 flex flex-col gap-6" id="main-content">
+    
+    <!-- KHU VỰC TRỤC THỜI GIAN -->
+    <div id="timeline-container" class="w-full bg-white rounded-2xl shadow-xl border-4 border-teal-700 p-4 relative flex flex-col justify-center">
+      
+      <div class="w-full flex relative my-2">
+        <!-- Đường Line Ngang Trục Thời Gian -->
+        <div class="absolute left-10 right-10 top-1/2 -translate-y-1/2 h-5 bg-teal-700 rounded-l-full z-0 shadow-inner"></div>
+        <!-- Đầu mũi tên -->
+        <div class="absolute right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-y-[15px] border-y-transparent border-l-[24px] border-l-teal-700 z-0"></div>
+
+        <!-- Cột 1: Thế kỉ VI -->
+        <div class="flex-1 flex flex-col items-center z-10 px-2">
+          <div class="h-[210px] w-full flex flex-col justify-end pb-4">
+            <div id="zone-m1" class="drop-zone w-full border-4 border-dashed border-slate-300 rounded-2xl p-2 cursor-pointer hover:bg-slate-50 flex flex-col justify-center transition-colors bg-white" onclick="placeCard('m1')">
+                <span class="text-slate-400 font-bold text-xl text-center pointer-events-none">Thả sự kiện vào đây</span>
+            </div>
+          </div>
+          <div class="timeline-dot mb-4"></div>
+          <div class="h-[210px] w-full flex flex-col justify-start pt-4">
+            <div class="time-label text-2xl sm:text-3xl">Thế kỉ VI</div>
+          </div>
+        </div>
+
+        <!-- Cột 2: Năm 802 -->
+        <div class="flex-1 flex flex-col items-center z-10 px-2">
+          <div class="h-[210px] w-full flex flex-col justify-end pb-4">
+            <div class="time-label text-2xl sm:text-3xl">Năm 802</div>
+          </div>
+          <div class="timeline-dot mb-4"></div>
+          <div class="h-[210px] w-full flex flex-col justify-start pt-4">
+            <div id="zone-m2" class="drop-zone w-full border-4 border-dashed border-slate-300 rounded-2xl p-2 cursor-pointer hover:bg-slate-50 flex flex-col justify-center transition-colors bg-white" onclick="placeCard('m2')">
+                <span class="text-slate-400 font-bold text-xl text-center pointer-events-none">Thả sự kiện vào đây</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cột 3: Thế kỉ IX - XV -->
+        <div class="flex-1 flex flex-col items-center z-10 px-2">
+          <div class="h-[210px] w-full flex flex-col justify-end pb-4">
+            <div id="zone-m3" class="drop-zone w-full border-4 border-dashed border-slate-300 rounded-2xl p-2 cursor-pointer hover:bg-slate-50 flex flex-col justify-center transition-colors bg-white" onclick="placeCard('m3')">
+                <span class="text-slate-400 font-bold text-xl text-center pointer-events-none">Thả sự kiện vào đây</span>
+            </div>
+          </div>
+          <div class="timeline-dot mb-4"></div>
+          <div class="h-[210px] w-full flex flex-col justify-start pt-4">
+            <div class="time-label text-[22px] sm:text-[28px] leading-tight">Thế kỉ<br>IX – XV</div>
+          </div>
+        </div>
+
+        <!-- Cột 4: Thế kỉ XV -->
+        <div class="flex-1 flex flex-col items-center z-10 px-2">
+          <div class="h-[210px] w-full flex flex-col justify-end pb-4">
+            <div class="time-label text-2xl sm:text-3xl">Thế kỉ XV</div>
+          </div>
+          <div class="timeline-dot mb-4"></div>
+          <div class="h-[210px] w-full flex flex-col justify-start pt-4">
+            <div id="zone-m4" class="drop-zone w-full border-4 border-dashed border-slate-300 rounded-2xl p-2 cursor-pointer hover:bg-slate-50 flex flex-col justify-center transition-colors bg-white" onclick="placeCard('m4')">
+                <span class="text-slate-400 font-bold text-xl text-center pointer-events-none">Thả sự kiện vào đây</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- KHO THẺ VÀ NÚT BẤM -->
+    <div id="pool-container" class="bg-white border-4 border-slate-300 rounded-2xl p-4 shadow-lg flex flex-col gap-4 mb-10">
+      <div class="flex justify-between items-center border-b-4 border-slate-200 pb-3">
+        <h3 class="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-wide">Kho sự kiện</h3>
+        <div class="flex gap-3">
+          <button onclick="resetGame()" class="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-black text-xl transition-colors border-2 border-slate-400 shadow-sm">
+            🔄 Làm lại
+          </button>
+          <button id="btnCheck" onclick="checkAnswers()" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-black text-xl shadow-lg transition-all opacity-50 cursor-not-allowed border-4 border-emerald-800">
+            ✨ Kiểm Tra
+          </button>
+        </div>
+      </div>
+      
+      <div id="pool-zone" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 min-h-[160px]">
+        <!-- Render thẻ bằng JS -->
+      </div>
+    </div>
+  </main>
+
+  <div id="victory-screen">
+    <div class="certificate w-[90%] max-w-4xl p-10 rounded-3xl flex flex-col items-center text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-4 bg-teal-600"></div>
+      <div class="absolute bottom-0 left-0 w-full h-4 bg-teal-600"></div>
+      
+      <div class="text-amber-500 text-6xl mb-4">🏆</div>
+      <h1 class="text-5xl font-black text-red-600 uppercase tracking-wider mb-2">Chính Xác!</h1>
+      <h2 class="text-3xl font-bold text-teal-800 mb-8">Trục thời gian đã hoàn thiện</h2>
+      
+      <p class="text-2xl text-slate-800 font-bold mb-6 leading-relaxed">
+        Các em đã nắm vững các mốc phát triển quan trọng của vương quốc Cam-pu-chia!
+      </p>
+      
+      <button onclick="closeVictory()" class="mt-6 px-10 py-4 bg-teal-600 hover:bg-teal-700 text-white text-3xl font-black rounded-2xl shadow-2xl transition-transform active:scale-95 z-10 border-4 border-teal-900">
+        Đóng & Xem Lại
+      </button>
+    </div>
+  </div>
+
+  <canvas id="fireworks-canvas"></canvas>
+
+  <script>
+    // Dữ liệu nội dung các thẻ sự kiện
+    const cardData = [
+      { id: 'c1', targetNode: 'm1', text: 'Vương quốc của người Khơ-me hình thành với tên gọi là <span class="text-red-700">Chân Lạp</span>' },
+      { id: 'c2', targetNode: 'm2', text: 'Vua <span class="text-red-700">Giay-a-vác-man II</span> thống nhất lãnh thổ, đổi tên là <span class="text-red-700">Cam-pu-chia</span>, mở ra thời kì Ăng-co' },
+      { id: 'c3', targetNode: 'm3', text: 'Thời kì <span class="text-red-700">Ăng-co</span> (Thời kì phát triển rực rỡ nhất)' },
+      { id: 'c4', targetNode: 'm4', text: 'Vương quốc suy yếu, <span class="text-red-700">dời đô về phía nam</span> Biển Hồ (Phnôm Pênh ngày nay)' }
+    ];
+
+    const zones = ['m1', 'm2', 'm3', 'm4'];
+
+    let state = {
+      pool: [...cardData],
+      m1: [], m2: [], m3: [], m4: [],
+      selectedCardId: null
+    };
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioContext();
+    }
+
+    function playSound(type) {
+      if (!audioCtx) initAudio();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+
+      if (type === 'select') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+      } else if (type === 'place') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now); osc.stop(now + 0.15);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+        gainNode.gain.setValueAtTime(0.3, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+      } else if (type === 'win') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g); g.connect(audioCtx.destination);
+          o.type = 'sine'; o.frequency.value = freq;
+          g.gain.setValueAtTime(0, now);
+          g.gain.linearRampToValueAtTime(0.2, now + 0.1 + (i*0.1));
+          g.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+          o.start(now); o.stop(now + 2);
+        });
+      }
+    }
+
+    function render() {
+      const poolEl = document.getElementById('pool-zone');
+      poolEl.innerHTML = '';
+      state.pool.forEach(card => poolEl.appendChild(createCardElement(card, 'pool')));
+
+      zones.forEach(zoneId => {
+        const zoneEl = document.getElementById(`zone-${zoneId}`);
+        // Giữ lại span text mờ nếu zone trống
+        if (state[zoneId].length === 0) {
+            zoneEl.innerHTML = `<span class="text-slate-400 font-bold text-lg xl:text-xl text-center pointer-events-none">Thả sự kiện vào đây</span>`;
+        } else {
+            zoneEl.innerHTML = '';
+            state[zoneId].forEach(card => zoneEl.appendChild(createCardElement(card, zoneId)));
+        }
+        
+        // Highlight logic khi 1 thẻ đang được chọn
+        zoneEl.classList.toggle('border-amber-400', state.selectedCardId !== null);
+        zoneEl.classList.toggle('bg-amber-50', state.selectedCardId !== null);
+      });
+
+      const btnCheck = document.getElementById('btnCheck');
+      const placedCount = zones.reduce((sum, zoneId) => sum + state[zoneId].length, 0);
+      
+      // Nếu đã xếp đủ 4 thẻ
+      if (placedCount === cardData.length) {
+        btnCheck.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnCheck.classList.add('animate-pulse', 'ring-4', 'ring-emerald-300');
+        // Tự động cuộn xuống nút kiểm tra
+        setTimeout(() => {
+            btnCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      } else {
+        btnCheck.classList.add('opacity-50', 'cursor-not-allowed');
+        btnCheck.classList.remove('animate-pulse', 'ring-4', 'ring-emerald-300');
+      }
+    }
+
+    function createCardElement(card, currentZone) {
+      const el = document.createElement('div');
+      // Thẻ chữ to cực đại, viền 4px cam, độ tương phản cao chống loá
+      el.className = `card-item bg-[#ffedd5] border-4 border-[#ea580c] text-black rounded-xl p-3 sm:p-4 cursor-pointer flex items-center justify-center h-full w-full relative z-20`;
+      el.dataset.id = card.id;
+
+      if (state.selectedCardId === card.id) {
+        el.classList.add('card-selected');
+      }
+
+      el.innerHTML = `<p class="text-[17px] sm:text-[19px] xl:text-[21px] font-black leading-snug w-full text-center">${card.text}</p>`;
+
+      el.onclick = (e) => {
+        e.stopPropagation();
+        initAudio();
+        
+        if (state.selectedCardId === card.id) {
+          state.selectedCardId = null; // Bỏ chọn
+          playSound('select');
+        } else if (currentZone !== 'pool' && state.selectedCardId === null) {
+          // Trả thẻ về kho
+          moveCard(card.id, currentZone, 'pool');
+          playSound('place');
+        } else {
+          // Chọn thẻ mới
+          state.selectedCardId = card.id;
+          playSound('select');
+        }
+        render();
+      };
+      return el;
+    }
+
+    function moveCard(cardId, fromZone, toZone) {
+      const index = state[fromZone].findIndex(c => c.id === cardId);
+      if (index > -1) {
+        // Đẩy thẻ cũ ở zone đích về kho (nếu có)
+        if (toZone !== 'pool' && state[toZone].length > 0) {
+            const oldCard = state[toZone].pop();
+            state['pool'].push(oldCard);
+        }
+        
+        const card = state[fromZone].splice(index, 1)[0];
+        state[toZone].push(card);
+      }
+    }
+
+    function placeCard(targetZone) {
+      if (state.selectedCardId) {
+        let fromZone = 'pool';
+        for (const zone of zones) {
+          if (state[zone].find(c => c.id === state.selectedCardId)) {
+            fromZone = zone; break;
+          }
+        }
+
+        if (fromZone !== targetZone) {
+          moveCard(state.selectedCardId, fromZone, targetZone);
+          playSound('place');
+        }
+        state.selectedCardId = null;
+        render();
+      }
+    }
+
+    function resetGame() {
+      state.pool = [...cardData].sort(() => Math.random() - 0.5); // Trộn thẻ
+      zones.forEach(zone => state[zone] = []);
+      state.selectedCardId = null;
+      
+      document.querySelectorAll('.card-item').forEach(el => {
+        el.classList.remove('bg-green-100', 'bg-red-100', 'border-green-600', 'border-red-600', 'text-green-900', 'text-red-900', 'shake');
+      });
+      render();
+    }
+
+    function checkAnswers() {
+      const placedCount = zones.reduce((sum, zoneId) => sum + state[zoneId].length, 0);
+      if (placedCount < cardData.length) return;
+
+      // Cuộn lên trung tâm trục thời gian để xem kết quả
+      document.getElementById('timeline-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      let allCorrect = true;
+
+      // Độ trễ 1.2s để cuộn màn hình xong mới báo đúng/sai
+      setTimeout(() => {
+        zones.forEach(zoneId => {
+          const zoneEl = document.getElementById(`zone-${zoneId}`);
+          const cardEls = zoneEl.querySelectorAll('.card-item');
+          
+          cardEls.forEach(el => {
+            const cardId = el.dataset.id;
+            const card = cardData.find(c => c.id === cardId);
+            
+            if (card.targetNode === zoneId) {
+              // Đúng
+              el.classList.add('bg-green-100', 'border-green-600', 'text-green-900');
+              el.classList.remove('bg-[#ffedd5]', 'border-[#ea580c]', 'bg-red-100', 'border-red-600', 'text-red-900');
+              // Chữ bên trong không cần đổi, chỉ đổi màu thẻ
+            } else {
+              // Sai
+              el.classList.add('bg-red-100', 'border-red-600', 'text-red-900', 'shake');
+              el.classList.remove('bg-[#ffedd5]', 'border-[#ea580c]', 'bg-green-100', 'border-green-600', 'text-green-900');
+              allCorrect = false;
+            }
+          });
+        });
+
+        if (allCorrect) {
+          playSound('win');
+          setTimeout(() => {
+            document.getElementById('victory-screen').classList.add('show');
+            startFireworks();
+          }, 800);
+        } else {
+          playSound('wrong');
+          setTimeout(() => {
+            const modal = document.createElement('div');
+            modal.className = "fixed inset-0 bg-slate-900/40 z-[100] flex items-center justify-center p-4 backdrop-blur-sm";
+            modal.innerHTML = `
+              <div class="bg-white p-8 rounded-3xl text-center max-w-lg shadow-2xl border-4 border-slate-300">
+                <div class="text-7xl mb-4">😅</div>
+                <h2 class="text-4xl font-black text-slate-800 mb-4">Ghép chưa đúng!</h2>
+                <p class="text-2xl text-slate-700 font-bold mb-8">Một số sự kiện bị xếp sai mốc thời gian (hiển thị màu đỏ). Các em hãy xếp lại nhé!</p>
+                <button onclick="this.parentElement.parentElement.remove()" class="px-10 py-4 bg-teal-600 hover:bg-teal-700 text-white font-black text-2xl rounded-2xl transition-transform active:scale-95 border-4 border-teal-800">Đã hiểu</button>
+              </div>
+            `;
+            document.body.appendChild(modal);
+          }, 800);
+        }
+      }, 1200);
+    }
+
+    function closeVictory() {
+      document.getElementById('victory-screen').classList.remove('show');
+      stopFireworks();
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(e => console.log(e));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // --- Hiệu ứng pháo hoa ---
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let fwWidth, fwHeight, particles = [], animationId = null, isFiring = false;
+
+    function resizeCanvas() {
+      fwWidth = window.innerWidth; fwHeight = window.innerHeight;
+      canvas.width = fwWidth; canvas.height = fwHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 2;
+        this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+        this.alpha = 1; this.decay = Math.random() * 0.015 + 0.01;
+        this.size = Math.random() * 5 + 3;
+      }
+      update() {
+        this.vy += 0.1; this.x += this.vx; this.y += this.vy; this.alpha -= this.decay;
+      }
+      draw(ctx) {
+        ctx.globalAlpha = this.alpha; ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color; ctx.fill(); ctx.globalAlpha = 1;
+      }
+    }
+
+    function createExplosion(x, y) {
+      const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let i = 0; i < 100; i++) particles.push(new Particle(x, y, color));
+    }
+
+    function animateFireworks() {
+      if (!isFiring) return;
+      ctx.clearRect(0, 0, fwWidth, fwHeight);
+      if (Math.random() < 0.08) createExplosion(Math.random() * fwWidth, Math.random() * (fwHeight / 2));
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update(); particles[i].draw(ctx);
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+      }
+      animationId = requestAnimationFrame(animateFireworks);
+    }
+
+    function startFireworks() { canvas.style.display = 'block'; isFiring = true; animateFireworks(); }
+    function stopFireworks() { isFiring = false; canvas.style.display = 'none'; particles = []; cancelAnimationFrame(animationId); }
+
+    // Khởi tạo Game ban đầu
+    resetGame();
+  </script>
+</body>
+</html>
